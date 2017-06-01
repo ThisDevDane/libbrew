@@ -1,3 +1,17 @@
+/*
+ *  @Name:     keys
+ *  
+ *  @Author:   Mikkel Hjortshoej
+ *  @Email:    hjortshoej@handmade.network
+ *  @Creation: 01-06-2017 02:27:15
+ *
+ *  @Last By:   Mikkel Hjortshoej
+ *  @Last Time: 01-06-2017 02:36:24
+ *  
+ *  @Description:
+ *  
+ */
+ 
 VirtualKey :: enum {
     Cancel     = 0x03,
     Mbutton    = 0x04,

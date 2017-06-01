@@ -6,19 +6,17 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-06-2017 02:06:53
+ *  @Last Time: 01-06-2017 02:36:41
  *  
  *  @Description:
  *      Example for LibBrew
  */
 #import "fmt.odin";
-#import "libbrew.odin";
-
-alt_key := false;
+#import "libbrew/libbrew.odin";
 
 main :: proc() {
     appHandle := libbrew.get_app_handle();
-    wndHandle := libbrew.create_window(appHandle, "LibBrew Example", 800, 600);
+    wndHandle := libbrew.create_window(appHandle, "LibBrew Example", 1280, 720);
     message : libbrew.Msg;
     i : int;
 main_loop: 
