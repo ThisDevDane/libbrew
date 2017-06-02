@@ -1,1 +1,1 @@
-./build/main.exe
+./build/example.exe

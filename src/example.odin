@@ -1,12 +1,12 @@
 /*
- *  @Name:     main
+ *  @Name:     example
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-06-2017 02:36:41
+ *  @Last Time: 01-06-2017 02:47:08
  *  
  *  @Description:
  *      Example for LibBrew

@@ -1,6 +1,6 @@
 #!/bin/bash
 OTM=libbrew.otm
-SRC=src/main.odin
+SRC=src/example.odin
 
 build_success(){
 	mv -f ./src/*.exe ./build

@@ -2,10 +2,23 @@
     "folders":
     [
         {
-            "path": "."
+            "name": "Brew: Source",
+            "path": "./src",
+            "file_exclude_patterns": [ "*.ll", "*.bc" ],
         },
         {
-            "path": "..\\..\\Odin"
+            "name": "Brew: Main",
+            "path": ".",
+            "file_exclude_patterns": [ "nohup.out", "*.ll", "*.bc", "*.otm" ],
+            "folder_exclude_patterns": [ "build", "src"],
+        },
+        {
+            "name": "Brew: Build",
+            "path": "./build",
+        },
+        {
+            "name": "Odin Compiler: Core",
+            "path": "../../Odin/core",
         },
     ]
 }
