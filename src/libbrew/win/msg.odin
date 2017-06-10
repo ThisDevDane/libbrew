@@ -6,28 +6,36 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-06-2017 02:36:28
+ *  @Last Time: 10-06-2017 16:55:12
  *  
  *  @Description:
  *  
  */
 
+#import "fmt.odin";
 #import win32 "sys/windows.odin";
 
 #import "../libbrew.odin";
+#import "msg_user.odin";
 
 Msg :: union {
     NotTranslated {},
     QuitMessage {
-        Code : int,
+        code : int,
     },
     KeyDown {
-        Key : libbrew.VirtualKey,
-        PrevDown : bool,
+        key : libbrew.VirtualKey,
+        prev_down : bool,
     },    
     KeyUp {
-        Key : libbrew.VirtualKey,
+        key : libbrew.VirtualKey,
     },
+    WindowFocus {
+        enter_focus : bool,
+    },
+    KeyboardFocus {
+        enter_focus : bool,
+    }
 }
 
 poll_message :: proc(msg : ^Msg) -> bool {
@@ -36,7 +44,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
         match w_msg.message {
             case win32.WM_QUIT : {
                 l_msg := Msg.QuitMessage{};
-                l_msg.Code = int(w_msg.wparam);
+                l_msg.code = int(w_msg.wparam);
                 msg^ = l_msg;
                 return true;
             }
@@ -61,8 +69,8 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 }
 
                 l_msg := Msg.KeyDown{};
-                l_msg.Key = libbrew.VirtualKey(w_key);
-                l_msg.PrevDown = bool((w_msg.lparam >> 30) & 1);
+                l_msg.key = libbrew.VirtualKey(w_key);
+                l_msg.prev_down = bool((w_msg.lparam >> 30) & 1);
                 msg^ = l_msg;
             }
 
@@ -73,8 +81,8 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
                 l_msg := Msg.KeyDown{};
-                l_msg.Key = libbrew.VirtualKey(w_key);
-                l_msg.PrevDown = bool((w_msg.lparam >> 30) & 1);
+                l_msg.key = libbrew.VirtualKey(w_key);
+                l_msg.prev_down = bool((w_msg.lparam >> 30) & 1);
                 msg^ = l_msg;
                 return true;
             }
@@ -99,7 +107,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 }
 
                 l_msg := Msg.KeyUp{};
-                l_msg.Key = libbrew.VirtualKey(w_key);
+                l_msg.key = libbrew.VirtualKey(w_key);
                 msg^ = l_msg;
             }
 
@@ -110,9 +118,21 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
                 l_msg := Msg.KeyUp{};
-                l_msg.Key = libbrew.VirtualKey(w_key);
+                l_msg.key = libbrew.VirtualKey(w_key);
                 msg^ = l_msg;
                 return true;
+            }
+
+            case msg_user.WINDOW_FOCUS : {
+                l_msg := Msg.WindowFocus{};
+                l_msg.enter_focus = bool(w_msg.wparam);
+                msg^ = l_msg;
+            }
+
+            case msg_user.KEYBOARD_FOCUS : {
+                l_msg := Msg.KeyboardFocus{};
+                l_msg.enter_focus = bool(w_msg.wparam);
+                msg^ = l_msg;
             }
 
             case : {
@@ -148,7 +168,7 @@ poll_thread_message :: proc(msg : ^Msg) -> bool {
         match w_msg.message {
             case win32.WM_QUIT : {
                 l_msg := Msg.QuitMessage{};
-                l_msg.Code = int(w_msg.wparam);
+                l_msg.code = int(w_msg.wparam);
                 msg^ = l_msg;
             }
         }

@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-06-2017 02:36:12
+ *  @Last Time: 10-06-2017 16:51:14
  *  
  *  @Description:
  *  
@@ -16,6 +16,7 @@
 #import win32 "sys/windows.odin";
 
 #import "../libbrew.odin";
+#import "msg_user.odin";
 
 WndHandle :: win32.Hwnd;
 
@@ -23,9 +24,9 @@ create_window :: proc(app : libbrew.AppHandle, title : string, width, height : i
     wndClass : win32.WndClassExA;
     wndClass.size = size_of(win32.WndClassExA);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
-    wndClass.wndproc = _window_proc;
+    wndClass.wnd_proc = _window_proc;
     wndClass.instance = win32.Hinstance(app);
-    class_buf : [256+6]byte;
+    class_buf : [256+6]u8;
     fmt.bprintf(class_buf[..], "%s_class\x00", title);
     wndClass.class_name = &class_buf[0];
 
@@ -37,7 +38,7 @@ create_window :: proc(app : libbrew.AppHandle, title : string, width, height : i
     rect := win32.Rect{0, 0, i32(width), i32(height)};
     win32.adjust_window_rect(&rect, WINDOW_STYLE, 0);
 
-    title_buf : [256+1]byte;
+    title_buf : [256+1]u8;
     fmt.bprintf(title_buf[..], "%s\x00", title);
 
     handle := win32.create_window_ex_a(0,
@@ -60,16 +61,38 @@ create_window :: proc(app : libbrew.AppHandle, title : string, width, height : i
 }
 
 _window_proc :: proc(hwnd: win32.Hwnd, 
-                    msg: u32, 
-                    wparam: win32.Wparam, 
-                    lparam: win32.Lparam) -> win32.Lresult #cc_c {
+                     msg: u32, 
+                     wparam: win32.Wparam, 
+                     lparam: win32.Lparam) -> win32.Lresult #cc_c {
     match(msg) {    
         case win32.WM_CLOSE : {
             win32.destroy_window(hwnd);
             return 0;
         }   
         case win32.WM_DESTROY : {
-            win32.post_message(nil, win32.WM_QUIT, 0, 0); //TODO Don't do it this way, since then we can't handle multiple windows that can open or close.
+            //TODO Don't do it this way, since then we can't handle multiple windows that can open or close.
+            win32.post_message(nil, win32.WM_QUIT, 0, 0); 
+            return 0;
+        }
+
+        case win32.WM_ACTIVATEAPP  : {
+            win32.post_message(nil, msg_user.WINDOW_FOCUS, u32(wparam), 0);
+            return 0;
+        }
+
+        case win32.WM_ACTIVATE  : {
+            //TODO
+            //win32.post_message(nil, msg_user.FOCUS, 0, 0);
+            return 0;
+        }
+
+        case win32.WM_KILLFOCUS  : {
+            win32.post_message(nil, msg_user.KEYBOARD_FOCUS, 0, 0);
+            return 0;
+        }
+
+        case win32.WM_SETFOCUS  : {
+            win32.post_message(nil, msg_user.KEYBOARD_FOCUS, 0, 1);
             return 0;
         }
 

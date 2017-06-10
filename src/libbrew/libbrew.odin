@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 22:01:38
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-06-2017 02:38:15
+ *  @Last Time: 10-06-2017 16:58:05
  *  
  *  @Description:
  *      SDL like library to easy development 
@@ -28,6 +28,7 @@ TODO list
 #import win32 "sys/windows.odin";
 
 #load "win/window.odin" when ODIN_OS == "windows";
+#load "win/opengl.odin" when ODIN_OS == "windows";
 #load "win/keys.odin" when ODIN_OS == "windows";
 #load "win/misc.odin" when ODIN_OS == "windows";
 #load "win/msg.odin" when ODIN_OS == "windows";
