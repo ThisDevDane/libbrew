@@ -6,15 +6,17 @@
  *  @Creation: 01-06-2017 02:27:15
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-06-2017 02:36:24
+ *  @Last Time: 10-06-2017 19:21:29
  *  
  *  @Description:
  *  
  */
  
 VirtualKey :: enum {
+    LMouse     = 0x01,
+    RMouse     = 0x02,
     Cancel     = 0x03,
-    Mbutton    = 0x04,
+    MMouse     = 0x04,
     Back       = 0x08,
     Tab        = 0x09,
     Clear      = 0x0C,

@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 16:51:14
+ *  @Last Time: 10-06-2017 22:12:15
  *  
  *  @Description:
  *  
@@ -47,8 +47,8 @@ create_window :: proc(app : libbrew.AppHandle, title : string, width, height : i
                                        WINDOW_STYLE,
                                        win32.CW_USEDEFAULT,
                                        win32.CW_USEDEFAULT,
-                                       rect.right,
-                                       rect.bottom,
+                                       rect.right - rect.left,
+                                       rect.bottom - rect.top,
                                        nil, nil,
                                        wndClass.instance,
                                        nil);
@@ -58,6 +58,18 @@ create_window :: proc(app : libbrew.AppHandle, title : string, width, height : i
     }
 
     return WndHandle(handle);
+}
+
+get_window_size :: proc(handle : WndHandle) -> (int, int) {
+    rect : win32.Rect;
+    win32.get_client_rect(win32.Hwnd(handle), &rect);
+    return int(rect.right), int(rect.bottom); 
+}
+
+swap_buffers :: proc(wnd : WndHandle) {
+    dc := win32.get_dc(win32.Hwnd(wnd));
+    win32.swap_buffers(dc);
+    win32.release_dc(win32.Hwnd(wnd), dc);
 }
 
 _window_proc :: proc(hwnd: win32.Hwnd, 

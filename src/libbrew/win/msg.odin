@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 16:55:12
+ *  @Last Time: 10-06-2017 19:21:21
  *  
  *  @Description:
  *  
@@ -35,6 +35,15 @@ Msg :: union {
     },
     KeyboardFocus {
         enter_focus : bool,
+    },
+    MouseMove {
+        x : int,
+        y : int,
+    },
+    MouseButton {
+        key : libbrew.VirtualKey,
+        down : bool,
+        double_click : bool,
     }
 }
 
@@ -47,6 +56,13 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 l_msg.code = int(w_msg.wparam);
                 msg^ = l_msg;
                 return true;
+            }
+
+            case win32.WM_MOUSEMOVE : {
+                l_msg := Msg.MouseMove{};
+                l_msg.x = int(win32.LOWORD(w_msg.lparam));
+                l_msg.y = int(win32.HIWORD(w_msg.lparam));
+                msg^ = l_msg;
             }
 
             case win32.WM_KEYDOWN : {
@@ -121,6 +137,78 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 l_msg.key = libbrew.VirtualKey(w_key);
                 msg^ = l_msg;
                 return true;
+            }
+
+            case win32.WM_LBUTTONDOWN : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.LMouse;
+                l_msg.down = true;
+                l_msg.double_click = false;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_LBUTTONUP : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.LMouse;
+                l_msg.down = false;
+                l_msg.double_click = false;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_LBUTTONDBLCLK : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.LMouse;
+                l_msg.down = true;
+                l_msg.double_click = true;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_RBUTTONDOWN : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.RMouse;
+                l_msg.down = true;
+                l_msg.double_click = false;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_RBUTTONUP : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.RMouse;
+                l_msg.down = false;
+                l_msg.double_click = false;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_RBUTTONDBLCLK : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.RMouse;
+                l_msg.down = true;
+                l_msg.double_click = true;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_MBUTTONDOWN : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.MMouse;
+                l_msg.down = true;
+                l_msg.double_click = false;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_MBUTTONUP : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.MMouse;
+                l_msg.down = false;
+                l_msg.double_click = false;
+                msg^ = l_msg;
+            }
+
+            case win32.WM_MBUTTONDBLCLK : {
+                l_msg := Msg.MouseButton{};
+                l_msg.key = libbrew.VirtualKey.MMouse;
+                l_msg.down = true;
+                l_msg.double_click = true;
+                msg^ = l_msg;
             }
 
             case msg_user.WINDOW_FOCUS : {
