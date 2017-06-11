@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 17:04:20
+ *  @Last Time: 11-06-2017 17:26:36
  *  
  *  @Description:
  *  
@@ -295,9 +295,9 @@ render_proc :: proc(state : ^State, window_width, window_height : int) {
 begin_panel :: proc(label : string, pos, size : Vec2) -> bool {
     set_next_window_pos(pos, GuiSetCond.Always);
     set_next_window_size(size, GuiSetCond.Always);
-    return begin(label, nil, GuiWindowFlags.NoTitleBar | 
-                             GuiWindowFlags.NoMove | 
-                             GuiWindowFlags.NoResize |
+    return begin(label, nil, GuiWindowFlags.NoTitleBar            | 
+                             GuiWindowFlags.NoMove                | 
+                             GuiWindowFlags.NoResize              |
                              GuiWindowFlags.NoBringToFrontOnFocus | 
                              GuiWindowFlags.ShowBorders);
 }

@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 22:01:38
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 19:59:15
+ *  @Last Time: 11-06-2017 18:07:41
  *  
  *  @Description:
  *      SDL like library to ease development 
@@ -15,12 +15,22 @@
 /*
 TODO list
     [X] Window Creation
-    [X] Get Input from message queue
-    [?] Make an OpenGL Context
+    [ ] Get Input from message queue
+        [X] Sys key
+        [X] Key
+        [ ] WM_CHAR
+    [X] Make an OpenGL Context
+    [ ] Messages
+        [ ] Handle mouse enter and leave
+        [ ] Handle window destory messages better
     [ ] Provide mechanism to hot-reload DLLs
+        [ ]  Maybe make the app go through a DLL
+    [ ] Dear ImGui
+        [ ] Handle passing the Context through a DLL boundry
     [ ] Traverse File Directory
     [ ] Maybe handle file I/O or just use os.odin?
-    [ ] Handle Unicode in window title and such.
+    [ ] Handle Unicode everywhere.
+    [ ] Audio!
 */
 
 #import "fmt.odin";

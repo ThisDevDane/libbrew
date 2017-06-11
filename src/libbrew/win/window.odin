@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 16:51:35
+ *  @Last Time: 11-06-2017 17:41:04
  *  
  *  @Description:
  *  
@@ -125,6 +125,10 @@ get_mouse_pos :: proc(handle : WndHandle) -> (int, int) {
 
 maximize_window :: proc(handle : WndHandle) {
     win32.show_window(win32.Hwnd(handle), 3);
+}
+
+restore_window :: proc(handle : WndHandle) {
+    win32.show_window(win32.Hwnd(handle), 9);
 }
 
 swap_buffers :: proc(wnd : WndHandle) {

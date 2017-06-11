@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 17:08:25
+ *  @Last Time: 11-06-2017 17:54:10
  *  
  *  @Description:
  *      Example for LibBrew
@@ -46,6 +46,7 @@ main :: proc() {
     dragging := false;
     sizing_x := false;
     sizing_y := false;
+    maximized  := false;
 
 main_loop: 
     for {
@@ -79,6 +80,7 @@ main_loop:
                 }
 
                 case libbrew.Msg.WindowFocus : {
+                    fmt.println(msg);
                     window_focus = msg.enter_focus;
                 }
 
@@ -109,33 +111,22 @@ main_loop:
         imgui.begin_main_menu_bar();
         {
             imgui.begin_menu("LibBrew Example  |###WindowTitle", false);
-            if imgui.is_item_hovered() {
-                if imgui.is_item_clicked(0) {
-                    dragging = true;
-               }
+            if imgui.is_item_clicked(0) {
+                dragging = true;
+                if imgui.is_mouse_double_clicked(0) && !maximized {
+                    libbrew.maximize_window(wnd_handle);
+                    dragging = false;
+                    maximized = true;
+                }
             }
             if imgui.begin_menu("Misc###LibbrewMain") {
                 imgui.menu_item("LibBrew Info", false);
                 imgui.menu_item("OpenGL Info", false);
                 imgui.separator();
-                if imgui.menu_item("Maximize") {
-                    libbrew.maximize_window(wnd_handle);
-                }
                 imgui.menu_item("Toggle Fullscreen", "Alt+Enter", false);
                 if imgui.menu_item("Exit", "Esc") {
                     break main_loop;
                 }
-                imgui.end_menu();
-            }
-        }
-        imgui.end_main_menu_bar();
-        imgui.begin_main_menu_bar();
-        {
-            if imgui.begin_menu("TEST") {
-                imgui.separator();
-                imgui.separator();
-                imgui.separator();
-                imgui.separator();
                 imgui.end_menu();
             }
         }
@@ -146,6 +137,10 @@ main_loop:
             imgui.get_mouse_drag_delta(&d, 0, 0);
             x, y := libbrew.get_window_pos(wnd_handle);
             libbrew.set_window_pos(wnd_handle, x + int(d.x), y + int(d.y));
+            if maximized && d.x != 0 && d.y != 0 {
+                maximized = false;
+                libbrew.restore_window(wnd_handle);
+            }
         } else {
             dragging = false;
         }
@@ -201,6 +196,7 @@ main_loop:
 
         new_w : int;
         new_h : int;
+       
         if (sizing_x || sizing_y) && lm_down {
             new_w = sizing_x ? mpos_x+2 : width;
             new_h = sizing_y ? mpos_y+2 : height;
