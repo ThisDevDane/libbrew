@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 02:09:26
+ *  @Last Time: 11-06-2017 14:43:08
  *  
  *  @Description:
  *      Example for LibBrew
@@ -19,7 +19,8 @@
 
 main :: proc() {
     app_handle := libbrew.get_app_handle();
-    wnd_handle := libbrew.create_window(app_handle, "LibBrew Example", 1280, 720);
+    width, height := 1280, 720;
+    wnd_handle := libbrew.create_window(app_handle, "LibBrew Example", width, height);
     glCtx      := libbrew.create_gl_context(wnd_handle, 3, 3);
     gl.load_functions();
 
@@ -29,9 +30,6 @@ main :: proc() {
 
     libbrew.swap_interval(-1);
     gl.clear_color(41/255.0, 57/255.0, 84/255.0, 1);
-    width, height := libbrew.get_window_size(wnd_handle);
-    gl.viewport(0, 0, i32(width), i32(height));
-    gl.scissor(0, 0, i32(width), i32(height));
 
     message : libbrew.Msg;
     window_focus : bool;
@@ -41,7 +39,7 @@ main :: proc() {
     rm_down : bool;
     add_data : bool = false;
     scale_by_max : bool = false;
-    frame_list := make_frame_time_list(100);
+    frame_list := make_frame_time_list(300);
     time_data := libbrew.create_time_data();
 
 main_loop: 
@@ -82,6 +80,13 @@ main_loop:
                     mpos_x = msg.x;
                     mpos_y = msg.y;
                 }
+
+                case libbrew.Msg.SizeChange : {
+                    width  = msg.width;
+                    height = msg.height;
+                    gl.viewport(0, 0, i32(width), i32(height));
+                    gl.scissor( 0, 0, i32(width), i32(height));
+                }
             }
         }
         dt := libbrew.time(&time_data);
@@ -108,24 +113,27 @@ main_loop:
             }
         }
         imgui.end_main_menu_bar();
+
         if add_data {
             add_frame_time(frame_list, f32(dt) * 1000);
         }
+
         if imgui.begin("TEST") {
             imgui.checkbox("Record Data", &add_data);            
             imgui.checkbox("Scale by max value", &scale_by_max);            
             size := imgui.get_window_size();
-            imgui.plot_histogram("##FrameTimes", frame_list.values, 0, scale_by_max ? frame_list.max_value : 33.3333, imgui.Vec2{size.x - 15, 200});
+            imgui.plot_histogram("##FrameTimes", frame_list.values, 
+                                 frame_list.min_value - 10, 
+                                 scale_by_max ? frame_list.max_value + 5 : 33.3333, 
+                                 imgui.Vec2{size.x - 15, 200});
             imgui.text("Lowest FrameRate: %f", 1.0 / (frame_list.max_value / 1000) );
             imgui.text("Highest FrameRate: %f", 1.0 / (frame_list.min_value / 1000) );
             imgui.end();
         }
-        
 
         imgui.show_metrics_window(nil);
 
         imgui.render_proc(dear_state, width, height);
-
         libbrew.swap_buffers(wnd_handle);
         libbrew.sleep(1);
     }

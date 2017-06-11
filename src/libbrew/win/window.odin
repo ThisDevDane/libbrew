@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 22:12:15
+ *  @Last Time: 11-06-2017 14:32:51
  *  
  *  @Description:
  *  
@@ -15,12 +15,13 @@
 #import "fmt.odin";
 #import win32 "sys/windows.odin";
 
-#import "../libbrew.odin";
+#import "misc.odin";
 #import "msg_user.odin";
+#import lib_msg "msg.odin";
 
 WndHandle :: win32.Hwnd;
 
-create_window :: proc(app : libbrew.AppHandle, title : string, width, height : int) -> WndHandle {
+create_window :: proc(app : misc.AppHandle, title : string, width, height : int) -> WndHandle {
     wndClass : win32.WndClassExA;
     wndClass.size = size_of(win32.WndClassExA);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
@@ -31,6 +32,7 @@ create_window :: proc(app : libbrew.AppHandle, title : string, width, height : i
     wndClass.class_name = &class_buf[0];
 
     if win32.register_class_ex_a(&wndClass) == 0 {
+        fmt.println(win32.get_last_error());
         panic("LibBrew: Could not register window class");
     }
 
@@ -108,9 +110,12 @@ _window_proc :: proc(hwnd: win32.Hwnd,
             return 0;
         }
 
-      /*case win32.WM_SIZE : {
+        case win32.WM_SIZE : {
+            lib_msg.window_resized = true;
+            lib_msg.window_new_width  = int(win32.LOWORD(lparam));
+            lib_msg.window_new_height = int(win32.HIWORD(lparam));
             return 0;
-        }*/
+        }
 
         case : {
             return win32.def_window_proc_a(hwnd, msg, wparam, lparam);

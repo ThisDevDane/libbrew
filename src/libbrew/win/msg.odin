@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 22:59:53
+ *  @Last Time: 11-06-2017 14:42:35
  *  
  *  @Description:
  *  
@@ -18,14 +18,18 @@
 #import "../libbrew.odin";
 #import "msg_user.odin";
 
+window_resized := false;
+window_new_width  : int;
+window_new_height : int;
+
 Msg :: union {
     NotTranslated {},
     QuitMessage {
         code : int,
     },
     Key {
-        key : libbrew.VirtualKey,
-        down : bool,
+        key       : libbrew.VirtualKey,
+        down      : bool,
         prev_down : bool,
     },    
     WindowFocus {
@@ -39,13 +43,24 @@ Msg :: union {
         y : int,
     },
     MouseButton {
-        key : libbrew.VirtualKey,
-        down : bool,
+        key          : libbrew.VirtualKey,
+        down         : bool,
         double_click : bool,
+    },
+    SizeChange {
+        width  : int,
+        height : int,
     }
 }
 
 poll_message :: proc(msg : ^Msg) -> bool {
+    if window_resized {
+        window_resized = false;
+        l_msg := Msg.SizeChange{window_new_width, window_new_height};
+        msg^ = l_msg;
+        return true;
+    }
+
     w_msg : win32.Msg;
     if win32.peek_message_a(&w_msg, nil, 0, 0, win32.PM_REMOVE) == win32.TRUE {
         match w_msg.message {
