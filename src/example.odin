@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 14:43:08
+ *  @Last Time: 11-06-2017 17:08:25
  *  
  *  @Description:
  *      Example for LibBrew
@@ -20,7 +20,7 @@
 main :: proc() {
     app_handle := libbrew.get_app_handle();
     width, height := 1280, 720;
-    wnd_handle := libbrew.create_window(app_handle, "LibBrew Example", width, height);
+    wnd_handle := libbrew.create_window(app_handle, "LibBrew Example", true, 100, 100, width, height);
     glCtx      := libbrew.create_gl_context(wnd_handle, 3, 3);
     gl.load_functions();
 
@@ -35,15 +35,21 @@ main :: proc() {
     window_focus : bool;
     mpos_x : int;
     mpos_y : int;
+    prev_lm_down : bool;
     lm_down : bool;
     rm_down : bool;
     add_data : bool = false;
     scale_by_max : bool = false;
-    frame_list := make_frame_time_list(300);
+    frame_list := make_frame_time_list(100);
     time_data := libbrew.create_time_data();
+    i := 0;
+    dragging := false;
+    sizing_x := false;
+    sizing_y := false;
 
 main_loop: 
     for {
+        prev_lm_down = lm_down ? true : false;
         for libbrew.poll_message(&message) {
             match msg in message {
                 case libbrew.Msg.QuitMessage : {
@@ -76,10 +82,10 @@ main_loop:
                     window_focus = msg.enter_focus;
                 }
 
-                case libbrew.Msg.MouseMove : {
+                /*case libbrew.Msg.MouseMove : {
                     mpos_x = msg.x;
                     mpos_y = msg.y;
-                }
+                }*/
 
                 case libbrew.Msg.SizeChange : {
                     width  = msg.width;
@@ -90,6 +96,7 @@ main_loop:
             }
         }
         dt := libbrew.time(&time_data);
+        mpos_x, mpos_y = libbrew.get_mouse_pos(wnd_handle);
 
         gl.clear(gl.ClearFlags.COLOR_BUFFER);
 
@@ -101,11 +108,20 @@ main_loop:
 
         imgui.begin_main_menu_bar();
         {
-            if imgui.begin_menu("Misc") {
-                imgui.menu_item("LibBrew Info");
-                imgui.menu_item("OpenGL Info");
+            imgui.begin_menu("LibBrew Example  |###WindowTitle", false);
+            if imgui.is_item_hovered() {
+                if imgui.is_item_clicked(0) {
+                    dragging = true;
+               }
+            }
+            if imgui.begin_menu("Misc###LibbrewMain") {
+                imgui.menu_item("LibBrew Info", false);
+                imgui.menu_item("OpenGL Info", false);
                 imgui.separator();
-                imgui.menu_item("Toggle Fullscreen", "Alt+Enter");
+                if imgui.menu_item("Maximize") {
+                    libbrew.maximize_window(wnd_handle);
+                }
+                imgui.menu_item("Toggle Fullscreen", "Alt+Enter", false);
                 if imgui.menu_item("Exit", "Esc") {
                     break main_loop;
                 }
@@ -113,12 +129,35 @@ main_loop:
             }
         }
         imgui.end_main_menu_bar();
+        imgui.begin_main_menu_bar();
+        {
+            if imgui.begin_menu("TEST") {
+                imgui.separator();
+                imgui.separator();
+                imgui.separator();
+                imgui.separator();
+                imgui.end_menu();
+            }
+        }
+        imgui.end_main_menu_bar();
+
+        if imgui.is_mouse_down(0) && dragging {
+            d : imgui.Vec2;
+            imgui.get_mouse_drag_delta(&d, 0, 0);
+            x, y := libbrew.get_window_pos(wnd_handle);
+            libbrew.set_window_pos(wnd_handle, x + int(d.x), y + int(d.y));
+        } else {
+            dragging = false;
+        }
+
 
         if add_data {
             add_frame_time(frame_list, f32(dt) * 1000);
         }
 
-        if imgui.begin("TEST") {
+        if imgui.begin_panel("TEST##1", imgui.Vec2{0, 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
+            imgui.text("<%d, %d>", mpos_x, mpos_y);
+            imgui.text("<%d, %d>", width, height);
             imgui.checkbox("Record Data", &add_data);            
             imgui.checkbox("Scale by max value", &scale_by_max);            
             size := imgui.get_window_size();
@@ -131,7 +170,47 @@ main_loop:
             imgui.end();
         }
 
-        imgui.show_metrics_window(nil);
+        if imgui.begin_panel("TEST##2", imgui.Vec2{f32(width/2), 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
+            imgui.text("<%d, %d>", mpos_x, mpos_y);
+            imgui.text("<%d, %d>", width, height);
+            imgui.checkbox("Record Data", &add_data);            
+            imgui.checkbox("Scale by max value", &scale_by_max);            
+            size := imgui.get_window_size();
+            imgui.plot_histogram("##FrameTimes", frame_list.values, 
+                                 frame_list.min_value - 10, 
+                                 scale_by_max ? frame_list.max_value + 5 : 33.3333, 
+                                 imgui.Vec2{size.x - 15, 200});
+            imgui.text("Lowest FrameRate: %f", 1.0 / (frame_list.max_value / 1000) );
+            imgui.text("Highest FrameRate: %f", 1.0 / (frame_list.min_value / 1000) );
+            imgui.end();
+        }
+
+        is_between :: proc(v, min, max : int) -> bool #inline {
+            return v >= min && v <= max;
+        }
+
+        if lm_down && !prev_lm_down { 
+            if is_between(mpos_x, width-4, width+4) {
+                sizing_x = true;
+            }
+
+            if is_between(mpos_y, height-4, height+4) {
+                sizing_y = true;
+            }
+        }
+
+        new_w : int;
+        new_h : int;
+        if (sizing_x || sizing_y) && lm_down {
+            new_w = sizing_x ? mpos_x+2 : width;
+            new_h = sizing_y ? mpos_y+2 : height;
+            libbrew.set_window_size(wnd_handle, new_w+2, new_h+2);
+        } else {
+            sizing_x = false;
+            sizing_y = false;
+        }
+
+        imgui.show_test_window(nil);
 
         imgui.render_proc(dear_state, width, height);
         libbrew.swap_buffers(wnd_handle);

@@ -1,4 +1,8 @@
 #!/bin/bash
-pushd build
+pushd build > /dev/null
+echo Running...
+echo ------------
 ./example.exe
-popd
+echo ------------
+echo Ending...
+popd > /dev/null

@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 00:31:16
+ *  @Last Time: 11-06-2017 17:22:29
  *  
  *  @Description:
  *      Wrapper for Dear ImGui.
@@ -373,7 +373,7 @@ GuiSetCond :: enum i32 {
     Appearing     = 1 << 3
 }
 
-/////////// Odin UTIL /////////////////////////
+///////////////////////// Odin UTIL /////////////////////////
 
 _LABEL_BUF_SIZE        :: 4096;
 _TEXT_BUF_SIZE         :: 4096;
@@ -409,7 +409,7 @@ _make_misc_string        :: proc(misc : string) -> Cstring {
     return &_misc_buf[0];
 }
 
-/////////// Functions ////////////////////////
+//////////////////////// Functions ////////////////////////
 get_io              :: proc() -> ^GuiIO      #foreign cimgui "igGetIO";
 get_style           :: proc() -> ^GuiStyle   #foreign cimgui "igGetStyle";
 get_draw_data       :: proc() -> ^DrawData   #foreign cimgui "igGetDrawData";
@@ -1018,8 +1018,14 @@ end_menu :: proc() #foreign cimgui "igEndMenu";
 menu_item :: proc(label : string) -> bool  {
     return menu_item(label, "", false, true);
 }
+menu_item :: proc(label : string, enabled : bool) -> bool  {
+    return menu_item(label, "", false, enabled);
+}
 menu_item :: proc(label : string, shortcut : string) -> bool  {
     return menu_item(label, shortcut, false, true);
+}
+menu_item :: proc(label : string, shortcut : string, enabled : bool) -> bool  {
+    return menu_item(label, shortcut, false, enabled);
 }
 menu_item :: proc(label : string, shortcut : string, selected : bool, enabled : bool) -> bool  {
     im_menu_item :: proc(label : Cstring, shortcut : Cstring, selected : bool, enabled : bool) -> bool #foreign cimgui "igMenuItem";   

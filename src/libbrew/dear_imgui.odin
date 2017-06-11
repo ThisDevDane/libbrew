@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 00:36:04
+ *  @Last Time: 11-06-2017 17:04:20
  *  
  *  @Description:
  *  
@@ -54,7 +54,7 @@ set_style :: proc() {
     style.colors[GuiCol.BorderShadow]          = Vec4{0.00, 0.00, 0.00, 0.04};
     style.colors[GuiCol.FrameBg]               = Vec4{0.00, 0.00, 0.00, 0.29};
     style.colors[GuiCol.TitleBg]               = Vec4{0.25, 0.25, 0.25, 0.98};
-    style.colors[GuiCol.TitleBgCollapsed]      = Vec4{0.25, 0.25, 0.25, 0.49};
+    style.colors[GuiCol.TitleBgCollapsed]      = Vec4{0.12, 0.12, 0.12, 0.49};
     style.colors[GuiCol.TitleBgActive]         = Vec4{0.33, 0.33, 0.33, 0.98};
     style.colors[GuiCol.MenuBarBg]             = Vec4{0.11, 0.11, 0.11, 0.42};
     style.colors[GuiCol.ScrollbarBg]           = Vec4{0.00, 0.00, 0.00, 0.08};
@@ -290,4 +290,14 @@ render_proc :: proc(state : ^State, window_width, window_height : int) {
     //TODO: Restore state
     gl.scissor(lastScissor[0], lastScissor[1], lastScissor[2], lastScissor[3]);
     gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3]);
+}
+
+begin_panel :: proc(label : string, pos, size : Vec2) -> bool {
+    set_next_window_pos(pos, GuiSetCond.Always);
+    set_next_window_size(size, GuiSetCond.Always);
+    return begin(label, nil, GuiWindowFlags.NoTitleBar | 
+                             GuiWindowFlags.NoMove | 
+                             GuiWindowFlags.NoResize |
+                             GuiWindowFlags.NoBringToFrontOnFocus | 
+                             GuiWindowFlags.ShowBorders);
 }
