@@ -1,5 +1,6 @@
 # Custom
 *.otm
+[Bb]uild/
 
 # Created by https://www.gitignore.io/api/c,c++,windows,sublimetext,visualstudio
 

@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 19:21:21
+ *  @Last Time: 10-06-2017 22:59:53
  *  
  *  @Description:
  *  
@@ -23,13 +23,11 @@ Msg :: union {
     QuitMessage {
         code : int,
     },
-    KeyDown {
+    Key {
         key : libbrew.VirtualKey,
+        down : bool,
         prev_down : bool,
     },    
-    KeyUp {
-        key : libbrew.VirtualKey,
-    },
     WindowFocus {
         enter_focus : bool,
     },
@@ -84,8 +82,9 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     }
                 }
 
-                l_msg := Msg.KeyDown{};
+                l_msg := Msg.Key{};
                 l_msg.key = libbrew.VirtualKey(w_key);
+                l_msg.down = true;
                 l_msg.prev_down = bool((w_msg.lparam >> 30) & 1);
                 msg^ = l_msg;
             }
@@ -96,8 +95,9 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     extended := bool((w_msg.lparam >> 24) & 1);
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
-                l_msg := Msg.KeyDown{};
+                l_msg := Msg.Key{};
                 l_msg.key = libbrew.VirtualKey(w_key);
+                l_msg.down = true;
                 l_msg.prev_down = bool((w_msg.lparam >> 30) & 1);
                 msg^ = l_msg;
                 return true;
@@ -122,8 +122,10 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     }
                 }
 
-                l_msg := Msg.KeyUp{};
+                l_msg := Msg.Key{};
                 l_msg.key = libbrew.VirtualKey(w_key);
+                l_msg.down = false;
+                l_msg.prev_down = false;
                 msg^ = l_msg;
             }
 
@@ -133,9 +135,10 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     extended := bool((w_msg.lparam >> 24) & 1);
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
-                l_msg := Msg.KeyUp{};
+                l_msg := Msg.Key{};
                 l_msg.key = libbrew.VirtualKey(w_key);
-                msg^ = l_msg;
+                l_msg.down = false;
+                l_msg.prev_down = false;
                 return true;
             }
 

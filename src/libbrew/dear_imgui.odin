@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 22:14:09
+ *  @Last Time: 11-06-2017 00:36:04
  *  
  *  @Description:
  *  
@@ -71,11 +71,13 @@ set_style :: proc() {
     style.colors[GuiCol.ModalWindowDarkening]  = Vec4{0.20, 0.20, 0.20, 0.35};
 }
 
-init :: proc(state : ^State) {
+init :: proc(state : ^State, wnd_handle : libbrew.WndHandle) {
     io := get_io();
-    //io.ime_window_handle = ctx.win32.WindowHandle;
+    io.ime_window_handle = wnd_handle;
     //io.RenderDrawListsFn = RenderProc;
-
+/*    n := "imgui.ini\x00";
+    io.ini_file_name = &n[0];
+*/
     io.key_map[GuiKey.Tab]        = i32(libbrew.VirtualKey.Tab);
     io.key_map[GuiKey.LeftArrow]  = i32(libbrew.VirtualKey.Left);
     io.key_map[GuiKey.RightArrow] = i32(libbrew.VirtualKey.Right);

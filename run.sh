@@ -1,1 +1,4 @@
-./build/example.exe
+#!/bin/bash
+pushd build
+./example.exe
+popd
