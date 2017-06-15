@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 18:07:02
+ *  @Last Time: 11-06-2017 21:28:58
  *  
  *  @Description:
  *      Wrapper for Dear ImGui.
@@ -588,7 +588,7 @@ get_items_line_height_with_spacing :: proc() -> f32                      #foreig
 
 //Columns
 columns           :: proc(count : i32) {
-    columns(count, "<nil>", true);
+    columns(count, "\x00", true);
 }
 columns           :: proc(count : i32, id : string, border : bool) {
     im_columns :: proc(count : i32, id : Cstring, border : bool) #foreign cimgui "igColumns";
@@ -727,7 +727,7 @@ plot_lines         :: proc(label : Cstring, values : ^f32, values_count : i32, v
 plot_lines2        :: proc(label : Cstring, values_getter : proc(data : rawptr, idx : i32) -> f32, data : rawptr, values_count : i32, values_offset : i32, overlay_text : Cstring, scale_min : f32, scale_max : f32, graph_size : Vec2) #foreign cimgui "igPlotLines2";
 
 plot_histogram     :: proc(label : string, values : []f32, scale_min : f32, scale_max : f32, graph_size : Vec2) {
-    plot_histogram(label, values, "", scale_min, scale_max, graph_size, size_of(f32));
+    plot_histogram(label, values, "\x00", scale_min, scale_max, graph_size, size_of(f32));
 }
 plot_histogram     :: proc(label : string, values : []f32, overlay_text : string, scale_min : f32, scale_max : f32, graph_size : Vec2) {
     plot_histogram(label, values, overlay_text, scale_min, scale_max, graph_size, size_of(f32));
@@ -741,7 +741,7 @@ plot_histogram     :: proc(label : string, values : []f32, overlay_text : string
 plot_histogram2    :: proc(label : Cstring, values_getter : proc(data : rawptr, idx : i32) -> f32, data : rawptr, values_count : i32, values_offset : i32, overlay_text : Cstring, scale_min : f32, scale_max : f32, graph_size : Vec2) #foreign cimgui "igPlotHistogram2";
 
 progress_bar       :: proc(fraction : f32, size_arg : ^Vec2) {
-    progress_bar(fraction, size_arg, "");
+    progress_bar(fraction, size_arg, "\x00");
 }
 progress_bar       :: proc(fraction : f32, size_arg : ^Vec2, overlay : string) {
     im_progress_bar :: proc(fraction : f32, size_arg : ^Vec2, overlay : Cstring) #foreign cimgui "igProgressBar";
@@ -997,13 +997,13 @@ set_tooltip :: proc(fmt_ : string, args : ..any) {
     im_set_tooltip(_make_text_string(fmt_, ..args));
 }
 begin_tooltip :: proc() #foreign cimgui "igBeginTooltip";
-end_tooltip :: proc() #foreign cimgui "igEndTooltip";
+end_tooltip   :: proc() #foreign cimgui "igEndTooltip";
 
 // Widgets: Menus
 begin_main_menu_bar :: proc() -> bool #foreign cimgui "igBeginMainMenuBar";
-end_main_menu_bar :: proc() #foreign cimgui "igEndMainMenuBar";
-begin_menu_bar :: proc() -> bool #foreign cimgui "igBeginMenuBar";
-end_menu_bar :: proc() #foreign cimgui "igEndMenuBar";
+end_main_menu_bar   :: proc() #foreign cimgui "igEndMainMenuBar";
+begin_menu_bar      :: proc() -> bool #foreign cimgui "igBeginMenuBar";
+end_menu_bar        :: proc() #foreign cimgui "igEndMenuBar";
 
 begin_menu :: proc(label : string) -> bool {
     return begin_menu(label, true);
@@ -1015,19 +1015,7 @@ begin_menu :: proc(label : string, enabled : bool) -> bool {
 
 end_menu :: proc() #foreign cimgui "igEndMenu";
 
-menu_item :: proc(label : string) -> bool  {
-    return menu_item(label, "", false, true);
-}
-menu_item :: proc(label : string, enabled : bool) -> bool  {
-    return menu_item(label, "", false, enabled);
-}
-menu_item :: proc(label : string, shortcut : string) -> bool  {
-    return menu_item(label, shortcut, false, true);
-}
-menu_item :: proc(label : string, shortcut : string, enabled : bool) -> bool  {
-    return menu_item(label, shortcut, false, enabled);
-}
-menu_item :: proc(label : string, shortcut : string, selected : bool, enabled : bool) -> bool  {
+menu_item :: proc(label : string, shortcut : string = "", selected : bool = false, enabled : bool = true) -> bool  {
     im_menu_item :: proc(label : Cstring, shortcut : Cstring, selected : bool, enabled : bool) -> bool #foreign cimgui "igMenuItem";   
     return im_menu_item(_make_label_string(label), _make_misc_string(shortcut), selected, enabled);
 }

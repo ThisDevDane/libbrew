@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 22:01:38
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 18:07:41
+ *  @Last Time: 11-06-2017 18:50:54
  *  
  *  @Description:
  *      SDL like library to ease development 
@@ -19,6 +19,7 @@ TODO list
         [X] Sys key
         [X] Key
         [ ] WM_CHAR
+        [ ] WM_WCHAR
     [X] Make an OpenGL Context
     [ ] Messages
         [ ] Handle mouse enter and leave
