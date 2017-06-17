@@ -6,23 +6,26 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 14:42:35
+ *  @Last Time: 15-06-2017 22:13:01
  *  
  *  @Description:
  *  
  */
 
-#import "fmt.odin";
-#import win32 "sys/windows.odin";
+import {
+    "fmt.odin";
+    win32 "sys/windows.odin";
+    "../libbrew.odin";
+    "msg_user.odin";
+}
 
-#import "../libbrew.odin";
-#import "msg_user.odin";
+var {
+    window_resized = false;
+    window_new_width  : int;
+    window_new_height : int;
+}
 
-window_resized := false;
-window_new_width  : int;
-window_new_height : int;
-
-Msg :: union {
+type Msg union {
     NotTranslated {},
     QuitMessage {
         code : int,
@@ -53,196 +56,213 @@ Msg :: union {
     }
 }
 
-poll_message :: proc(msg : ^Msg) -> bool {
+proc poll_message(msg : ^Msg) -> bool {
     if window_resized {
         window_resized = false;
-        l_msg := Msg.SizeChange{window_new_width, window_new_height};
+        var l_msg = Msg.SizeChange{window_new_width, window_new_height};
         msg^ = l_msg;
         return true;
     }
 
-    w_msg : win32.Msg;
+    var w_msg : win32.Msg;
     if win32.peek_message_a(&w_msg, nil, 0, 0, win32.PM_REMOVE) == win32.TRUE {
         match w_msg.message {
             case win32.WM_QUIT : {
-                l_msg := Msg.QuitMessage{};
-                l_msg.code = int(w_msg.wparam);
+                var l_msg = Msg.QuitMessage{
+                    code = int(w_msg.wparam)
+                };
                 msg^ = l_msg;
                 return true;
             }
 
             case win32.WM_MOUSEMOVE : {
-                l_msg := Msg.MouseMove{};
-                l_msg.x = int(win32.LOWORD(w_msg.lparam));
-                l_msg.y = int(win32.HIWORD(w_msg.lparam));
+                var l_msg = Msg.MouseMove{
+                    x = int(win32.LOWORD(w_msg.lparam)),
+                    y = int(win32.HIWORD(w_msg.lparam))
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_KEYDOWN : {
-                w_key := win32.KeyCode(w_msg.wparam);
+                var w_key = win32.KeyCode(w_msg.wparam);
                 match w_key {
                     case win32.KeyCode.Menu : {
-                        extended := bool((w_msg.lparam >> 24) & 1);
+                        var extended = bool((w_msg.lparam >> 24) & 1);
                         w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                     }
 
                     case win32.KeyCode.Control : {
-                        extended := bool((w_msg.lparam >> 24) & 1);
+                        var extended = bool((w_msg.lparam >> 24) & 1);
                         w_key = extended ? win32.KeyCode.Rcontrol : win32.KeyCode.Lcontrol; 
                     }
 
                     case win32.KeyCode.Shift : {
-                        sc := u32(w_msg.lparam & 0x00ff0000) >> 16;
+                        var sc = u32(w_msg.lparam & 0x00ff0000) >> 16;
                         w_key = win32.KeyCode(win32.map_virtual_key(sc, win32.MAPVK_VSC_TO_VK_EX));
                     }
                 }
 
-                l_msg := Msg.Key{};
-                l_msg.key = libbrew.VirtualKey(w_key);
-                l_msg.down = true;
-                l_msg.prev_down = bool((w_msg.lparam >> 30) & 1);
+                var l_msg = Msg.Key{
+                    key = libbrew.VirtualKey(w_key),
+                    down = true,
+                    prev_down = bool((w_msg.lparam >> 30) & 1),
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_SYSKEYDOWN : {
-                w_key := win32.KeyCode(w_msg.wparam);
+                var w_key = win32.KeyCode(w_msg.wparam);
                 if w_key == win32.KeyCode.Menu {
-                    extended := bool((w_msg.lparam >> 24) & 1);
+                    var extended = bool((w_msg.lparam >> 24) & 1);
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
-                l_msg := Msg.Key{};
-                l_msg.key = libbrew.VirtualKey(w_key);
-                l_msg.down = true;
-                l_msg.prev_down = bool((w_msg.lparam >> 30) & 1);
+                var l_msg = Msg.Key{
+                    key = libbrew.VirtualKey(w_key),
+                    down = true,
+                    prev_down = bool((w_msg.lparam >> 30) & 1)
+                };
                 msg^ = l_msg;
                 return true;
             }
 
             case win32.WM_KEYUP : {
-                w_key := win32.KeyCode(w_msg.wparam);
+                var w_key = win32.KeyCode(w_msg.wparam);
                 match w_key {
                     case win32.KeyCode.Menu : {
-                        extended := bool((w_msg.lparam >> 24) & 1);
+                        var extended = bool((w_msg.lparam >> 24) & 1);
                         w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                     }
 
                     case win32.KeyCode.Control : {
-                        extended := bool((w_msg.lparam >> 24) & 1);
+                        var extended = bool((w_msg.lparam >> 24) & 1);
                         w_key = extended ? win32.KeyCode.Rcontrol : win32.KeyCode.Lcontrol; 
                     }
 
                     case win32.KeyCode.Shift : {
-                        sc := u32(w_msg.lparam & 0x00ff0000) >> 16;
+                        var sc = u32(w_msg.lparam & 0x00ff0000) >> 16;
                         w_key = win32.KeyCode(win32.map_virtual_key(sc, win32.MAPVK_VSC_TO_VK_EX));
                     }
                 }
 
-                l_msg := Msg.Key{};
-                l_msg.key = libbrew.VirtualKey(w_key);
-                l_msg.down = false;
-                l_msg.prev_down = false;
+                var l_msg = Msg.Key{
+                    key = libbrew.VirtualKey(w_key),
+                    down = false,
+                    prev_down = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_SYSKEYUP : {
-                w_key := win32.KeyCode(w_msg.wparam);
+                var w_key = win32.KeyCode(w_msg.wparam);
                 if w_key == win32.KeyCode.Menu {
-                    extended := bool((w_msg.lparam >> 24) & 1);
+                    var extended = bool((w_msg.lparam >> 24) & 1);
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
-                l_msg := Msg.Key{};
-                l_msg.key = libbrew.VirtualKey(w_key);
-                l_msg.down = false;
-                l_msg.prev_down = false;
+                var l_msg = Msg.Key{
+                    key = libbrew.VirtualKey(w_key),
+                    down = false,
+                    prev_down = false,
+                };
                 return true;
             }
 
             case win32.WM_LBUTTONDOWN : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.LMouse;
-                l_msg.down = true;
-                l_msg.double_click = false;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.LMouse,
+                    down = true,
+                    double_click = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_LBUTTONUP : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.LMouse;
-                l_msg.down = false;
-                l_msg.double_click = false;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.LMouse,
+                    down = false,
+                    double_click = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_LBUTTONDBLCLK : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.LMouse;
-                l_msg.down = true;
-                l_msg.double_click = true;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.LMouse,
+                    down = true,
+                    double_click = true,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_RBUTTONDOWN : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.RMouse;
-                l_msg.down = true;
-                l_msg.double_click = false;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.RMouse,
+                    down = true,
+                    double_click = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_RBUTTONUP : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.RMouse;
-                l_msg.down = false;
-                l_msg.double_click = false;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.RMouse,
+                    down = false,
+                    double_click = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_RBUTTONDBLCLK : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.RMouse;
-                l_msg.down = true;
-                l_msg.double_click = true;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.RMouse,
+                    down = true,
+                    double_click = true,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_MBUTTONDOWN : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.MMouse;
-                l_msg.down = true;
-                l_msg.double_click = false;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.MMouse,
+                    down = true,
+                    double_click = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_MBUTTONUP : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.MMouse;
-                l_msg.down = false;
-                l_msg.double_click = false;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.MMouse,
+                    down = false,
+                    double_click = false,
+                };
                 msg^ = l_msg;
             }
 
             case win32.WM_MBUTTONDBLCLK : {
-                l_msg := Msg.MouseButton{};
-                l_msg.key = libbrew.VirtualKey.MMouse;
-                l_msg.down = true;
-                l_msg.double_click = true;
+                var l_msg = Msg.MouseButton{
+                    key = libbrew.VirtualKey.MMouse,
+                    down = true,
+                    double_click = true,
+                };
                 msg^ = l_msg;
             }
 
             case msg_user.WINDOW_FOCUS : {
-                l_msg := Msg.WindowFocus{};
-                l_msg.enter_focus = bool(w_msg.wparam);
+                var l_msg = Msg.WindowFocus{
+                    enter_focus = bool(w_msg.wparam)
+                };
                 msg^ = l_msg;
             }
 
             case msg_user.KEYBOARD_FOCUS : {
-                l_msg := Msg.KeyboardFocus{};
-                l_msg.enter_focus = bool(w_msg.wparam);
+                var l_msg = Msg.KeyboardFocus{
+                    enter_focus = bool(w_msg.wparam)
+                };
                 msg^ = l_msg;
             }
 
             case : {
-                l_msg := Msg.NotTranslated{};
+                var l_msg = Msg.NotTranslated{};
                 msg^ = l_msg;
             }
         }
@@ -267,14 +287,15 @@ poll_message :: proc(msg : ^Msg) -> bool {
         match msg in message {
     }
 }*/
-poll_thread_message :: proc(msg : ^Msg) -> bool {
-    THREAD_NULL_MSG :: win32.Hwnd(int(-1));
-    w_msg : win32.Msg;
+proc poll_thread_message(msg : ^Msg) -> bool {
+    const THREAD_NULL_MSG = win32.Hwnd(int(-1));
+    var w_msg : win32.Msg;
     if win32.peek_message_a(&w_msg, THREAD_NULL_MSG, 0, 0, win32.PM_REMOVE) == win32.TRUE {
         match w_msg.message {
             case win32.WM_QUIT : {
-                l_msg := Msg.QuitMessage{};
-                l_msg.code = int(w_msg.wparam);
+                var l_msg = Msg.QuitMessage{
+                    code = int(w_msg.wparam)
+                };
                 msg^ = l_msg;
             }
         }
@@ -285,8 +306,8 @@ poll_thread_message :: proc(msg : ^Msg) -> bool {
     }
 }
 
-poll_window_message :: proc(wnd : libbrew.WndHandle, msg : ^Msg) -> bool {
-    w_msg : win32.Msg;
+proc poll_window_message(wnd : libbrew.WndHandle, msg : ^Msg) -> bool {
+    var w_msg : win32.Msg;
     if win32.peek_message_a(&w_msg, win32.Hwnd(wnd), 0, 0, win32.PM_REMOVE) == win32.TRUE {
         match w_msg.message {
         }

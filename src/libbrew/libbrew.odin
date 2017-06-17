@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 22:01:38
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-06-2017 18:50:54
+ *  @Last Time: 15-06-2017 21:07:45
  *  
  *  @Description:
  *      SDL like library to ease development 
@@ -34,13 +34,13 @@ TODO list
     [ ] Audio!
 */
 
-#import "fmt.odin";
-#import "strings.odin";
-#import win32 "sys/windows.odin";
+import "fmt.odin";
+import "strings.odin";
+import win32 "sys/windows.odin";
 
-#load "win/window.odin" when ODIN_OS == "windows";
-#load "win/opengl.odin" when ODIN_OS == "windows";
-#load "win/opengl_wgl.odin" when ODIN_OS == "windows";
-#load "win/keys.odin" when ODIN_OS == "windows";
-#load "win/misc.odin" when ODIN_OS == "windows";
-#load "win/msg.odin" when ODIN_OS == "windows";
+import_load "win/window.odin" when ODIN_OS == "windows";
+import_load "win/opengl.odin" when ODIN_OS == "windows";
+import_load "win/opengl_wgl.odin" when ODIN_OS == "windows";
+import_load "win/keys.odin" when ODIN_OS == "windows";
+import_load "win/misc.odin" when ODIN_OS == "windows";
+import_load "win/msg.odin" when ODIN_OS == "windows";
