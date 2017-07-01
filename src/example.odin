@@ -6,51 +6,50 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 17-06-2017 14:07:17
+ *  @Last Time: 02-07-2017 00:54:46
  *  
  *  @Description:
  *      Example for LibBrew
  */
- import {
+ import (
     "fmt.odin";
     "strings.odin";
     brew "libbrew/libbrew.odin";
     "libbrew/gl.odin";
     imgui "libbrew/dear_imgui.odin";
-}
+)
 
-proc main() {
-    var app_handle = brew.get_app_handle();
-    var width, height = 1280, 720;
-    var wnd_handle = brew.create_window(app_handle, "LibBrew Example", true, 100, 100, width, height);
-    var glCtx      = brew.create_gl_context(wnd_handle, 3, 3);
+main :: proc() {
+    app_handle := brew.get_app_handle();
+    width, height := 1280, 720;
+    wnd_handle := brew.create_window(app_handle, "LibBrew Example", true, 100, 100, width, height);
+    glCtx      := brew.create_gl_context(wnd_handle, 3, 3);
     gl.load_functions();
 
-    var dear_state = new(imgui.State);
+    dear_state := new(imgui.State);
     imgui.init(dear_state, wnd_handle);
 
     brew.swap_interval(-1);
     gl.clear_color(41/255.0, 57/255.0, 84/255.0, 1);
 
-    var {
-        message : brew.Msg;
-        mpos_x : int;
-        mpos_y : int;
-        prev_lm_down : bool;
-        lm_down : bool;
-        rm_down : bool;
-        add_data : bool = false;
-        scale_by_max : bool = false;
-        frame_list = make_frame_time_list(100);
-        time_data = brew.create_time_data();
-        i = 0;
-        dragging = false;
-        sizing_x = false;
-        sizing_y = false;
-        maximized = false;
-        shift_down = false;
-        new_frame_state = imgui.FrameState{};
-    }
+    message : brew.Msg;
+    mpos_x : int;
+    mpos_y : int;
+    prev_lm_down : bool;
+    lm_down : bool;
+    rm_down : bool;
+    add_data : bool = false;
+    scale_by_max : bool = false;
+    frame_list = make_frame_time_list(100);
+    time_data = brew.create_time_data();
+    i = 0;
+    dragging = false;
+    sizing_x = false;
+    sizing_y = false;
+    maximized = false;
+    shift_down = false;
+    new_frame_state = imgui.FrameState{};
+    
 main_loop: 
     for {
         prev_lm_down = lm_down ? true : false;
@@ -103,7 +102,7 @@ main_loop:
                 }
             }
         }
-        var dt = brew.time(&time_data);
+        dt := brew.time(&time_data);
         mpos_x, mpos_y = brew.get_mouse_pos(wnd_handle);
         new_frame_state.deltatime = f32(dt);
         new_frame_state.mouse_x = mpos_x;
@@ -147,8 +146,8 @@ main_loop:
         imgui.end_main_menu_bar();
 
         if imgui.is_mouse_down(0) && dragging {
-            var d = imgui.get_mouse_drag_delta();
-            var x, y = brew.get_window_pos(wnd_handle);
+            d := imgui.get_mouse_drag_delta();
+            x, y := brew.get_window_pos(wnd_handle);
             brew.set_window_pos(wnd_handle, x + int(d.x), y + int(d.y));
             if maximized && d.x != 0 && d.y != 0 {
                 maximized = false;
@@ -168,7 +167,7 @@ main_loop:
             imgui.text("<%d, %d>", width, height);
             imgui.checkbox("Record Data", &add_data);            
             imgui.checkbox("Scale by max value", &scale_by_max);            
-            var size = imgui.get_window_size();
+            size := imgui.get_window_size();
             imgui.plot_histogram("##FrameTimes", frame_list.values, 
                                  frame_list.min_value - 10, 
                                  scale_by_max ? frame_list.max_value + 5 : 33.3333, 
@@ -182,7 +181,7 @@ main_loop:
             defer imgui.end();
         }
 
-        proc is_between(v, min, max : int) -> bool #inline {
+        is_between :: proc(v, min, max : int) -> bool #inline {
             return v >= min && v <= max;
         }
 
@@ -196,8 +195,8 @@ main_loop:
             }
         }
 
-        var new_w : int;
-        var new_h : int;
+        new_w : int;
+        new_h : int;
        
         if (sizing_x || sizing_y) && lm_down {
             new_w = sizing_x ? mpos_x+2 : width;
@@ -218,7 +217,7 @@ main_loop:
     imgui.shutdown();
 }
 
-type FrameTimeList struct {
+FrameTimeList :: struct {
     max_value : f32,
     max_value_write_pos : int,
     min_value : f32,
@@ -227,8 +226,8 @@ type FrameTimeList struct {
     write_head : int,
 }
 
-proc make_frame_time_list(size : int) -> ^FrameTimeList {
-    var result = new(FrameTimeList);
+make_frame_time_list :: proc(size : int) -> ^FrameTimeList {
+    result := new(FrameTimeList);
     result.values = make([]f32, size);
     result.max_value = 0;
     result.min_value = 100000;
@@ -236,7 +235,7 @@ proc make_frame_time_list(size : int) -> ^FrameTimeList {
     return result;
 }
 
-proc add_frame_time(list : ^FrameTimeList, value : f32) {
+add_frame_time :: proc(list : ^FrameTimeList, value : f32) {
     list.values[list.write_head] = value;
 
     if list.values[list.write_head] > list.max_value {
@@ -245,9 +244,9 @@ proc add_frame_time(list : ^FrameTimeList, value : f32) {
     }
 
     if list.max_value_write_pos == list.write_head {
-        var max : f32 = 0;
-        var max_pos = 0;
-        for var i = 0; i < len(list.values); i++ {
+        max : f32 = 0;
+        max_pos := 0;
+        for i := 0; i < len(list.values); i++ {
             if list.values[i] > max {
                 max = list.values[i];
                 max_pos = i;
@@ -259,9 +258,9 @@ proc add_frame_time(list : ^FrameTimeList, value : f32) {
     }
 
     if list.min_value_write_pos == list.write_head {
-        var min : f32 = 100000;
-        var min_pos = 0;
-        for var i = 0; i < len(list.values); i++ {
+        min : f32 = 100000;
+        min_pos := 0;
+        for i := 0; i < len(list.values); i++ {
             if list.values[i] < min {
                 min = list.values[i];
                 min_pos = i;

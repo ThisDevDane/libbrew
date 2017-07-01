@@ -6,14 +6,14 @@
  *  @Creation: 02-05-2017 21:38:35
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2017 21:26:47
+ *  @Last Time: 02-07-2017 01:11:00
  *  
  *  @Description:
  *      Part of the GL Wrapper, makes enum for all constants.
  */
 import gl_const "opengl_constants.odin";
 
-type GetShaderNames enum i32 {
+GetShaderNames :: enum i32 {
     ShaderType = gl_const.SHADER_TYPE,
     DeleteStatus = gl_const.DELETE_STATUS,
     CompileStatus = gl_const.COMPILE_STATUS,
@@ -21,7 +21,7 @@ type GetShaderNames enum i32 {
     ShaderSourceLength = gl_const.SHADER_SOURCE_LENGTH,
 }
 
-type DebugSource enum i32 {
+DebugSource :: enum i32 {
     Api                                = gl_const.DEBUG_SOURCE_API,
     WindowSystem                       = gl_const.DEBUG_SOURCE_WINDOW_SYSTEM,
     ShaderCompiler                     = gl_const.DEBUG_SOURCE_SHADER_COMPILER,
@@ -31,7 +31,7 @@ type DebugSource enum i32 {
     DontCare                           = gl_const.DONT_CARE,
 }
 
-type DebugType enum i32 {
+DebugType :: enum i32 {
     Error                              = gl_const.DEBUG_TYPE_ERROR,
     DeprecatedBehavior                 = gl_const.DEBUG_TYPE_DEPRECATED_BEHAVIOR,
     UndefinedBehavior                  = gl_const.DEBUG_TYPE_UNDEFINED_BEHAVIOR,
@@ -44,7 +44,7 @@ type DebugType enum i32 {
     DontCare                           = gl_const.DONT_CARE,
 }
 
-type DebugSeverity enum i32 {
+DebugSeverity :: enum i32 {
     High                               = gl_const.DEBUG_SEVERITY_HIGH,
     Medium                             = gl_const.DEBUG_SEVERITY_MEDIUM,
     Low                                = gl_const.DEBUG_SEVERITY_LOW,
@@ -52,7 +52,7 @@ type DebugSeverity enum i32 {
     DontCare                           = gl_const.DONT_CARE,
 }
 
-type DrawModes enum i32 {
+DrawModes :: enum i32 {
     Points                             = gl_const.POINTS, 
     LineStrip                          = gl_const.LINE_STRIP,
     LineLoop                           = gl_const.LINE_LOOP, 
@@ -67,13 +67,13 @@ type DrawModes enum i32 {
     Patches                            = gl_const.PATCHES,
 }
 
-type DrawElementsType enum i32 {
+DrawElementsType :: enum i32 {
     UByte                              = gl_const.UNSIGNED_BYTE,
     UShort                             = gl_const.UNSIGNED_SHORT,
     UInt                               = gl_const.UNSIGNED_INT,
 }
 
-type ShaderTypes enum i32 {
+ShaderTypes :: enum i32 {
     Compute                            = gl_const.COMPUTE_SHADER,
     Vertex                             = gl_const.VERTEX_SHADER,
     TessControl                        = gl_const.TESS_CONTROL_SHADER,
@@ -82,7 +82,7 @@ type ShaderTypes enum i32 {
     Fragment                           = gl_const.FRAGMENT_SHADER,
 }
 
-type BlendFactors enum i32 {
+BlendFactors :: enum i32 {
     Zero                               = gl_const.ZERO,
     One                                = gl_const.ONE,
     SrcColor                           = gl_const.SRC_COLOR,
@@ -99,7 +99,7 @@ type BlendFactors enum i32 {
     OneMinusConstantAlpha              = gl_const.ONE_MINUS_CONSTANT_ALPHA,
 }
 
-type BlendEquations enum i32 {
+BlendEquations :: enum i32 {
     FuncAdd                            = gl_const.FUNC_ADD,
     FuncSubtract                       = gl_const.FUNC_SUBTRACT,
     FuncReverseSubtract                = gl_const.FUNC_REVERSE_SUBTRACT,
@@ -107,7 +107,7 @@ type BlendEquations enum i32 {
     Max                                = gl_const.MAX,
 }
 
-type Capabilities enum i32 {
+Capabilities :: enum i32 {
     Blend                              = gl_const.BLEND,
     ClipDistance0                      = gl_const.CLIP_DISTANCE0,
     ClipDistance1                      = gl_const.CLIP_DISTANCE1,
@@ -145,13 +145,13 @@ type Capabilities enum i32 {
     ProgramPointSize                   = gl_const.PROGRAM_POINT_SIZE,
 }
 
-type ClearFlags enum i32 {
+ClearFlags :: enum i32 {
     COLOR_BUFFER                       = gl_const.COLOR_BUFFER_BIT,
     DEPTH_BUFFER                       = gl_const.DEPTH_BUFFER_BIT,
     STENCIL_BUFFER                     = gl_const.STENCIL_BUFFER_BIT,
 }
 
-type GetStringNames enum i32 {
+GetStringNames :: enum i32 {
     Vendor                             = gl_const.VENDOR,
     Renderer                           = gl_const.RENDERER,
     Version                            = gl_const.VERSION,
@@ -159,7 +159,7 @@ type GetStringNames enum i32 {
     Extensions                         = gl_const.EXTENSIONS,   
 }
 
-type GetIntegerNames enum i32 {
+GetIntegerNames :: enum i32 {
     ContextFlags                       = gl_const.CONTEXT_FLAGS,
     MajorVersion                       = gl_const.MAJOR_VERSION,
     MinorVersion                       = gl_const.MINOR_VERSION,
@@ -185,7 +185,7 @@ type GetIntegerNames enum i32 {
     ScissorTest                        = gl_const.SCISSOR_TEST,
 }
 
-type InternalColorFormat enum i32 {
+InternalColorFormat :: enum i32 {
     //Base
     DepthComponent                     = gl_const.DEPTH_COMPONENT,
     DepthStencil                       = gl_const.DEPTH_STENCIL,
@@ -274,7 +274,7 @@ type InternalColorFormat enum i32 {
     COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = gl_const.COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
 }
 
-type PixelDataFormat enum i32 {
+PixelDataFormat :: enum i32 {
     Red                                = gl_const.RED,
     RG                                 = gl_const.RG,
     RGB                                = gl_const.RGB,
@@ -292,7 +292,7 @@ type PixelDataFormat enum i32 {
     DepthStencil                       = gl_const.DEPTH_STENCIL,
 }
 
-type Texture2DDataType enum i32 {
+Texture2DDataType :: enum i32 {
     UByte                              = gl_const.UNSIGNED_BYTE,
     Byte                               = gl_const.BYTE,
     UShort                             = gl_const.UNSIGNED_SHORT,
@@ -314,7 +314,7 @@ type Texture2DDataType enum i32 {
     UInt_2_10_10_10_rev                = gl_const.UNSIGNED_INT_2_10_10_10_REV,
 }
 
-type VertexAttribDataType enum i32 {
+VertexAttribDataType :: enum i32 {
     Byte                               = gl_const.BYTE,
     UByte                              = gl_const.UNSIGNED_BYTE,
     Short                              = gl_const.SHORT,
@@ -330,7 +330,7 @@ type VertexAttribDataType enum i32 {
     UInt_10f_11f_11f_rev               = gl_const.UNSIGNED_INT_10F_11F_11F_REV, 
 }
 
-type MipmapTargets enum i32 {
+MipmapTargets :: enum i32 {
     Texture1D                          = gl_const.TEXTURE_1D, 
     Texture2D                          = gl_const.TEXTURE_2D,
     Texture3D                          = gl_const.TEXTURE_3D, 
@@ -340,7 +340,7 @@ type MipmapTargets enum i32 {
     TextureCubeMapArray                = gl_const.TEXTURE_CUBE_MAP_ARRAY,
 }
 
-type TextureTargets enum i32 {
+TextureTargets :: enum i32 {
     Texture1D                          = gl_const.TEXTURE_1D, 
     Texture2D                          = gl_const.TEXTURE_2D,
     Texture3D                          = gl_const.TEXTURE_3D, 
@@ -356,7 +356,7 @@ type TextureTargets enum i32 {
     Texture2DMultisampleArray          = gl_const.TEXTURE_2D_MULTISAMPLE_ARRAY,
 }
 
-type TextureParameters enum i32 {
+TextureParameters :: enum i32 {
     DepthStencilTextureMode            = gl_const.DEPTH_STENCIL_TEXTURE_MODE, 
     BaseLevel                          = gl_const.TEXTURE_BASE_LEVEL,
     CompareFunc                        = gl_const.TEXTURE_COMPARE_FUNC,
@@ -376,7 +376,7 @@ type TextureParameters enum i32 {
     WrapR                              = gl_const.TEXTURE_WRAP_R,
 }
 
-type TextureParametersValues enum i32 {
+TextureParametersValues :: enum i32 {
     Nearest                            = gl_const.NEAREST,
     Linear                             = gl_const.LINEAR,
     NearestMipmapNearest               = gl_const.NEAREST_MIPMAP_NEAREST,
@@ -388,7 +388,7 @@ type TextureParametersValues enum i32 {
     ClampToEdge                        = gl_const.CLAMP_TO_EDGE,
 }
 
-type TextureUnits enum i32 {
+TextureUnits :: enum i32 {
     Texture0                           = gl_const.TEXTURE0,
     Texture1                           = gl_const.TEXTURE1,
     Texture2                           = gl_const.TEXTURE2,
@@ -423,7 +423,7 @@ type TextureUnits enum i32 {
     Texture31                          = gl_const.TEXTURE31,
 }
 
-type BufferTargets enum i32 {
+BufferTargets :: enum i32 {
     Array                              = gl_const.ARRAY_BUFFER,
     AtomicCounter                      = gl_const.ATOMIC_COUNTER_BUFFER,
     CopyRead                           = gl_const.COPY_READ_BUFFER,
@@ -440,7 +440,7 @@ type BufferTargets enum i32 {
     Uniform                            = gl_const.UNIFORM_BUFFER,
 }
 
-type BufferDataUsage enum i32 {
+BufferDataUsage :: enum i32 {
     StreamDraw                         = gl_const.STREAM_DRAW, 
     StreamRead                         = gl_const.STREAM_READ,
     StreamCopy                         = gl_const.STREAM_COPY,
@@ -452,19 +452,19 @@ type BufferDataUsage enum i32 {
     DynamicCopy                        = gl_const.DYNAMIC_COPY,
 }
 
-type PolygonFace enum i32 {
+PolygonFace :: enum i32 {
     Front                              = gl_const.FRONT,
     Back                               = gl_const.BACK,
     FrontAndBack                       = gl_const.FRONT_AND_BACK,
 }
 
-type PolygonModes enum i32 {
+PolygonModes :: enum i32 {
     Point                              = gl_const.POINT,
     Line                               = gl_const.LINE,
     Fill                               = gl_const.FILL,
 }
 
-type DepthFuncs enum i32 {
+DepthFuncs :: enum i32 {
     Never                              = gl_const.NEVER,
     Less                               = gl_const.LESS,
     Equal                              = gl_const.EQUAL,
@@ -474,7 +474,7 @@ type DepthFuncs enum i32 {
     Gequal                             = gl_const.GEQUAL,
     Always                             = gl_const.ALWAYS,
 }/*
- *  @Name:     gl_enums
+ *  @Name:     gl_:: enums
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network

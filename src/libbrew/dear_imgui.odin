@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 17-06-2017 14:05:15
+ *  @Last Time: 02-07-2017 01:04:40
  *  
  *  @Description:
  *  
@@ -20,7 +20,7 @@ import "gl.odin";
 //#import "main.odin";
 //#import gl_util "gl_util.odin";
 
-type State struct {
+State :: struct {
     //Misc
     mouse_wheel_delta : i32,
 
@@ -32,7 +32,7 @@ type State struct {
 }
 
 
-type FrameState struct {
+FrameState :: struct {
     deltatime     : f32,
     window_width  : int,
     window_height : int,
@@ -44,8 +44,8 @@ type FrameState struct {
 }
 
 
-proc set_style() {
-    var style = get_style();
+set_style :: proc() {
+    style := get_style();
 
     style.window_rounding = 1.0;
     style.child_window_rounding  = 1.0;
@@ -81,8 +81,8 @@ proc set_style() {
     style.colors[GuiCol.ModalWindowDarkening]  = Vec4{0.20, 0.20, 0.20, 0.35};
 }
 
-proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
-    var io = get_io();
+init :: proc(state : ^State, wnd_handle : libbrew.WndHandle) {
+    io := get_io();
     io.ime_window_handle = wnd_handle;
     //io.RenderDrawListsFn = RenderProc;
 /*    n := "imgui.ini\x00";
@@ -108,7 +108,7 @@ proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
     io.key_map[GuiKey.Y]          = 'Y';
     io.key_map[GuiKey.Z]          = 'Z';
 
-    const vertexShaderString =
+    vertexShaderString ::
         `#version 330
         uniform mat4 ProjMtx;
         in vec2 Position;
@@ -123,7 +123,7 @@ proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
            gl_Position = ProjMtx * vec4(Position.xy,0,1);
         }`;
 
-    const fragmentShaderString = 
+    fragmentShaderString :: 
         `#version 330
         uniform sampler2D Texture;
         in vec2 Frag_UV;
@@ -136,11 +136,11 @@ proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
 
 
     state.main_program    = gl.create_program();
-    var vertex_shader = gl.create_shader(gl.ShaderTypes.Vertex);
+    vertex_shader := gl.create_shader(gl.ShaderTypes.Vertex);
     gl.shader_source(vertex_shader, vertexShaderString);
     gl.compile_shader(vertex_shader);
 
-    var fragment_shader = gl.create_shader(gl.ShaderTypes.Fragment);
+    fragment_shader := gl.create_shader(gl.ShaderTypes.Fragment);
     gl.shader_source(fragment_shader, fragmentShaderString);
     gl.compile_shader(fragment_shader);
    
@@ -173,12 +173,12 @@ proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
     gl.vertex_attrib_pointer(u32(state.main_program.Attributes["Color"]),      4, gl.VertexAttribDataType.UByte, true,  size_of(DrawVert), rawptr(int(offset_of(DrawVert, col))));
     
     //CreateFont
-    var pixels : ^u8;
-    var width : i32;
-    var height : i32;
-    var bytePer : i32;
+    pixels : ^u8;
+    width : i32;
+    height : i32;
+    bytePer : i32;
     font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height, &bytePer);
-    var tex = gl.gen_texture();
+    tex := gl.gen_texture();
     gl.bind_texture(gl.TextureTargets.Texture2D, tex);
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MinFilter, gl.TextureParametersValues.Linear);
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MagFilter, gl.TextureParametersValues.Linear);
@@ -190,8 +190,8 @@ proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
     set_style();
 }
 
-proc begin_new_frame(new_state : ^FrameState) {
-    var io = get_io();
+begin_new_frame :: proc(new_state : ^FrameState) {
+    io := get_io();
     io.display_size.x = f32(new_state.window_width);
     io.display_size.y = f32(new_state.window_height);
 
@@ -229,25 +229,25 @@ proc begin_new_frame(new_state : ^FrameState) {
     new_frame();
 }
  
-proc render_proc(state : ^State, window_width, window_height : int) {
+render_proc :: proc(state : ^State, window_width, window_height : int) {
     render();
-    var data = get_draw_data();
+    data := get_draw_data();
 
-    var io = get_io();
+    io := get_io();
     
     io.display_size.x = f32(window_width);
     io.display_size.y = f32(window_height);
 
-    var width  = i32(io.display_size.x * io.display_framebuffer_scale.x);
-    var height = i32(io.display_size.y * io.display_framebuffer_scale.y);
+    width  := i32(io.display_size.x * io.display_framebuffer_scale.x);
+    height := i32(io.display_size.y * io.display_framebuffer_scale.y);
     if height == 0 || width == 0 {
         return;
     }
     //draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
     //@TODO(Hoej): BACKUP STATE!
-    var lastViewport : [4]i32;
-    var lastScissor  : [4]i32;
+    lastViewport : [4]i32;
+    lastScissor  : [4]i32;
     gl.get_integer(gl.GetIntegerNames.Viewport, lastViewport[..]);
     gl.get_integer(gl.GetIntegerNames.ScissorBox, lastScissor[..]);
 
@@ -260,7 +260,7 @@ proc render_proc(state : ^State, window_width, window_height : int) {
     gl.active_texture(gl.TextureUnits.Texture0);
 
     gl.viewport(0, 0, width, height);
-    var ortho_projection = [4][4]f32
+    ortho_projection := [4][4]f32
     {
         { 2.0 / io.display_size.x,   0.0,                        0.0,    0.0 },
         { 0.0,                      2.0 / -io.display_size.y,    0.0,    0.0 },
@@ -273,10 +273,10 @@ proc render_proc(state : ^State, window_width, window_height : int) {
     gl._uniform_matrix4fv(state.main_program.Uniforms["ProjMtx"], 1, 0, &ortho_projection[0][0]);
     gl.bind_vertex_array(state.vao_handle);
 
-    var newList = slice_ptr(data.cmd_lists, data.cmd_lists_count);
-    for var n : i32 = 0; n < data.cmd_lists_count; n += 1 {
-        var list = newList[n];
-        var idxBufferOffset : ^DrawIdx = nil;
+    newList := slice_ptr(data.cmd_lists, data.cmd_lists_count);
+    for n : i32 = 0; n < data.cmd_lists_count; n += 1 {
+        list := newList[n];
+        idxBufferOffset : ^DrawIdx = nil;
 
         gl.bind_buffer(state.vbo_handle);
         gl.buffer_data(gl.BufferTargets.Array, i32(draw_list_get_vertex_buffer_size(list) * size_of(DrawVert)), draw_list_get_vertex_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
@@ -284,8 +284,8 @@ proc render_proc(state : ^State, window_width, window_height : int) {
         gl.bind_buffer(state.ebo_handle);
         gl.buffer_data(gl.BufferTargets.ElementArray, i32(draw_list_get_index_buffer_size(list) * size_of(DrawIdx)), draw_list_get_index_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
 
-        for var j : i32 = 0; j < draw_list_get_cmd_size(list); j += 1 {
-            var cmd = draw_list_get_cmd_ptr(list, j);
+        for j : i32 = 0; j < draw_list_get_cmd_size(list); j += 1 {
+            cmd := draw_list_get_cmd_ptr(list, j);
             gl.bind_texture(gl.TextureTargets.Texture2D, gl.Texture(uint(cmd.texture_id)));
             gl.scissor(i32(cmd.clip_rect.x), height - i32(cmd.clip_rect.w), i32(cmd.clip_rect.z - cmd.clip_rect.x), i32(cmd.clip_rect.w - cmd.clip_rect.y));
             gl.draw_elements(gl.DrawModes.Triangles, i32(cmd.elem_count), gl.DrawElementsType.UShort, idxBufferOffset);
@@ -298,7 +298,7 @@ proc render_proc(state : ^State, window_width, window_height : int) {
     gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3]);
 }
 
-proc begin_panel(label : string, pos, size : Vec2) -> bool {
+begin_panel :: proc(label : string, pos, size : Vec2) -> bool {
     set_next_window_pos(pos, GuiSetCond.Always);
     set_next_window_size(size, GuiSetCond.Always);
     return begin(label, nil, GuiWindowFlags.NoTitleBar            | 

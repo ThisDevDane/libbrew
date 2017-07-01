@@ -6,13 +6,13 @@
  *  @Creation: 01-06-2017 02:27:15
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2017 21:22:36
+ *  @Last Time: 02-07-2017 01:07:33
  *  
  *  @Description:
  *  
  */
  
-type VirtualKey enum {
+VirtualKey :: enum {
     LMouse     = 0x01,
     RMouse     = 0x02,
     Cancel     = 0x03,

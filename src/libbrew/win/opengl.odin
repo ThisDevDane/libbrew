@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2017 21:20:08
+ *  @Last Time: 02-07-2017 01:06:30
  *  
  *  @Description:
  *  
@@ -21,24 +21,24 @@ import "window.odin";
 
 import_load "opengl_wgl.odin";
 
-type GlContext wgl.Hglrc;
+GlContext :: wgl.Hglrc;
 
-proc _string_data(s: string) -> ^u8 #inline { return &s[0]; }
+_string_data :: proc(s: string) -> ^u8 #inline { return &s[0]; }
 
-proc gl_get_proc_address(name : string) -> proc() #cc_c {
-    var buf : [256]u8;
-    var c_str = fmt.bprintf(buf[..], "%s\x00", name);
+gl_get_proc_address :: proc(name : string) -> proc() #cc_c {
+    buf : [256]u8;
+    c_str := fmt.bprintf(buf[..], "%s\x00", name);
     return wgl.get_proc_address(&c_str[0]);
 }
 
-proc create_gl_context(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
-    var extensions : map[string]rawptr;
+create_gl_context :: proc(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
+    extensions : map[string]rawptr;
     extensions["wglChoosePixelFormatARB"]    = &choose_pixel_format;
     extensions["wglCreateContextAttribsARB"] = &create_context_attribs;
     extensions["wglGetExtensionsStringARB"]  = &get_extensions_string;
     extensions["wglSwapIntervalEXT"]         = &swap_interval;
 
-    var attribs : [dynamic]Attrib;
+    attribs : [dynamic]Attrib;
     append(attribs, draw_to_window_arb(true),
                     acceleration_arb(AccelerationArbValues.FullAccelerationArb),
                     support_opengl_arb(true),
@@ -53,13 +53,13 @@ proc create_gl_context(wnd_handle : window.WndHandle, major, minor : int) -> GlC
 }
 
 //TODO Clean this up and understand it better
-proc create_gl_context(handle : window.WndHandle, 
+create_gl_context :: proc(handle : window.WndHandle, 
                          major, minor : int, 
                          requested_extensions : map[string]rawptr,
                          attribs : []Attrib,
                          core, debug : bool) -> GlContext {
 
-    var wndHandle = win32.create_window_ex_a(0, 
+    wndHandle := win32.create_window_ex_a(0, 
                        _string_data("STATIC\x00"), 
                        _string_data("Opengl Loader\x00"), 
                        win32.WS_OVERLAPPED, 
@@ -70,13 +70,13 @@ proc create_gl_context(handle : window.WndHandle,
         panic("Could not create opengl loader window");
     }
 
-    var legacy_context = _create_legacy_context(window.WndHandle(handle));
-    var dc = win32.get_dc(win32.Hwnd(wndHandle));
+    legacy_context := _create_legacy_context(window.WndHandle(handle));
+    dc := win32.get_dc(win32.Hwnd(wndHandle));
     {
-        proc set_proc_address(p: rawptr, name : string) #inline { 
-            var res = gl_get_proc_address(name);
+        set_proc_address :: proc(p: rawptr, name : string) #inline { 
+            res := gl_get_proc_address(name);
             assert(res != nil);
-            ^(proc() #cc_c)(p)^ = res;
+            p = rawptr(res);
         }
 
         for val, key in requested_extensions {
@@ -90,22 +90,22 @@ proc create_gl_context(handle : window.WndHandle,
 
     dc = win32.get_dc(win32.Hwnd(handle));
 
-    var format : i32;
-    var formats : u32;
-    var attrib_array = prepare_attrib_array(attribs[..]); defer free(attrib_array);
+    format : i32;
+    formats : u32;
+    attrib_array := prepare_attrib_array(attribs[..]); defer free(attrib_array);
 
-    var success = choose_pixel_format(dc, &attrib_array[0], nil, 1, &format, &formats);
+    success := choose_pixel_format(dc, &attrib_array[0], nil, 1, &format, &formats);
     if (success == win32.TRUE) && (formats == 0) {
         panic("Couldn't find suitable pixel format");
     }
 
-    var pfd : win32.PixelFormatDescriptor;
+    pfd : win32.PixelFormatDescriptor;
     pfd.version = 1;
     pfd.size = size_of(win32.PixelFormatDescriptor);
     win32.describe_pixel_format(dc, format, size_of(win32.PixelFormatDescriptor), &pfd);
     win32.set_pixel_format(dc, format, &pfd);
 
-    var create_attribs : [dynamic]Attrib;
+    create_attribs : [dynamic]Attrib;
     append(create_attribs, context_major_version_arb(i32(major)),
                            context_minor_version_arb(i32(minor)));
 
@@ -118,9 +118,9 @@ proc create_gl_context(handle : window.WndHandle,
         append(create_attribs, context_flags_arb(ContextFlagsArbValues.DebugBitArb));
     }
 
-    var create_attrib_array = prepare_attrib_array(create_attribs[..]);
+    create_attrib_array := prepare_attrib_array(create_attribs[..]);
 
-    var ctx = create_context_attribs(dc, nil, &create_attrib_array[0]);
+    ctx := create_context_attribs(dc, nil, &create_attrib_array[0]);
     assert(ctx != nil);
     wgl.make_current(dc, ctx);
     win32.release_dc(win32.Hwnd(handle), dc);
@@ -128,23 +128,23 @@ proc create_gl_context(handle : window.WndHandle,
 }
 
 
-proc _create_legacy_context(handle : window.WndHandle) -> wgl.Hglrc {
-    var dc = win32.get_dc(win32.Hwnd(handle));
+_create_legacy_context :: proc(handle : window.WndHandle) -> wgl.Hglrc {
+    dc := win32.get_dc(win32.Hwnd(handle));
 
-    var pfd = win32.PixelFormatDescriptor{};
+    pfd := win32.PixelFormatDescriptor{};
     pfd.size = size_of(win32.PixelFormatDescriptor);
     pfd.version = 1;
     pfd.flags = win32.PFD_DRAW_TO_WINDOW | win32.PFD_SUPPORT_OPENGL | win32.PFD_DOUBLEBUFFER;
     pfd.color_bits = 32;
     pfd.alpha_bits = 8;
     pfd.depth_bits = 24;
-    var format = win32.choose_pixel_format(dc, &pfd);
+    format := win32.choose_pixel_format(dc, &pfd);
 
     win32.describe_pixel_format(dc, format, size_of(win32.PixelFormatDescriptor), &pfd);
 
     win32.set_pixel_format(dc, format, &pfd);
 
-    var ctx = wgl.create_context(dc);
+    ctx := wgl.create_context(dc);
 
     assert(ctx != nil);
     wgl.make_current(dc, ctx);
