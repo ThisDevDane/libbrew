@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 17-06-2017 12:01:36
+ *  @Last Time: 17-06-2017 14:07:17
  *  
  *  @Description:
  *      Example for LibBrew
@@ -14,28 +14,26 @@
  import {
     "fmt.odin";
     "strings.odin";
-    "libbrew/libbrew.odin";
+    brew "libbrew/libbrew.odin";
     "libbrew/gl.odin";
     imgui "libbrew/dear_imgui.odin";
 }
 
 proc main() {
-    var app_handle = libbrew.get_app_handle();
+    var app_handle = brew.get_app_handle();
     var width, height = 1280, 720;
-    var wnd_handle = libbrew.create_window(app_handle, "LibBrew Example", true, 100, 100, width, height);
-    var glCtx      = libbrew.create_gl_context(wnd_handle, 3, 3);
+    var wnd_handle = brew.create_window(app_handle, "LibBrew Example", true, 100, 100, width, height);
+    var glCtx      = brew.create_gl_context(wnd_handle, 3, 3);
     gl.load_functions();
 
     var dear_state = new(imgui.State);
     imgui.init(dear_state, wnd_handle);
 
-
-    libbrew.swap_interval(-1);
+    brew.swap_interval(-1);
     gl.clear_color(41/255.0, 57/255.0, 84/255.0, 1);
 
     var {
-        message : libbrew.Msg;
-        window_focus : bool;
+        message : brew.Msg;
         mpos_x : int;
         mpos_y : int;
         prev_lm_down : bool;
@@ -44,76 +42,80 @@ proc main() {
         add_data : bool = false;
         scale_by_max : bool = false;
         frame_list = make_frame_time_list(100);
-        time_data = libbrew.create_time_data();
+        time_data = brew.create_time_data();
         i = 0;
         dragging = false;
         sizing_x = false;
         sizing_y = false;
         maximized = false;
         shift_down = false;
+        new_frame_state = imgui.FrameState{};
     }
 main_loop: 
     for {
         prev_lm_down = lm_down ? true : false;
-        for libbrew.poll_message(&message) {
+        for brew.poll_message(&message) {
             match msg in message {
-                case libbrew.Msg.QuitMessage : {
+                case brew.Msg.QuitMessage : {
                     break main_loop;
                 }
 
-                case libbrew.Msg.Key : {
+                case brew.Msg.Key : {
                     match msg.key {
-                        case libbrew.VirtualKey.Escape : {
+                        case brew.VirtualKey.Escape : {
                             if msg.down == true && shift_down {
                                 break main_loop;
                             }
                         }
 
-                        case libbrew.VirtualKey.Lshift : {
+                        case brew.VirtualKey.Lshift : {
                             shift_down = msg.down;
                         }
                     }
                 }
 
-                case libbrew.Msg.MouseButton : {
+                case brew.Msg.MouseButton : {
                     match msg.key {
-                        case libbrew.VirtualKey.LMouse : {
+                        case brew.VirtualKey.LMouse : {
                             lm_down = msg.down;
                         }
 
-                        case libbrew.VirtualKey.RMouse : {
+                        case brew.VirtualKey.RMouse : {
                             rm_down = msg.down;
                         }
                     }
                 }
 
-                case libbrew.Msg.WindowFocus : {
-                    window_focus = msg.enter_focus;
+                case brew.Msg.WindowFocus : {
+                    new_frame_state.window_focus = msg.enter_focus;
                 }
 
-                /*case libbrew.Msg.MouseMove : {
+                /*case brew.Msg.MouseMove : {
                     mpos_x = msg.x;
                     mpos_y = msg.y;
                 }*/
 
-                case libbrew.Msg.SizeChange : {
-                    width  = msg.width;
+                case brew.Msg.SizeChange : {
+                    width = msg.width;
                     height = msg.height;
                     gl.viewport(0, 0, i32(width), i32(height));
                     gl.scissor( 0, 0, i32(width), i32(height));
                 }
             }
         }
-        var dt = libbrew.time(&time_data);
-        mpos_x, mpos_y = libbrew.get_mouse_pos(wnd_handle);
+        var dt = brew.time(&time_data);
+        mpos_x, mpos_y = brew.get_mouse_pos(wnd_handle);
+        new_frame_state.deltatime = f32(dt);
+        new_frame_state.mouse_x = mpos_x;
+        new_frame_state.mouse_y = mpos_y;
+        new_frame_state.window_width = width;
+        new_frame_state.window_height = height;
+        new_frame_state.left_mouse = lm_down;
+        new_frame_state.right_mouse = rm_down;
 
         gl.clear(gl.ClearFlags.COLOR_BUFFER);
 
-        imgui.begin_new_frame(dt, 
-                              width, height,
-                              window_focus,
-                              mpos_x, mpos_y,
-                              lm_down, rm_down);
+        imgui.begin_new_frame(&new_frame_state);
 
         imgui.begin_main_menu_bar();
         {
@@ -121,14 +123,14 @@ main_loop:
             if imgui.is_item_clicked(0) {
                 dragging = true;
                 if imgui.is_mouse_double_clicked(0) {
+                    dragging = false;
                     if !maximized {
-                        libbrew.maximize_window(wnd_handle);
+                        brew.maximize_window(wnd_handle);
                         maximized = true;
                     } else {
-                        libbrew.restore_window(wnd_handle);
+                        brew.restore_window(wnd_handle);
                         maximized = false;
                     }
-                    dragging = false;
                 }
             }
             if imgui.begin_menu("Misc###LibbrewMain") {
@@ -145,13 +147,12 @@ main_loop:
         imgui.end_main_menu_bar();
 
         if imgui.is_mouse_down(0) && dragging {
-            var d : imgui.Vec2;
-            imgui.get_mouse_drag_delta(&d, 0, 0);
-            var x, y = libbrew.get_window_pos(wnd_handle);
-            libbrew.set_window_pos(wnd_handle, x + int(d.x), y + int(d.y));
+            var d = imgui.get_mouse_drag_delta();
+            var x, y = brew.get_window_pos(wnd_handle);
+            brew.set_window_pos(wnd_handle, x + int(d.x), y + int(d.y));
             if maximized && d.x != 0 && d.y != 0 {
                 maximized = false;
-                libbrew.restore_window(wnd_handle);
+                brew.restore_window(wnd_handle);
             }
         } else {
             dragging = false;
@@ -201,7 +202,7 @@ main_loop:
         if (sizing_x || sizing_y) && lm_down {
             new_w = sizing_x ? mpos_x+2 : width;
             new_h = sizing_y ? mpos_y+2 : height;
-            libbrew.set_window_size(wnd_handle, new_w+2, new_h+2);
+            brew.set_window_size(wnd_handle, new_w+2, new_h+2);
         } else {
             sizing_x = false;
             sizing_y = false;
@@ -210,8 +211,8 @@ main_loop:
         imgui.show_test_window(nil);
 
         imgui.render_proc(dear_state, width, height);
-        libbrew.swap_buffers(wnd_handle);
-        libbrew.sleep(1);
+        brew.swap_buffers(wnd_handle);
+        //brew.sleep(1);
     }
 
     imgui.shutdown();

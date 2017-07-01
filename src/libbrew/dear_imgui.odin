@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2017 21:16:25
+ *  @Last Time: 17-06-2017 14:05:15
  *  
  *  @Description:
  *  
@@ -26,13 +26,23 @@ type State struct {
 
     //Render
     main_program      : gl.Program,
-
     vbo_handle        : gl.VBO,
     ebo_handle        : gl.EBO,
     vao_handle        : gl.VAO,
-
-    font_texture      : gl.Texture,
 }
+
+
+type FrameState struct {
+    deltatime     : f32,
+    window_width  : int,
+    window_height : int,
+    window_focus  : bool,
+    mouse_x       : int,
+    mouse_y       : int,
+    left_mouse    : bool,
+    right_mouse   : bool,
+}
+
 
 proc set_style() {
     var style = get_style();
@@ -168,32 +178,28 @@ proc init(state : ^State, wnd_handle : libbrew.WndHandle) {
     var height : i32;
     var bytePer : i32;
     font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height, &bytePer);
-    state.font_texture = gl.gen_texture();
-    gl.bind_texture(gl.TextureTargets.Texture2D, state.font_texture);
+    var tex = gl.gen_texture();
+    gl.bind_texture(gl.TextureTargets.Texture2D, tex);
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MinFilter, gl.TextureParametersValues.Linear);
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MagFilter, gl.TextureParametersValues.Linear);
     gl.tex_image2d(gl.TextureTargets.Texture2D, 0, gl.InternalColorFormat.RGBA, 
                   width, height, gl.PixelDataFormat.RGBA, 
                   gl.Texture2DDataType.UByte, pixels);
-    font_atlas_set_text_id(io.fonts, rawptr(uint(state.font_texture)));
+    font_atlas_set_text_id(io.fonts, rawptr(uint(tex)));
 
     set_style();
 }
 
-proc begin_new_frame(deltaTime : f64, 
-                        window_width, window_height : int, 
-                        window_focus : bool, 
-                        mouse_pos_x, mouse_pos_y : int,
-                        lmouse_down, rmouse_down : bool) {
+proc begin_new_frame(new_state : ^FrameState) {
     var io = get_io();
-    io.display_size.x = f32(window_width);
-    io.display_size.y = f32(window_height);
+    io.display_size.x = f32(new_state.window_width);
+    io.display_size.y = f32(new_state.window_height);
 
-    if window_focus {
-        io.mouse_pos.x = f32(mouse_pos_x);
-        io.mouse_pos.y = f32(mouse_pos_y);
-        io.mouse_down[0] = lmouse_down;
-        io.mouse_down[1] = rmouse_down;
+    if new_state.window_focus {
+        io.mouse_pos.x = f32(new_state.mouse_x);
+        io.mouse_pos.y = f32(new_state.mouse_y);
+        io.mouse_down[0] = new_state.left_mouse;
+        io.mouse_down[1] = new_state.right_mouse;;
         /*
         io.mouse_wheel = f32(ctx.imgui_state.mouse_wheel_delta); 
 
@@ -219,7 +225,7 @@ proc begin_new_frame(deltaTime : f64,
     }
     
    // ctx.imgui_state.mouse_wheel_delta = 0;
-    io.delta_time = f32(deltaTime);
+    io.delta_time = new_state.deltatime;
     new_frame();
 }
  

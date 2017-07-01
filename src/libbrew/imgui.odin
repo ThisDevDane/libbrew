@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 17-06-2017 12:00:48
+ *  @Last Time: 17-06-2017 13:50:14
  *  
  *  @Description:
  *      Wrapper for Dear ImGui.
@@ -1127,9 +1127,14 @@ foreign cimgui {
     proc capture_keyboard_from_app             (capture : bool)                                   #link_name "igCaptureKeyboardFromApp";
     proc capture_mouse_from_app                (capture : bool)                                   #link_name "igCaptureMouseFromApp";
 }
-proc get_mouse_pos                         () -> Vec2 {
+proc get_mouse_pos       () -> Vec2 {
     var out : Vec2;
     get_mouse_pos(&out);
+    return out;
+}
+proc get_mouse_drag_delta(button : i32 = 0, lock_threshold : f32 = -1.0) -> Vec2 {
+    var out : Vec2;
+    get_mouse_drag_delta(&out, button, lock_threshold);
     return out;
 }
 
