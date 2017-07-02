@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 00:58:55
+ *  @Last Time: 02-07-2017 16:20:00
  *  
  *  @Description:
  *  
@@ -41,7 +41,7 @@ Program :: struct {
     Attributes : map[string]i32,
 }
 
-DebugMessageCallbackProc : proc(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : ^u8, userParam : rawptr) #cc_c;
+DebugMessageCallbackProc :: proc(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : ^u8, userParam : rawptr) #cc_c;
 
 // API 
 
@@ -595,9 +595,7 @@ compile_shader :: proc(obj : Shader) {
 
 load_functions :: proc() {
     lib := libbrew.load_library("opengl32.dll"); defer libbrew.free_library(lib);
-
     set_proc_address :: proc(lib : libbrew.LibHandle, p: rawptr, name: string) #inline {
-
         res := libbrew.gl_get_proc_address(name);
         if res == nil {
             res = libbrew.get_proc_address(lib, name);
@@ -607,7 +605,7 @@ load_functions :: proc() {
             fmt.println("Couldn't load:", name);
         }
 
-        p = rawptr(res);
+        ^rawptr(p)^ = rawptr(res);
     }
 
     set_proc_address(lib, &_draw_elements,              "glDrawElements"           );

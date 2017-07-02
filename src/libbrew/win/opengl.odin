@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:06:30
+ *  @Last Time: 02-07-2017 16:21:19
  *  
  *  @Description:
  *  
@@ -58,7 +58,6 @@ create_gl_context :: proc(handle : window.WndHandle,
                          requested_extensions : map[string]rawptr,
                          attribs : []Attrib,
                          core, debug : bool) -> GlContext {
-
     wndHandle := win32.create_window_ex_a(0, 
                        _string_data("STATIC\x00"), 
                        _string_data("Opengl Loader\x00"), 
@@ -76,7 +75,7 @@ create_gl_context :: proc(handle : window.WndHandle,
         set_proc_address :: proc(p: rawptr, name : string) #inline { 
             res := gl_get_proc_address(name);
             assert(res != nil);
-            p = rawptr(res);
+            ^rawptr(p)^ = rawptr(res);
         }
 
         for val, key in requested_extensions {
@@ -93,8 +92,8 @@ create_gl_context :: proc(handle : window.WndHandle,
     format : i32;
     formats : u32;
     attrib_array := prepare_attrib_array(attribs[..]); defer free(attrib_array);
-
     success := choose_pixel_format(dc, &attrib_array[0], nil, 1, &format, &formats);
+
     if (success == win32.TRUE) && (formats == 0) {
         panic("Couldn't find suitable pixel format");
     }
@@ -102,7 +101,9 @@ create_gl_context :: proc(handle : window.WndHandle,
     pfd : win32.PixelFormatDescriptor;
     pfd.version = 1;
     pfd.size = size_of(win32.PixelFormatDescriptor);
+
     win32.describe_pixel_format(dc, format, size_of(win32.PixelFormatDescriptor), &pfd);
+
     win32.set_pixel_format(dc, format, &pfd);
 
     create_attribs : [dynamic]Attrib;

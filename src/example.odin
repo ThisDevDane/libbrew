@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 00:54:46
+ *  @Last Time: 02-07-2017 16:22:44
  *  
  *  @Description:
  *      Example for LibBrew
@@ -20,13 +20,18 @@
 )
 
 main :: proc() {
+    fmt.println("Program Start...");
     app_handle := brew.get_app_handle();
     width, height := 1280, 720;
+    fmt.println("Creating Window...");
     wnd_handle := brew.create_window(app_handle, "LibBrew Example", true, 100, 100, width, height);
+    fmt.println("Creating GL Context...");
     glCtx      := brew.create_gl_context(wnd_handle, 3, 3);
+    fmt.println("Load GL Functions...");
     gl.load_functions();
 
     dear_state := new(imgui.State);
+    fmt.println("Initialize Dear ImGui...");
     imgui.init(dear_state, wnd_handle);
 
     brew.swap_interval(-1);
@@ -40,16 +45,17 @@ main :: proc() {
     rm_down : bool;
     add_data : bool = false;
     scale_by_max : bool = false;
-    frame_list = make_frame_time_list(100);
-    time_data = brew.create_time_data();
-    i = 0;
-    dragging = false;
-    sizing_x = false;
-    sizing_y = false;
-    maximized = false;
-    shift_down = false;
-    new_frame_state = imgui.FrameState{};
+    frame_list      := make_frame_time_list(100);
+    time_data       := brew.create_time_data();
+    i               := 0;
+    dragging        := false;
+    sizing_x        := false;
+    sizing_y        := false;
+    maximized       := false;
+    shift_down      := false;
+    new_frame_state := imgui.FrameState{};
     
+    fmt.println("Entering Main Loop...");
 main_loop: 
     for {
         prev_lm_down = lm_down ? true : false;
@@ -215,6 +221,7 @@ main_loop:
     }
 
     imgui.shutdown();
+    fmt.println("Ending Application...");
 }
 
 FrameTimeList :: struct {

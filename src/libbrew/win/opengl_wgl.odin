@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:07:25
+ *  @Last Time: 02-07-2017 16:08:20
  *  
  *  @Description:
  *  
@@ -142,17 +142,17 @@ prepare_attrib_array :: proc(attribList : []Attrib) -> [dynamic]i32 {
     append(array, 0);
     return array;
 }
-CreateContextAttribsARB : proc(hdc : win32.Hdc, 
+CreateContextAttribsARB :: proc(hdc : win32.Hdc, 
                                       shareContext : wgl.Hglrc, 
                                       attribList : ^i32) -> wgl.Hglrc #cc_c;
-ChoosePixelFormatARB    : proc(hdc : win32.Hdc, 
+ChoosePixelFormatARB    :: proc(hdc : win32.Hdc, 
                                       piAttribIList : ^i32, 
                                       pfAttribFList : ^f32, 
                                       nMaxFormats : u32, 
                                       piFormats : ^i32, 
                                       nNumFormats : ^u32) -> win32.Bool #cc_c;
-SwapIntervalEXT         : proc(interval : i32) -> bool #cc_c;
-GetExtensionsStringARB  : proc(win32.Hdc) -> ^u8 #cc_c;
+SwapIntervalEXT         :: proc(interval : i32) -> bool #cc_c;
+GetExtensionsStringARB  :: proc(win32.Hdc) -> ^u8 #cc_c;
 
 create_context_attribs : CreateContextAttribsARB;
 choose_pixel_format    : ChoosePixelFormatARB;
