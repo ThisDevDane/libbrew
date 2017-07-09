@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 16:07:52
+ *  @Last Time: 10-07-2017 01:05:33
  *  
  *  @Description:
  *      Wrapper for Dear ImGui.
@@ -387,8 +387,8 @@ _MISC_BUF_SIZE         :: 1024;
 #thread_local _display_fmt_buf : [_DISPLAY_FMT_BUF_SIZE]u8;
 #thread_local _misc_buf        : [_MISC_BUF_SIZE       ]u8;
 
-_make_text_string :: proc       (fmt_: string, args: ..any) -> Cstring {
-    s := fmt.bprintf(_text_buf[..], fmt_, ..args);
+_make_text_string :: proc       (fmt_: string, args: ...any) -> Cstring {
+    s := fmt.bprintf(_text_buf[..], fmt_, ...args);
     _text_buf[len(s)] = 0;
     return &_text_buf[0];
 }
@@ -609,23 +609,23 @@ foreign cimgui {
 }
 
 /////// Text
-text :: proc           (fmt_: string, args: ..any) {
-    im_text(_make_text_string(fmt_, ..args));
+text :: proc           (fmt_: string, args: ...any) {
+    im_text(_make_text_string(fmt_, ...args));
 }
-text_colored :: proc   (col : Vec4, fmt_: string, args: ..any) {
-    im_text_colored(col, _make_text_string(fmt_, ..args));
+text_colored :: proc   (col : Vec4, fmt_: string, args: ...any) {
+    im_text_colored(col, _make_text_string(fmt_, ...args));
 }
-text_disabled :: proc  (fmt_: string, args: ..any) {
-    im_text_disabled(_make_text_string(fmt_, ..args));
+text_disabled :: proc  (fmt_: string, args: ...any) {
+    im_text_disabled(_make_text_string(fmt_, ...args));
 }
-text_wrapped :: proc   (fmt_: string, args: ..any) {
-    im_text_wrapped(_make_text_string(fmt_, ..args));
+text_wrapped :: proc   (fmt_: string, args: ...any) {
+    im_text_wrapped(_make_text_string(fmt_, ...args));
 }
-label_text :: proc     (label : string, fmt_ : string, args : ..any) {
-    im_label_text(_make_label_string(label), _make_text_string(fmt_, ..args));
+label_text :: proc     (label : string, fmt_ : string, args : ...any) {
+    im_label_text(_make_label_string(label), _make_text_string(fmt_, ...args));
 }
-bullet_text :: proc    (fmt_: string, args: ..any) {
-    im_bullet_text(_make_text_string(fmt_, ..args));
+bullet_text :: proc    (fmt_: string, args: ...any) {
+    im_bullet_text(_make_text_string(fmt_, ...args));
 }
 foreign cimgui {
     im_text :: proc         (fmt: ^u8) #cc_c                  #link_name "igText" ---; 
@@ -894,25 +894,25 @@ tree_node :: proc(label : string) -> bool {
     foreign cimgui im_tree_node :: proc (label : Cstring) -> bool #link_name "igTreeNode" ---;
     return im_tree_node(_make_label_string(label));
 }
-tree_node :: proc(str_id : string, fmt_ : string, args : ..any) -> bool {
+tree_node :: proc(str_id : string, fmt_ : string, args : ...any) -> bool {
     foreign cimgui im_tree_node_str :: proc (str_id : Cstring, fmt_ : ^u8) -> bool #link_name "igTreeNodeStr" ---;
-    return im_tree_node_str(_make_label_string(str_id), _make_text_string(fmt_, ..args));
+    return im_tree_node_str(_make_label_string(str_id), _make_text_string(fmt_, ...args));
 }
-tree_node :: proc(ptr_id : rawptr, fmt_ : string, args : ..any) -> bool {
+tree_node :: proc(ptr_id : rawptr, fmt_ : string, args : ...any) -> bool {
     foreign cimgui im_tree_node_ptr :: proc (ptr_id : rawptr, fmt_ : ^u8) -> bool #link_name "igTreeNodePtr" ---;
-    return im_tree_node_ptr(ptr_id, _make_text_string(fmt_, ..args));
+    return im_tree_node_ptr(ptr_id, _make_text_string(fmt_, ...args));
 }
 tree_node_ex :: proc(label : string, flags : GuiTreeNodeFlags) -> bool {
     foreign cimgui im_tree_node_ex :: proc (label : Cstring, flags : GuiTreeNodeFlags) -> bool #link_name "igTreeNodeEx" ---;
     return im_tree_node_ex(_make_label_string(label), flags);
 }
-tree_node_ex :: proc(str_id : string, flags : GuiTreeNodeFlags, fmt_ : string, args : ..any) -> bool {
+tree_node_ex :: proc(str_id : string, flags : GuiTreeNodeFlags, fmt_ : string, args : ...any) -> bool {
     foreign cimgui im_tree_node_ex_str :: proc (str_id : Cstring, flags : GuiTreeNodeFlags, fmt_ : ^u8) -> bool #link_name "igTreeNodeExStr" ---;
-    return im_tree_node_ex_str(_make_label_string(str_id), flags, _make_text_string(fmt_, ..args));
+    return im_tree_node_ex_str(_make_label_string(str_id), flags, _make_text_string(fmt_, ...args));
 }
-tree_node_ex :: proc(ptr_id : rawptr, flags : GuiTreeNodeFlags, fmt_ : string, args : ..any) -> bool {
+tree_node_ex :: proc(ptr_id : rawptr, flags : GuiTreeNodeFlags, fmt_ : string, args : ...any) -> bool {
     foreign cimgui im_tree_node_ex_ptr :: proc (ptr_id : rawptr, flags : GuiTreeNodeFlags, fmt_ : ^u8) -> bool #link_name "igTreeNodeExPtr" ---;
-    return im_tree_node_ex_ptr(ptr_id, flags, _make_text_string(fmt_, ..args));
+    return im_tree_node_ex_ptr(ptr_id, flags, _make_text_string(fmt_, ...args));
 }
 tree_push_str :: proc(str_id : string) {
     foreign cimgui im_tree_push_str :: proc (str_id : Cstring) #link_name "igTreePushStr" ---;
@@ -985,9 +985,9 @@ value :: proc(prefix : string, v : Vec4) {
 }
 
 // Tooltip
-set_tooltip :: proc(fmt_ : string, args : ..any) {
+set_tooltip :: proc(fmt_ : string, args : ...any) {
     foreign cimgui im_set_tooltip :: proc(fmt : ^u8) #link_name "igSetTooltip" ---; 
-    im_set_tooltip(_make_text_string(fmt_, ..args));
+    im_set_tooltip(_make_text_string(fmt_, ...args));
 }
 foreign cimgui begin_tooltip :: proc() #link_name "igBeginTooltip" ---;
 foreign cimgui end_tooltip :: proc  () #link_name "igEndTooltip" ---;
@@ -1056,9 +1056,9 @@ foreign cimgui {
     log_finish :: proc() #link_name "igLogFinish" ---;
     log_buttons :: proc() #link_name "igLogButtons" ---;
 }
-log_text :: proc(fmt_ : string, args : ..any) {
+log_text :: proc(fmt_ : string, args : ...any) {
     foreign cimgui im_log_text :: proc(fmt_ : ^u8) #link_name "igLogText" ---;
-    im_log_text(_make_text_string(fmt_, ..args));
+    im_log_text(_make_text_string(fmt_, ...args));
 }
 
 // Clipping

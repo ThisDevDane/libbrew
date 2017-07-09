@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 16:08:20
+ *  @Last Time: 10-07-2017 01:08:44
  *  
  *  @Description:
  *  
@@ -135,11 +135,11 @@ context_profile_mask_arb :: proc(value : ContextProfileMaskArbValues) -> Attrib 
 prepare_attrib_array :: proc(attribList : []Attrib) -> [dynamic]i32 {
     array :[dynamic]i32;
     for attr in attribList {
-        append(array, attr.type_);
-        append(array, attr.value);
+        append(&array, attr.type_);
+        append(&array, attr.value);
     }
 
-    append(array, 0);
+    append(&array, 0);
     return array;
 }
 CreateContextAttribsARB :: proc(hdc : win32.Hdc, 

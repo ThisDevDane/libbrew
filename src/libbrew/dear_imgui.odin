@@ -6,16 +6,19 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:04:40
+ *  @Last Time: 10-07-2017 01:09:59
  *  
  *  @Description:
  *  
  */
 
 import_load "imgui.odin";
-import "fmt.odin";
-import "libbrew.odin";
-import "gl.odin";
+import (
+    "fmt.odin";
+    "mem.odin";
+    "libbrew.odin";
+    "gl.odin";
+);
 //#import "math.odin";
 //#import "main.odin";
 //#import gl_util "gl_util.odin";
@@ -269,11 +272,11 @@ render_proc :: proc(state : ^State, window_width, window_height : int) {
     };
 
     gl.use_program(state.main_program);
-    gl.uniform(state.main_program.Uniforms["Texture"], 0);
+    gl.uniform(state.main_program.Uniforms["Texture"], i32(0));
     gl._uniform_matrix4fv(state.main_program.Uniforms["ProjMtx"], 1, 0, &ortho_projection[0][0]);
     gl.bind_vertex_array(state.vao_handle);
 
-    newList := slice_ptr(data.cmd_lists, data.cmd_lists_count);
+    newList := mem.slice_ptr(data.cmd_lists, int(data.cmd_lists_count));
     for n : i32 = 0; n < data.cmd_lists_count; n += 1 {
         list := newList[n];
         idxBufferOffset : ^DrawIdx = nil;

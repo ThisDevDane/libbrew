@@ -6,17 +6,19 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 16:22:44
+ *  @Last Time: 10-07-2017 01:30:27
  *  
  *  @Description:
  *      Example for LibBrew
  */
  import (
     "fmt.odin";
+    "os.odin";
     "strings.odin";
     brew "libbrew/libbrew.odin";
     "libbrew/gl.odin";
     imgui "libbrew/dear_imgui.odin";
+    "libbrew/ini.odin";
 )
 
 main :: proc() {
@@ -54,7 +56,12 @@ main :: proc() {
     maximized       := false;
     shift_down      := false;
     new_frame_state := imgui.FrameState{};
-    
+
+    text_buf, b := os.read_entire_file("test.ini");
+    ini_text := string(text_buf);
+
+    ini_ := ini.parse(ini_text);  
+
     fmt.println("Entering Main Loop...");
 main_loop: 
     for {

@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 16:21:19
+ *  @Last Time: 10-07-2017 01:10:44
  *  
  *  @Description:
  *  
@@ -28,7 +28,7 @@ _string_data :: proc(s: string) -> ^u8 #inline { return &s[0]; }
 gl_get_proc_address :: proc(name : string) -> proc() #cc_c {
     buf : [256]u8;
     c_str := fmt.bprintf(buf[..], "%s\x00", name);
-    return wgl.get_proc_address(&c_str[0]);
+    return proc() #cc_c(wgl.get_proc_address(&c_str[0]));
 }
 
 create_gl_context :: proc(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
@@ -39,7 +39,7 @@ create_gl_context :: proc(wnd_handle : window.WndHandle, major, minor : int) -> 
     extensions["wglSwapIntervalEXT"]         = &swap_interval;
 
     attribs : [dynamic]Attrib;
-    append(attribs, draw_to_window_arb(true),
+    append(&attribs, draw_to_window_arb(true),
                     acceleration_arb(AccelerationArbValues.FullAccelerationArb),
                     support_opengl_arb(true),
                     double_buffer_arb(false),
@@ -107,16 +107,16 @@ create_gl_context :: proc(handle : window.WndHandle,
     win32.set_pixel_format(dc, format, &pfd);
 
     create_attribs : [dynamic]Attrib;
-    append(create_attribs, context_major_version_arb(i32(major)),
+    append(&create_attribs, context_major_version_arb(i32(major)),
                            context_minor_version_arb(i32(minor)));
 
     if core {
-        append(create_attribs, context_profile_mask_arb(ContextProfileMaskArbValues.CoreProfileBitArb));
+        append(&create_attribs, context_profile_mask_arb(ContextProfileMaskArbValues.CoreProfileBitArb));
     } else {
-        append(create_attribs, context_profile_mask_arb(ContextProfileMaskArbValues.CompatibilityProfileBitArb));
+        append(&create_attribs, context_profile_mask_arb(ContextProfileMaskArbValues.CompatibilityProfileBitArb));
     }
     if debug {
-        append(create_attribs, context_flags_arb(ContextFlagsArbValues.DebugBitArb));
+        append(&create_attribs, context_flags_arb(ContextFlagsArbValues.DebugBitArb));
     }
 
     create_attrib_array := prepare_attrib_array(create_attribs[..]);

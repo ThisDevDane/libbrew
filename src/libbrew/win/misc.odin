@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:08:43
+ *  @Last Time: 10-07-2017 01:18:12
  *  
  *  @Description:
  *  
@@ -45,7 +45,7 @@ free_library :: proc(lib : LibHandle) {
 get_proc_address :: proc(lib : LibHandle, name : string) -> proc() #cc_c {
     buf : [256]u8;
     c_str := fmt.bprintf(buf[..], "%s\x00", name);
-    return win32.get_proc_address(win32.Hmodule(lib), &c_str[0]);
+    return proc() #cc_c(win32.get_proc_address(win32.Hmodule(lib), &c_str[0]));
 }
 
 create_time_data :: proc() -> TimeData {
