@@ -6,10 +6,11 @@
  *  @Creation: 10-07-2017 01:14:14
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 01:53:50
+ *  @Last Time: 10-07-2017 23:13:53
  *  
  *  @Description:
- *      Simple parsing for Ini files
+ *      Simple parsing for Ini files.
+ *      Headers and key names can only be ASCII, value strings can have utf8 characters.
  */
 
 import (
@@ -19,39 +20,108 @@ import (
 )
 
 IniValue :: union {
-    Name : string,
+    Name : string;
     String{
-        Value : string,
-    },
+        Value : string;
+    };
     Float{
-        Value : f64,
-    },
+        Value : f64;
+    };
     Integer{
-        Value : int,
-    }
+        Value : int;
+    };
 }
 
 IniHeader :: struct {
-    Keys : map[string]IniValue,
+    Keys : map[string]IniValue;
 }
 
-parse :: proc(text_ : string) -> map[string]IniHeader {
-    text := []u8(text_);
-    last : int = 0;
-    byte_count : int = 4;
-    r : rune;
-    for {
-        r, byte_count = utf8.decode_rune(text[last..last+byte_count]);
-        last += byte_count;
-        fmt.println(len(text), ":", last, r);
+parse :: proc(str_ : string) -> (map[string]IniHeader, bool) {
+    str, _ := _skip_leading_whitespace(str_);
+    idx := 0;
+    result : map[string]IniHeader;
+
+    inHeader := false; 
+    current_header : string;
+    for idx < len([]u8(str)) {
+        r, len := utf8.decode_rune(str[idx..]);
+        if _is_newline(r) {
+            idx += len;
+            fmt.println("\\n");
+            continue;
+        }
+
+        if r == '[' {
+            //fmt.println(str[idx..]);
+            header_name, offset := _consume_header(str[idx+1..]);
+            idx += offset;
+            fmt.printf("Header name = %s", header_name);
+            inHeader = true;
+            result[header_name] = IniHeader{};
+            current_header = header_name;
+            continue;
+        }
+
+        if _is_whitespace(r) {
+            _, offset := _skip_leading_whitespace(str[idx..]);
+            idx += offset;
+            continue;
+        }
+
+        if !inHeader {
+            return nil, false;
+        }
+
+        key, offset := _consume_key(str[idx..]);
+        fmt.printf("Key = (%s)", key);
+        idx += offset; 
         libbrew.sleep(3);
-        if last >= len(text) {
+    }   
+   
+    fmt.println("DONE PARSING");
+    return nil, true;
+}
+
+_consume_key :: proc(str : string) -> (string, int) {
+    pos := 0;
+    for pos < len(str) {
+        r, len := utf8.decode_rune(str[pos..]);
+        if r == '\n' {
             break;
         }
+        pos += len;
+        libbrew.sleep(3);
     }
 
+    return str[..pos], pos;
+}
 
-    return nil;
+_consume_header :: proc(str : string) -> (string, int) {
+    pos := 0;
+    for pos < len(str) {
+        r, len := utf8.decode_rune(str[pos..]);
+        if r == ']' {
+            break;
+        }
+        pos += len;
+        libbrew.sleep(3);
+    }
+
+    return str[..pos], pos;
+}
+
+_skip_leading_whitespace :: proc(str : string) -> (string, int)  {
+    pos := 0;
+    for pos < len(str) {
+        r, len := utf8.decode_rune(str[pos..]);
+        if !_is_whitespace(r) {
+            break;
+        }
+        pos += len;
+        libbrew.sleep(3);
+    }
+
+    return str[pos..], pos;
 }
 
 _is_whitespace :: proc(r : rune) -> bool {
@@ -71,4 +141,8 @@ _is_whitespace :: proc(r : rune) -> bool {
     }
 
     return false;
+}
+
+_is_newline :: proc(str : rune) -> bool {
+    return str == '\r' || str == '\n';
 }

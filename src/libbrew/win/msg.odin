@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:09:34
+ *  @Last Time: 10-07-2017 16:04:39
  *  
  *  @Description:
  *  
@@ -25,34 +25,34 @@ window_new_height : int;
 
 
 Msg :: union {
-    NotTranslated {},
+    NotTranslated {};
     QuitMessage {
-        code : int,
-    },
+        code : int;
+    };
     Key {
-        key       : libbrew.VirtualKey,
-        down      : bool,
-        prev_down : bool,
-    },    
+        key       : libbrew.VirtualKey;
+        down      : bool;
+        prev_down : bool;
+    };    
     WindowFocus {
-        enter_focus : bool,
-    },
+        enter_focus : bool;
+    };
     KeyboardFocus {
-        enter_focus : bool,
-    },
+        enter_focus : bool;
+    };
     MouseMove {
-        x : int,
-        y : int,
-    },
+        x : int;
+        y : int;
+    };
     MouseButton {
-        key          : libbrew.VirtualKey,
-        down         : bool,
-        double_click : bool,
-    },
+        key          : libbrew.VirtualKey;
+        down         : bool;
+        double_click : bool;
+    };
     SizeChange {
-        width  : int,
-        height : int,
-    }
+        width  : int;
+        height : int;
+    };
 }
 
 poll_message :: proc(msg : ^Msg) -> bool {

@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 01:30:27
+ *  @Last Time: 10-07-2017 17:17:52
  *  
  *  @Description:
  *      Example for LibBrew
@@ -22,6 +22,15 @@
 )
 
 main :: proc() {
+    text_buf, b := os.read_entire_file("test.ini");
+    ini_text := string(text_buf);
+
+    ini_, _ := ini.parse(ini_text);  
+
+    fmt.println(ini_); 
+
+    os.exit(0);
+
     fmt.println("Program Start...");
     app_handle := brew.get_app_handle();
     width, height := 1280, 720;
@@ -56,11 +65,6 @@ main :: proc() {
     maximized       := false;
     shift_down      := false;
     new_frame_state := imgui.FrameState{};
-
-    text_buf, b := os.read_entire_file("test.ini");
-    ini_text := string(text_buf);
-
-    ini_ := ini.parse(ini_text);  
 
     fmt.println("Entering Main Loop...");
 main_loop: 
@@ -176,22 +180,26 @@ main_loop:
         }
 
         if imgui.begin_panel("TEST##1", imgui.Vec2{0, 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
-            imgui.text("<%d, %d>", mpos_x, mpos_y);
-            imgui.text("<%d, %d>", width, height);
-            imgui.checkbox("Record Data", &add_data);            
-            imgui.checkbox("Scale by max value", &scale_by_max);            
-            size := imgui.get_window_size();
-            imgui.plot_histogram("##FrameTimes", frame_list.values, 
-                                 frame_list.min_value - 10, 
-                                 scale_by_max ? frame_list.max_value + 5 : 33.3333, 
-                                 imgui.Vec2{size.x - 15, 200});
-            imgui.text("Lowest FrameRate: %f", 1.0 / (frame_list.max_value / 1000) );
-            imgui.text("Highest FrameRate: %f", 1.0 / (frame_list.min_value / 1000) );
-            imgui.end();
+            defer imgui.end();
+            when false {
+                imgui.text("<%d, %d>", mpos_x, mpos_y);
+                imgui.text("<%d, %d>", width, height);
+                imgui.checkbox("Record Data", &add_data);            
+                imgui.checkbox("Scale by max value", &scale_by_max);            
+                size := imgui.get_window_size();
+                imgui.plot_histogram("##FrameTimes", frame_list.values, 
+                                     frame_list.min_value - 10, 
+                                     scale_by_max ? frame_list.max_value + 5 : 33.3333, 
+                                     imgui.Vec2{size.x - 15, 200});
+                imgui.text("Lowest FrameRate: %f", 1.0 / (frame_list.max_value / 1000) );
+                imgui.text("Highest FrameRate: %f", 1.0 / (frame_list.min_value / 1000) ); 
+            }
+            
         }
 
         if imgui.begin_panel("TEST##2", imgui.Vec2{f32(width/2), 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
             defer imgui.end();
+            imgui.text(ini_text);
         }
 
         is_between :: proc(v, min, max : int) -> bool #inline {
@@ -232,12 +240,12 @@ main_loop:
 }
 
 FrameTimeList :: struct {
-    max_value : f32,
-    max_value_write_pos : int,
-    min_value : f32,
-    min_value_write_pos : int,
-    values : []f32,
-    write_head : int,
+    max_value : f32;
+    max_value_write_pos : int;
+    min_value : f32;
+    min_value_write_pos : int;
+    values : []f32;
+    write_head : int;
 }
 
 make_frame_time_list :: proc(size : int) -> ^FrameTimeList {
