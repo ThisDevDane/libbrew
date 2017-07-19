@@ -6,11 +6,15 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:05:25
+ *  @Last Time: 19-07-2017 23:55:16
  *  
  *  @Description:
  *  
  */
+foreign_system_library (
+    "kernel32.lib" when ODIN_OS == "windows";
+)
+
 
 import "fmt.odin";
 import win32 "sys/windows.odin";
@@ -22,11 +26,33 @@ import lib_msg "msg.odin";
 WndHandle :: win32.Hwnd;
 
 MAKEINTRESOURCEA :: proc(i : u16) -> ^u8 #inline {
-    return ^u8(rawptr(int(u16(i))));
+    return (^u8)(rawptr(int(u16(i))));
 }
 
 IDC_ARROW : win32.Hcursor = win32.Hcursor(MAKEINTRESOURCEA(32512));
 
+//Remember to change get_last_error to u32, currently is i32, that is wrong
+//@FIXME: Does not work atm. FormatMessageA crashes.
+print_last_error :: proc() {
+    panic("You're calling a known broken procedure.");
+    buf_ptr : [1024]u8;
+    err := win32.get_last_error();
+    fmt.println(err);
+    test := FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                   nil,
+                   u32(err), 
+                   0,
+                   &buf_ptr[0],
+                   1024);
+
+    fmt.println("TEST:", test);
+    fmt.println("FormatError:", win32.get_last_error());
+}
+
+FORMAT_MESSAGE_ALLOCATE_BUFFER  :: 0x00000100;
+FORMAT_MESSAGE_FROM_SYSTEM      :: 0x00001000;
+FORMAT_MESSAGE_IGNORE_INSERTS   :: 0x00000200;
+foreign kernel32 FormatMessageA :: proc(flags : u32, source : rawptr, msgId : u32, langId : u32, buffer : ^u8, size : u32) -> u32 #link_name "FormatMessageA" ---;
 
 create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
     return create_window(app, title, popup_window, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, width, height);
@@ -36,6 +62,7 @@ create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool,
     wndClass.size = size_of(win32.WndClassExA);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
     wndClass.wnd_proc = _window_proc;
+    //TODO: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
     //wndClass.cursor = IDC_ARROW;
     wndClass.instance = win32.Hinstance(app);
     class_buf : [256+6]u8;
@@ -43,8 +70,9 @@ create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool,
     wndClass.class_name = &class_buf[0];
 
     if win32.register_class_ex_a(&wndClass) == 0 {
-        fmt.println(win32.get_last_error());
-        panic("LibBrew: Could not register window class");
+        err := win32.get_last_error();
+        str := fmt.aprintf("LibBrew: Could not register window class, win32 err: %v", err);
+        panic(str);
     }
 
     WINDOW_STYLE : u32 = popup_window ? win32.WS_POPUPWINDOW : win32.WS_OVERLAPPEDWINDOW;

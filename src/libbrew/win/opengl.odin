@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 01:10:44
+ *  @Last Time: 19-07-2017 23:44:53
  *  
  *  @Description:
  *  
@@ -28,7 +28,7 @@ _string_data :: proc(s: string) -> ^u8 #inline { return &s[0]; }
 gl_get_proc_address :: proc(name : string) -> proc() #cc_c {
     buf : [256]u8;
     c_str := fmt.bprintf(buf[..], "%s\x00", name);
-    return proc() #cc_c(wgl.get_proc_address(&c_str[0]));
+    return cast(proc() #cc_c)wgl.get_proc_address(&c_str[0]);
 }
 
 create_gl_context :: proc(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
@@ -75,7 +75,7 @@ create_gl_context :: proc(handle : window.WndHandle,
         set_proc_address :: proc(p: rawptr, name : string) #inline { 
             res := gl_get_proc_address(name);
             assert(res != nil);
-            ^rawptr(p)^ = rawptr(res);
+            (^rawptr)(p)^ = rawptr(res);
         }
 
         for val, key in requested_extensions {

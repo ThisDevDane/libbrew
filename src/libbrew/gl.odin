@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 16:03:26
+ *  @Last Time: 19-07-2017 23:44:49
  *  
  *  @Description:
  *  
@@ -128,7 +128,7 @@ gen_ebo :: proc() -> EBO {
 gen_buffer :: proc() -> BufferObject {
     if _gen_buffers != nil {
         res : BufferObject;
-        _gen_buffers(1, ^u32(&res));
+        _gen_buffers(1, cast(^u32)&res);
         return res;
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -139,7 +139,7 @@ gen_buffer :: proc() -> BufferObject {
 gen_buffers :: proc(n : i32) -> []BufferObject {
     if _gen_buffers != nil {
         res := make([]BufferObject, n);
-        _gen_buffers(n, ^u32(&res[0]));
+        _gen_buffers(n, cast(^u32)&res[0]);
         return res;
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -176,7 +176,7 @@ bind_frag_data_location :: proc(program : Program, colorNumber : u32, name : str
 gen_vertex_array :: proc() -> VAO {
     if _gen_vertex_arrays != nil {
         res : VAO;
-        _gen_vertex_arrays(1, ^u32(&res));
+        _gen_vertex_arrays(1, cast(^u32)&res);
         return res;
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -188,7 +188,7 @@ gen_vertex_array :: proc() -> VAO {
 gen_vertex_arrays :: proc(count : i32) -> []VAO {
     if _gen_vertex_arrays != nil {
         res := make([]VAO, count);
-        _gen_vertex_arrays(count, ^u32(&res[0]));
+        _gen_vertex_arrays(count, (^u32)(&res[0]));
         return res;
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -292,7 +292,7 @@ uniform :: proc(loc: i32, v: math.Vec4) {
 
 uniform_matrix4fv :: proc(loc : i32, matrix : math.Mat4, transpose : bool) {
     if _uniform_matrix4fv != nil {
-        _uniform_matrix4fv(loc, 1, i32(transpose), ^f32(&matrix));
+        _uniform_matrix4fv(loc, 1, i32(transpose), (^f32)(&matrix));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }
@@ -382,7 +382,7 @@ gen_texture :: proc() -> Texture {
 
 gen_textures :: proc(count : i32) -> []Texture {
     res := make([]Texture, count);
-    _gen_textures(count, ^u32(&res[0]));
+    _gen_textures(count, (^u32)(&res[0]));
     return res;
 }
 
@@ -510,7 +510,7 @@ shader_source :: proc(obj : Shader, strs : []string) {
         newStrs := make([]^u8, len(strs)); defer free(newStrs);
         lengths := make([]i32, len(strs)); defer free(lengths);
         for s, i in strs {
-            newStrs[i] = &([]u8(s))[0];
+            newStrs[i] = &(([]u8)(s))[0];
             lengths[i] = i32(len(s));
         }
         _shader_source(u32(obj), u32(len(strs)), &newStrs[0], &lengths[0]);
@@ -605,7 +605,7 @@ load_functions :: proc() {
             fmt.println("Couldn't load:", name);
         }
 
-        ^rawptr(p)^ = rawptr(res);
+        (^rawptr)(p)^ = rawptr(res);
     }
 
     set_proc_address(lib, &_draw_elements,              "glDrawElements"           );

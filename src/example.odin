@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 17:17:52
+ *  @Last Time: 19-07-2017 23:56:57
  *  
  *  @Description:
  *      Example for LibBrew
@@ -18,18 +18,21 @@
     brew "libbrew/libbrew.odin";
     "libbrew/gl.odin";
     imgui "libbrew/dear_imgui.odin";
-    "libbrew/ini.odin";
+    //"libbrew/ini.odin";
 )
 
 main :: proc() {
-    text_buf, b := os.read_entire_file("test.ini");
+    fmt.println(cast(^u8)cast(rawptr)cast(int)32512);
+    fmt.println(brew.IDC_ARROW);
+
+//    os.exit(0);
+
+/*    text_buf, b := os.read_entire_file("test.ini");
     ini_text := string(text_buf);
 
     ini_, _ := ini.parse(ini_text);  
+    fmt.println(ini_); */
 
-    fmt.println(ini_); 
-
-    os.exit(0);
 
     fmt.println("Program Start...");
     app_handle := brew.get_app_handle();
@@ -72,11 +75,11 @@ main_loop:
         prev_lm_down = lm_down ? true : false;
         for brew.poll_message(&message) {
             match msg in message {
-                case brew.Msg.QuitMessage : {
+                case brew.MsgQuitMessage : {
                     break main_loop;
                 }
 
-                case brew.Msg.Key : {
+                case brew.MsgKey : {
                     match msg.key {
                         case brew.VirtualKey.Escape : {
                             if msg.down == true && shift_down {
@@ -90,7 +93,7 @@ main_loop:
                     }
                 }
 
-                case brew.Msg.MouseButton : {
+                case brew.MsgMouseButton : {
                     match msg.key {
                         case brew.VirtualKey.LMouse : {
                             lm_down = msg.down;
@@ -102,7 +105,7 @@ main_loop:
                     }
                 }
 
-                case brew.Msg.WindowFocus : {
+                case brew.MsgWindowFocus : {
                     new_frame_state.window_focus = msg.enter_focus;
                 }
 
@@ -111,7 +114,7 @@ main_loop:
                     mpos_y = msg.y;
                 }*/
 
-                case brew.Msg.SizeChange : {
+                case brew.MsgSizeChange : {
                     width = msg.width;
                     height = msg.height;
                     gl.viewport(0, 0, i32(width), i32(height));
@@ -199,7 +202,7 @@ main_loop:
 
         if imgui.begin_panel("TEST##2", imgui.Vec2{f32(width/2), 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
             defer imgui.end();
-            imgui.text(ini_text);
+            //imgui.text(ini_text);
         }
 
         is_between :: proc(v, min, max : int) -> bool #inline {
@@ -268,7 +271,7 @@ add_frame_time :: proc(list : ^FrameTimeList, value : f32) {
     if list.max_value_write_pos == list.write_head {
         max : f32 = 0;
         max_pos := 0;
-        for i := 0; i < len(list.values); i++ {
+        for i := 0; i < len(list.values); i += 1 {
             if list.values[i] > max {
                 max = list.values[i];
                 max_pos = i;
@@ -282,7 +285,7 @@ add_frame_time :: proc(list : ^FrameTimeList, value : f32) {
     if list.min_value_write_pos == list.write_head {
         min : f32 = 100000;
         min_pos := 0;
-        for i := 0; i < len(list.values); i++ {
+        for i := 0; i < len(list.values); i += 1 {
             if list.values[i] < min {
                 min = list.values[i];
                 min_pos = i;
@@ -294,7 +297,7 @@ add_frame_time :: proc(list : ^FrameTimeList, value : f32) {
     }
 
     if list.write_head < len(list.values)-1 {
-        list.write_head++;
+        list.write_head += 1;
     } else {
         list.write_head = 0;
     }

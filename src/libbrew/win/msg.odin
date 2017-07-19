@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 16:04:39
+ *  @Last Time: 19-07-2017 23:42:31
  *  
  *  @Description:
  *  
@@ -25,40 +25,49 @@ window_new_height : int;
 
 
 Msg :: union {
-    NotTranslated {};
-    QuitMessage {
-        code : int;
-    };
-    Key {
-        key       : libbrew.VirtualKey;
-        down      : bool;
-        prev_down : bool;
-    };    
-    WindowFocus {
-        enter_focus : bool;
-    };
-    KeyboardFocus {
-        enter_focus : bool;
-    };
-    MouseMove {
-        x : int;
-        y : int;
-    };
-    MouseButton {
-        key          : libbrew.VirtualKey;
-        down         : bool;
-        double_click : bool;
-    };
-    SizeChange {
-        width  : int;
-        height : int;
-    };
+    MsgNotTranslated,
+    MsgQuitMessage,
+    MsgKey,  
+    MsgWindowFocus,
+    MsgKeyboardFocus,
+    MsgMouseMove,
+    MsgMouseButton,
+    MsgSizeChange
 }
+
+MsgNotTranslated :: struct {};
+MsgQuitMessage :: struct {
+    code : int;
+};
+MsgKey :: struct {
+    key       : libbrew.VirtualKey;
+    down      : bool;
+    prev_down : bool;
+};    
+MsgWindowFocus :: struct {
+    enter_focus : bool;
+};
+MsgKeyboardFocus :: struct {
+    enter_focus : bool;
+};
+MsgMouseMove :: struct {
+    x : int;
+    y : int;
+};
+MsgMouseButton :: struct {
+    key          : libbrew.VirtualKey;
+    down         : bool;
+    double_click : bool;
+};
+MsgSizeChange :: struct {
+    width  : int;
+    height : int;
+};
 
 poll_message :: proc(msg : ^Msg) -> bool {
     if window_resized {
         window_resized = false;
-        l_msg := Msg.SizeChange{window_new_width, window_new_height};
+        l_msg := MsgSizeChange{window_new_width, window_new_height};
         msg^ = l_msg;
         return true;
     }
@@ -67,7 +76,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
     if win32.peek_message_a(&w_msg, nil, 0, 0, win32.PM_REMOVE) == win32.TRUE {
         match w_msg.message {
             case win32.WM_QUIT : {
-                l_msg := Msg.QuitMessage{
+                l_msg := MsgQuitMessage{
                     code = int(w_msg.wparam)
                 };
                 msg^ = l_msg;
@@ -75,7 +84,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_MOUSEMOVE : {
-                l_msg := Msg.MouseMove{
+                l_msg := MsgMouseMove{
                     x = int(win32.LOWORD(w_msg.lparam)),
                     y = int(win32.HIWORD(w_msg.lparam))
                 };
@@ -101,7 +110,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     }
                 }
 
-                l_msg := Msg.Key{
+                l_msg := MsgKey{
                     key = libbrew.VirtualKey(w_key),
                     down = true,
                     prev_down = bool((w_msg.lparam >> 30) & 1),
@@ -115,7 +124,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     extended := bool((w_msg.lparam >> 24) & 1);
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
-                l_msg := Msg.Key{
+                l_msg := MsgKey{
                     key = libbrew.VirtualKey(w_key),
                     down = true,
                     prev_down = bool((w_msg.lparam >> 30) & 1)
@@ -143,7 +152,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     }
                 }
 
-                l_msg := Msg.Key{
+                l_msg := MsgKey{
                     key = libbrew.VirtualKey(w_key),
                     down = false,
                     prev_down = false,
@@ -157,7 +166,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     extended := bool((w_msg.lparam >> 24) & 1);
                     w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
                 }
-                l_msg := Msg.Key{
+                l_msg := MsgKey{
                     key = libbrew.VirtualKey(w_key),
                     down = false,
                     prev_down = false,
@@ -166,7 +175,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_LBUTTONDOWN : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.LMouse,
                     down = true,
                     double_click = false,
@@ -175,7 +184,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_LBUTTONUP : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.LMouse,
                     down = false,
                     double_click = false,
@@ -184,7 +193,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_LBUTTONDBLCLK : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.LMouse,
                     down = true,
                     double_click = true,
@@ -193,7 +202,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_RBUTTONDOWN : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.RMouse,
                     down = true,
                     double_click = false,
@@ -202,7 +211,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_RBUTTONUP : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.RMouse,
                     down = false,
                     double_click = false,
@@ -211,7 +220,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_RBUTTONDBLCLK : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.RMouse,
                     down = true,
                     double_click = true,
@@ -220,7 +229,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_MBUTTONDOWN : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.MMouse,
                     down = true,
                     double_click = false,
@@ -229,7 +238,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_MBUTTONUP : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.MMouse,
                     down = false,
                     double_click = false,
@@ -238,7 +247,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_MBUTTONDBLCLK : {
-                l_msg := Msg.MouseButton{
+                l_msg := MsgMouseButton{
                     key = libbrew.VirtualKey.MMouse,
                     down = true,
                     double_click = true,
@@ -247,21 +256,21 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case msg_user.WINDOW_FOCUS : {
-                l_msg := Msg.WindowFocus{
+                l_msg := MsgWindowFocus{
                     enter_focus = bool(w_msg.wparam)
                 };
                 msg^ = l_msg;
             }
 
             case msg_user.KEYBOARD_FOCUS : {
-                l_msg := Msg.KeyboardFocus{
+                l_msg := MsgKeyboardFocus{
                     enter_focus = bool(w_msg.wparam)
                 };
                 msg^ = l_msg;
             }
 
             case : {
-                l_msg := Msg.NotTranslated{};
+                l_msg := MsgNotTranslated{};
                 msg^ = l_msg;
             }
         }
@@ -292,7 +301,7 @@ poll_thread_message :: proc(msg : ^Msg) -> bool {
     if win32.peek_message_a(&w_msg, THREAD_NULL_MSG, 0, 0, win32.PM_REMOVE) == win32.TRUE {
         match w_msg.message {
             case win32.WM_QUIT : {
-                l_msg := Msg.QuitMessage{
+                l_msg := MsgQuitMessage{
                     code = int(w_msg.wparam)
                 };
                 msg^ = l_msg;
