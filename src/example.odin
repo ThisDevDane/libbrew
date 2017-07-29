@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-07-2017 23:56:57
+ *  @Last Time: 29-07-2017 03:43:01
  *  
  *  @Description:
  *      Example for LibBrew
@@ -17,7 +17,7 @@
     "strings.odin";
     brew "libbrew/libbrew.odin";
     "libbrew/gl.odin";
-    imgui "libbrew/dear_imgui.odin";
+    imgui "libbrew/brew_imgui.odin";
     //"libbrew/ini.odin";
 )
 
@@ -184,7 +184,7 @@ main_loop:
 
         if imgui.begin_panel("TEST##1", imgui.Vec2{0, 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
             defer imgui.end();
-            when false {
+            when true {
                 imgui.text("<%d, %d>", mpos_x, mpos_y);
                 imgui.text("<%d, %d>", width, height);
                 imgui.checkbox("Record Data", &add_data);            

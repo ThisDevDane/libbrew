@@ -21,12 +21,11 @@ if [ ! -d "build" ]; then
 fi
 
 otime.exe -begin $OTM
-odin.exe build $SRC
+echo Compiling with opt=$1...
+odin.exe build $SRC -opt=$1
 ERR=$?
 if [ $ERR -eq 0 ]; then
 	build_success
 else
 	build_failed
 fi
-
-
