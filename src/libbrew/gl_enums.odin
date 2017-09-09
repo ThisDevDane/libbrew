@@ -6,12 +6,12 @@
  *  @Creation: 02-05-2017 21:38:35
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:11:00
+ *  @Last Time: 09-09-2017 23:25:45
  *  
  *  @Description:
  *      Part of the GL Wrapper, makes enum for all constants.
  */
-import gl_const "opengl_constants.odin";
+import gl_const "core:opengl_constants.odin";
 
 GetShaderNames :: enum i32 {
     ShaderType = gl_const.SHADER_TYPE,

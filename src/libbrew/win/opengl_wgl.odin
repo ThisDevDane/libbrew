@@ -6,14 +6,14 @@
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 16:04:17
+ *  @Last Time: 09-09-2017 23:25:29
  *  
  *  @Description:
  *  
  */
 
-import win32 "sys/windows.odin";
-import wgl "sys/wgl.odin";
+import win32 "core:sys/windows.odin";
+import wgl "core:sys/wgl.odin";
 
 Attrib :: struct {
     type_  : i32;

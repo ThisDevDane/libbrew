@@ -6,19 +6,17 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 29-07-2017 03:43:06
+ *  @Last Time: 09-09-2017 23:24:23
  *  
  *  @Description:
  *  
  */
 
-import_load "dear_imgui.odin";
-import (
-    "fmt.odin";
-    "mem.odin";
-    "libbrew.odin";
-    "gl.odin";
-);
+export "dear_imgui.odin";
+import "core:fmt.odin";
+import "core:mem.odin";
+import "libbrew.odin";
+import "gl.odin";
 //#import "math.odin";
 //#import "main.odin";
 //#import gl_util "gl_util.odin";

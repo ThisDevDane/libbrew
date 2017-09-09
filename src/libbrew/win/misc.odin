@@ -6,14 +6,14 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-07-2017 23:21:29
+ *  @Last Time: 09-09-2017 23:25:35
  *  
  *  @Description:
  *  
  */
 
-import "fmt.odin";
-import win32 "sys/windows.odin";
+import "core:fmt.odin";
+import win32 "core:sys/windows.odin";
 
 AppHandle :: win32.Hinstance;
 LibHandle :: win32.Hmodule;

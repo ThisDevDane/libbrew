@@ -6,18 +6,15 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-07-2017 23:42:31
+ *  @Last Time: 09-09-2017 23:26:54
  *  
  *  @Description:
  *  
  */
-
-import (
-    "fmt.odin";
-    win32 "sys/windows.odin";
-    "../libbrew.odin";
-    "msg_user.odin";
-)
+import "core:fmt.odin";
+import win32 "core:sys/windows.odin";
+import "../libbrew.odin";
+import "msg_user.odin";
 
 window_resized    := false;
 window_new_width  : int;
@@ -92,21 +89,21 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_KEYDOWN : {
-                w_key := win32.KeyCode(w_msg.wparam);
+                w_key := win32.Key_Code(w_msg.wparam);
                 match w_key {
-                    case win32.KeyCode.Menu : {
+                    case win32.Key_Code.Menu : {
                         extended := bool((w_msg.lparam >> 24) & 1);
-                        w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
+                        w_key = extended ? win32.Key_Code.Rmenu : win32.Key_Code.Lmenu; 
                     }
 
-                    case win32.KeyCode.Control : {
+                    case win32.Key_Code.Control : {
                         extended := bool((w_msg.lparam >> 24) & 1);
-                        w_key = extended ? win32.KeyCode.Rcontrol : win32.KeyCode.Lcontrol; 
+                        w_key = extended ? win32.Key_Code.Rcontrol : win32.Key_Code.Lcontrol; 
                     }
 
-                    case win32.KeyCode.Shift : {
+                    case win32.Key_Code.Shift : {
                         sc := u32(w_msg.lparam & 0x00ff0000) >> 16;
-                        w_key = win32.KeyCode(win32.map_virtual_key(sc, win32.MAPVK_VSC_TO_VK_EX));
+                        w_key = win32.Key_Code(win32.map_virtual_key(sc, win32.MAPVK_VSC_TO_VK_EX));
                     }
                 }
 
@@ -119,10 +116,10 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_SYSKEYDOWN : {
-                w_key := win32.KeyCode(w_msg.wparam);
-                if w_key == win32.KeyCode.Menu {
+                w_key := win32.Key_Code(w_msg.wparam);
+                if w_key == win32.Key_Code.Menu {
                     extended := bool((w_msg.lparam >> 24) & 1);
-                    w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
+                    w_key = extended ? win32.Key_Code.Rmenu : win32.Key_Code.Lmenu; 
                 }
                 l_msg := MsgKey{
                     key = libbrew.VirtualKey(w_key),
@@ -134,21 +131,21 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_KEYUP : {
-                w_key := win32.KeyCode(w_msg.wparam);
+                w_key := win32.Key_Code(w_msg.wparam);
                 match w_key {
-                    case win32.KeyCode.Menu : {
+                    case win32.Key_Code.Menu : {
                         extended := bool((w_msg.lparam >> 24) & 1);
-                        w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
+                        w_key = extended ? win32.Key_Code.Rmenu : win32.Key_Code.Lmenu; 
                     }
 
-                    case win32.KeyCode.Control : {
+                    case win32.Key_Code.Control : {
                         extended := bool((w_msg.lparam >> 24) & 1);
-                        w_key = extended ? win32.KeyCode.Rcontrol : win32.KeyCode.Lcontrol; 
+                        w_key = extended ? win32.Key_Code.Rcontrol : win32.Key_Code.Lcontrol; 
                     }
 
-                    case win32.KeyCode.Shift : {
+                    case win32.Key_Code.Shift : {
                         sc := u32(w_msg.lparam & 0x00ff0000) >> 16;
-                        w_key = win32.KeyCode(win32.map_virtual_key(sc, win32.MAPVK_VSC_TO_VK_EX));
+                        w_key = win32.Key_Code(win32.map_virtual_key(sc, win32.MAPVK_VSC_TO_VK_EX));
                     }
                 }
 
@@ -161,10 +158,10 @@ poll_message :: proc(msg : ^Msg) -> bool {
             }
 
             case win32.WM_SYSKEYUP : {
-                w_key := win32.KeyCode(w_msg.wparam);
-                if w_key == win32.KeyCode.Menu {
+                w_key := win32.Key_Code(w_msg.wparam);
+                if w_key == win32.Key_Code.Menu {
                     extended := bool((w_msg.lparam >> 24) & 1);
-                    w_key = extended ? win32.KeyCode.Rmenu : win32.KeyCode.Lmenu; 
+                    w_key = extended ? win32.Key_Code.Rmenu : win32.Key_Code.Lmenu; 
                 }
                 l_msg := MsgKey{
                     key = libbrew.VirtualKey(w_key),

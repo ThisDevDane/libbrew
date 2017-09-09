@@ -6,14 +6,14 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 29-07-2017 03:48:14
+ *  @Last Time: 09-09-2017 23:25:49
  *  
  *  @Description:
  *      Wrapper for Dear ImGui.
  */
 foreign_library "cimgui.lib";
-import "fmt.odin";
-import "strings.odin"; //@TODO(Hoej): remove the need for
+import "core:fmt.odin";
+import "core:strings.odin"; //@TODO(Hoej): remove the need for
 
 DrawIdx   :: u16;
 Wchar     :: u16;

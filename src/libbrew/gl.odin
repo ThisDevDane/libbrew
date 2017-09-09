@@ -6,20 +6,20 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-07-2017 23:44:49
+ *  @Last Time: 09-09-2017 23:25:02
  *  
  *  @Description:
  *  
  */
 
 foreign_system_library lib "opengl32.lib" when ODIN_OS == "WINDOWS";
-import "fmt.odin";
-import "strings.odin";
-import "math.odin";
+import "core:fmt.odin";
+import "core:strings.odin";
+import "core:math.odin";
 
 import "libbrew.odin";
 
-import_load "gl_enums.odin";
+export "gl_enums.odin";
 
 TRUE  :: 1;
 FALSE :: 0;

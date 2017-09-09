@@ -6,20 +6,18 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 29-07-2017 03:43:01
+ *  @Last Time: 09-09-2017 23:28:33
  *  
  *  @Description:
  *      Example for LibBrew
  */
- import (
-    "fmt.odin";
-    "os.odin";
-    "strings.odin";
-    brew "libbrew/libbrew.odin";
-    "libbrew/gl.odin";
-    imgui "libbrew/brew_imgui.odin";
-    //"libbrew/ini.odin";
-)
+import "core:fmt.odin";
+import "core:os.odin";
+import "core:strings.odin";
+import brew "libbrew/libbrew.odin";
+import "libbrew/gl.odin";
+import imgui "libbrew/brew_imgui.odin";
+//import "libbrew/ini.odin";
 
 main :: proc() {
     fmt.println(cast(^u8)cast(rawptr)cast(int)32512);
@@ -51,14 +49,14 @@ main :: proc() {
     brew.swap_interval(-1);
     gl.clear_color(41/255.0, 57/255.0, 84/255.0, 1);
 
-    message : brew.Msg;
-    mpos_x : int;
-    mpos_y : int;
-    prev_lm_down : bool;
-    lm_down : bool;
-    rm_down : bool;
-    add_data : bool = false;
-    scale_by_max : bool = false;
+    message         : brew.Msg;
+    mpos_x          : int;
+    mpos_y          : int;
+    prev_lm_down    : bool;
+    lm_down         : bool;
+    rm_down         : bool;
+    add_data        : bool = false;
+    scale_by_max    : bool = false;
     frame_list      := make_frame_time_list(100);
     time_data       := brew.create_time_data();
     i               := 0;

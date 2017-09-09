@@ -6,20 +6,20 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-07-2017 23:44:53
+ *  @Last Time: 09-09-2017 23:26:30
  *  
  *  @Description:
  *  
  */
 
-import "fmt.odin";
-import "strings.odin";
-import "sys/wgl.odin";
-import win32 "sys/windows.odin";
+import "core:fmt.odin";
+import "core:strings.odin";
+import "core:sys/wgl.odin";
+import win32 "core:sys/windows.odin";
 
 import "window.odin";
 
-import_load "opengl_wgl.odin";
+export "opengl_wgl.odin";
 
 GlContext :: wgl.Hglrc;
 
@@ -98,11 +98,11 @@ create_gl_context :: proc(handle : window.WndHandle,
         panic("Couldn't find suitable pixel format");
     }
 
-    pfd : win32.PixelFormatDescriptor;
+    pfd : win32.Pixel_Format_Descriptor;
     pfd.version = 1;
-    pfd.size = size_of(win32.PixelFormatDescriptor);
+    pfd.size = size_of(win32.Pixel_Format_Descriptor);
 
-    win32.describe_pixel_format(dc, format, size_of(win32.PixelFormatDescriptor), &pfd);
+    win32.describe_pixel_format(dc, format, size_of(win32.Pixel_Format_Descriptor), &pfd);
 
     win32.set_pixel_format(dc, format, &pfd);
 
@@ -132,8 +132,8 @@ create_gl_context :: proc(handle : window.WndHandle,
 _create_legacy_context :: proc(handle : window.WndHandle) -> wgl.Hglrc {
     dc := win32.get_dc(win32.Hwnd(handle));
 
-    pfd := win32.PixelFormatDescriptor{};
-    pfd.size = size_of(win32.PixelFormatDescriptor);
+    pfd := win32.Pixel_Format_Descriptor{};
+    pfd.size = size_of(win32.Pixel_Format_Descriptor);
     pfd.version = 1;
     pfd.flags = win32.PFD_DRAW_TO_WINDOW | win32.PFD_SUPPORT_OPENGL | win32.PFD_DOUBLEBUFFER;
     pfd.color_bits = 32;
@@ -141,7 +141,7 @@ _create_legacy_context :: proc(handle : window.WndHandle) -> wgl.Hglrc {
     pfd.depth_bits = 24;
     format := win32.choose_pixel_format(dc, &pfd);
 
-    win32.describe_pixel_format(dc, format, size_of(win32.PixelFormatDescriptor), &pfd);
+    win32.describe_pixel_format(dc, format, size_of(win32.Pixel_Format_Descriptor), &pfd);
 
     win32.set_pixel_format(dc, format, &pfd);
 

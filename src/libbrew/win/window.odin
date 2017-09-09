@@ -6,18 +6,15 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-07-2017 23:55:16
+ *  @Last Time: 09-09-2017 23:26:14
  *  
  *  @Description:
  *  
  */
-foreign_system_library (
-    "kernel32.lib" when ODIN_OS == "windows";
-)
+foreign_system_library "kernel32.lib" when ODIN_OS == "windows";
 
-
-import "fmt.odin";
-import win32 "sys/windows.odin";
+import "core:fmt.odin";
+import win32 "core:sys/windows.odin";
 
 import "misc.odin";
 import "msg_user.odin";
@@ -58,8 +55,8 @@ create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool,
     return create_window(app, title, popup_window, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, width, height);
 }
 create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool, x, y, width, height : int) -> WndHandle {
-    wndClass : win32.WndClassExA;
-    wndClass.size = size_of(win32.WndClassExA);
+    wndClass : win32.Wnd_Class_Ex_A;
+    wndClass.size = size_of(win32.Wnd_Class_Ex_A);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
     wndClass.wnd_proc = _window_proc;
     //TODO: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
@@ -175,7 +172,7 @@ _window_proc :: proc(hwnd: win32.Hwnd,
             return 0;
         }   
         case win32.WM_DESTROY : {
-            //TODO Don't do it this way, since then we can't handle multiple windows that can open or close.
+            //FIXME Don't do it this way, since then we can't handle multiple windows that can open or close.
             win32.post_message(nil, win32.WM_QUIT, 0, 0); 
             return 0;
         }
