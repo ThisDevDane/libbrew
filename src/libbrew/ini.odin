@@ -6,34 +6,23 @@
  *  @Creation: 10-07-2017 01:14:14
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-07-2017 23:13:53
+ *  @Last Time: 22-09-2017 22:02:10
  *  
  *  @Description:
  *      Simple parsing for Ini files.
  *      Headers and key names can only be ASCII, value strings can have utf8 characters.
  */
 
-import (
-    "fmt.odin";
-    "utf8.odin";
-    "libbrew.odin";
-)
 
-IniValue :: union {
-    Name : string;
-    String{
-        Value : string;
-    };
-    Float{
-        Value : f64;
-    };
-    Integer{
-        Value : int;
-    };
-}
+import "core:fmt.odin";
+import "core:utf8.odin";
+import "libbrew.odin";
+
+
+IniValue :: union {string, f64, int}
 
 IniHeader :: struct {
-    Keys : map[string]IniValue;
+    Keys : map[string]IniValue,
 }
 
 parse :: proc(str_ : string) -> (map[string]IniHeader, bool) {
@@ -43,7 +32,7 @@ parse :: proc(str_ : string) -> (map[string]IniHeader, bool) {
 
     inHeader := false; 
     current_header : string;
-    for idx < len([]u8(str)) {
+    for idx < len(cast([]u8)str) {
         r, len := utf8.decode_rune(str[idx..]);
         if _is_newline(r) {
             idx += len;

@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:24:23
+ *  @Last Time: 22-09-2017 22:07:48
  *  
  *  @Description:
  *  
@@ -23,25 +23,25 @@ import "gl.odin";
 
 State :: struct {
     //Misc
-    mouse_wheel_delta : i32;
+    mouse_wheel_delta : i32,
 
     //Render
-    main_program      : gl.Program;
-    vbo_handle        : gl.VBO;
-    ebo_handle        : gl.EBO;
-    vao_handle        : gl.VAO;
+    main_program      : gl.Program,
+    vbo_handle        : gl.VBO,
+    ebo_handle        : gl.EBO,
+    vao_handle        : gl.VAO,
 }
 
 
 FrameState :: struct {
-    deltatime     : f32;
-    window_width  : int;
-    window_height : int;
-    window_focus  : bool;
-    mouse_x       : int;
-    mouse_y       : int;
-    left_mouse    : bool;
-    right_mouse   : bool;
+    deltatime     : f32,
+    window_width  : int,
+    window_height : int,
+    window_focus  : bool,
+    mouse_x       : int,
+    mouse_y       : int,
+    left_mouse    : bool,
+    right_mouse   : bool,
 }
 
 

@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:26:54
+ *  @Last Time: 22-09-2017 22:07:19
  *  
  *  @Description:
  *  
@@ -34,32 +34,38 @@ Msg :: union {
 
 MsgNotTranslated :: struct {};
 MsgQuitMessage :: struct {
-    code : int;
-};
+    code : int,
+}
+
 MsgKey :: struct {
-    key       : libbrew.VirtualKey;
-    down      : bool;
-    prev_down : bool;
-};    
+    key       : libbrew.VirtualKey,
+    down      : bool,
+    prev_down : bool,
+}   
+
 MsgWindowFocus :: struct {
-    enter_focus : bool;
-};
+    enter_focus : bool,
+}
+
 MsgKeyboardFocus :: struct {
-    enter_focus : bool;
-};
+    enter_focus : bool,
+}
+
 MsgMouseMove :: struct {
-    x : int;
-    y : int;
-};
+    x : int,
+    y : int,
+}
+
 MsgMouseButton :: struct {
-    key          : libbrew.VirtualKey;
-    down         : bool;
-    double_click : bool;
-};
+    key          : libbrew.VirtualKey,
+    down         : bool,
+    double_click : bool,
+}
+
 MsgSizeChange :: struct {
-    width  : int;
-    height : int;
-};
+    width  : int,
+    height : int,
+}
 
 poll_message :: proc(msg : ^Msg) -> bool {
     if window_resized {

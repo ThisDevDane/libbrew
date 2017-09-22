@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:25:02
+ *  @Last Time: 22-09-2017 22:01:55
  *  
  *  @Description:
  *  
@@ -34,11 +34,11 @@ Texture      :: u32;
 Shader       :: u32; 
 
 Program :: struct {
-    ID         : u32;
-    Vertex     : Shader;
-    Fragment   : Shader;
-    Uniforms   : map[string]i32;
-    Attributes : map[string]i32;
+    ID         : u32,
+    Vertex     : Shader,
+    Fragment   : Shader,
+    Uniforms   : map[string]i32,
+    Attributes : map[string]i32,
 }
 
 DebugMessageCallbackProc :: proc(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : ^u8, userParam : rawptr) #cc_c;

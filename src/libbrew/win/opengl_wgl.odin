@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:25:29
+ *  @Last Time: 22-09-2017 22:02:17
  *  
  *  @Description:
  *  
@@ -16,8 +16,8 @@ import win32 "core:sys/windows.odin";
 import wgl "core:sys/wgl.odin";
 
 Attrib :: struct {
-    type_  : i32;
-    value : i32;
+    type_  : i32,
+    value : i32,
 }
 
 AccelerationArbValues :: enum i32 {

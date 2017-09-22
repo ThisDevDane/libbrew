@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 22:01:38
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:22:01
+ *  @Last Time: 22-09-2017 22:07:26
  *  
  *  @Description:
  *      SDL like library to ease development 

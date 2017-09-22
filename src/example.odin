@@ -6,7 +6,7 @@
  *  @Creation: 31-05-2017 21:57:56
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:28:33
+ *  @Last Time: 22-09-2017 22:07:35
  *  
  *  @Description:
  *      Example for LibBrew
@@ -17,7 +17,7 @@ import "core:strings.odin";
 import brew "libbrew/libbrew.odin";
 import "libbrew/gl.odin";
 import imgui "libbrew/brew_imgui.odin";
-//import "libbrew/ini.odin";
+import "libbrew/ini.odin";
 
 main :: proc() {
     fmt.println(cast(^u8)cast(rawptr)cast(int)32512);
@@ -25,12 +25,11 @@ main :: proc() {
 
 //    os.exit(0);
 
-/*    text_buf, b := os.read_entire_file("test.ini");
+    text_buf, b := os.read_entire_file("test.ini");
     ini_text := string(text_buf);
 
     ini_, _ := ini.parse(ini_text);  
-    fmt.println(ini_); */
-
+    ini_str := fmt.aprint(ini_); 
 
     fmt.println("Program Start...");
     app_handle := brew.get_app_handle();
@@ -200,7 +199,7 @@ main_loop:
 
         if imgui.begin_panel("TEST##2", imgui.Vec2{f32(width/2), 19}, imgui.Vec2{f32(width/2), f32(height-19)}) {
             defer imgui.end();
-            //imgui.text(ini_text);
+            imgui.text(ini_str);
         }
 
         is_between :: proc(v, min, max : int) -> bool #inline {
@@ -241,12 +240,12 @@ main_loop:
 }
 
 FrameTimeList :: struct {
-    max_value : f32;
-    max_value_write_pos : int;
-    min_value : f32;
-    min_value_write_pos : int;
-    values : []f32;
-    write_head : int;
+    max_value : f32,
+    max_value_write_pos : int,
+    min_value : f32,
+    min_value_write_pos : int,
+    values : []f32,
+    write_head : int,
 }
 
 make_frame_time_list :: proc(size : int) -> ^FrameTimeList {

@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:25:35
+ *  @Last Time: 22-09-2017 22:02:22
  *  
  *  @Description:
  *  
@@ -19,8 +19,8 @@ AppHandle :: win32.Hinstance;
 LibHandle :: win32.Hmodule;
 
 TimeData :: struct {
-    _pf_freq : i64;
-    _pf_old : i64;
+    _pf_freq : i64,
+    _pf_old : i64,
 }
 
 get_app_handle :: proc() -> AppHandle {

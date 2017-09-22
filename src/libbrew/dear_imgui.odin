@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:25:49
+ *  @Last Time: 22-09-2017 22:03:20
  *  
  *  @Description:
  *      Wrapper for Dear ImGui.
@@ -22,60 +22,60 @@ GuiId     :: u32;
 Cstring   :: ^u8; // Just for clarity
 
 GuiTextEditCallbackData :: struct #ordered {
-    event_flag      : GuiInputTextFlags;
-    flags           : GuiInputTextFlags;
-    user_data       : rawptr;
-    read_only       : bool;
-    event_char      : Wchar;
-    event_key       : GuiKey;
-    buf             : Cstring;
-    buf_text_len    : i32;
-    buf_size        : i32;
-    buf_dirty       : bool;
-    cursor_pos      : i32;
-    selection_start : i32;
-    selection_end   : i32;
+    event_flag      : GuiInputTextFlags,
+    flags           : GuiInputTextFlags,
+    user_data       : rawptr,
+    read_only       : bool,
+    event_char      : Wchar,
+    event_key       : GuiKey,
+    buf             : Cstring,
+    buf_text_len    : i32,
+    buf_size        : i32,
+    buf_dirty       : bool,
+    cursor_pos      : i32,
+    selection_start : i32,
+    selection_end   : i32,
 }
 
 GuiSizeConstraintCallbackData :: struct #ordered {
-    user_date    : rawptr;
-    pos          : Vec2;
-    current_size : Vec2;
-    desired_size : Vec2;
+    user_date    : rawptr,
+    pos          : Vec2,
+    current_size : Vec2,
+    desired_size : Vec2,
 }
 
 DrawCmd :: struct #ordered {
-    elem_count         : u32;
-    clip_rect          : Vec4;
-    texture_id         : TextureID;
-    user_callback      : draw_callback;
-    user_callback_data : rawptr;
+    elem_count         : u32,
+    clip_rect          : Vec4,
+    texture_id         : TextureID,
+    user_callback      : draw_callback,
+    user_callback_data : rawptr,
 }
 
 Vec2 :: struct #ordered {
-    x : f32;
-    y : f32;
+    x : f32,
+    y : f32,
 }
 
 Vec4 :: struct #ordered {
-    x : f32;
-    y : f32;
-    z : f32;
-    w : f32;
+    x : f32,
+    y : f32,
+    z : f32,
+    w : f32,
 }
 
 DrawVert :: struct #ordered {
-    pos : Vec2;
-    uv  : Vec2;
-    col : u32;
+    pos : Vec2,
+    uv  : Vec2,
+    col : u32,
 }
 
 DrawData :: struct #ordered {
-    valid           : bool;
-    cmd_lists       : ^^DrawList;
-    cmd_lists_count : i32;
-    total_vtx_count : i32;
-    total_idx_count : i32;
+    valid           : bool,
+    cmd_lists       : ^^DrawList,
+    cmd_lists_count : i32,
+    total_vtx_count : i32,
+    total_idx_count : i32,
 }
 
 Font ::       struct #ordered {}
@@ -85,111 +85,111 @@ FontAtlas ::  struct #ordered {}
 DrawList ::   struct #ordered {}
 
 FontConfig :: struct #ordered {
-    font_data                : rawptr;
-    font_data_size           : i32;
-    font_data_owned_by_atlas : bool;
-    font_no                  : i32;
-    size_pixels              : f32;
-    over_sample_h            : i32; 
-    over_sample_v            : i32;
-    pixel_snap_h             : bool;
-    glyph_extra_spacing      : Vec2;
-    glyph_ranges             : ^Wchar;
-    merge_mode               : bool;
-    merge_glyph_center_v     : bool;
-    name                     : [32]u8;
-    dest_font                : ^Font;
-};
+    font_data                : rawptr,
+    font_data_size           : i32,
+    font_data_owned_by_atlas : bool,
+    font_no                  : i32,
+    size_pixels              : f32,
+    over_sample_h            : i32, 
+    over_sample_v            : i32,
+    pixel_snap_h             : bool,
+    glyph_extra_spacing      : Vec2,
+    glyph_ranges             : ^Wchar,
+    merge_mode               : bool,
+    merge_glyph_center_v     : bool,
+    name                     : [32]u8,
+    dest_font                : ^Font,
+}
 
 GuiStyle :: struct #ordered {
-    alpha                     : f32;
-    window_padding            : Vec2;
-    window_min_size           : Vec2;
-    window_rounding           : f32;
-    window_title_align        : GuiAlign;
-    child_window_rounding     : f32;
-    frame_padding             : Vec2;
-    frame_rounding            : f32;
-    item_spacing              : Vec2;
-    item_inner_spacing        : Vec2;
-    touch_extra_padding       : Vec2;
-    indent_spacing            : f32;
-    columns_min_spacing       : f32;
-    scrollbar_size            : f32;
-    scrollbar_rounding        : f32;
-    grab_min_size             : f32;
-    grab_rounding             : f32;
-    display_window_padding    : Vec2;
-    display_safe_area_padding : Vec2;
-    anti_aliased_lines        : bool;
-    anti_aliased_shapes       : bool;
-    curve_tesselation_tol     : f32;
-    colors                    : [GuiCol.COUNT]Vec4;
+    alpha                     : f32,
+    window_padding            : Vec2,
+    window_min_size           : Vec2,
+    window_rounding           : f32,
+    window_title_align        : GuiAlign,
+    child_window_rounding     : f32,
+    frame_padding             : Vec2,
+    frame_rounding            : f32,
+    item_spacing              : Vec2,
+    item_inner_spacing        : Vec2,
+    touch_extra_padding       : Vec2,
+    indent_spacing            : f32,
+    columns_min_spacing       : f32,
+    scrollbar_size            : f32,
+    scrollbar_rounding        : f32,
+    grab_min_size             : f32,
+    grab_rounding             : f32,
+    display_window_padding    : Vec2,
+    display_safe_area_padding : Vec2,
+    anti_aliased_lines        : bool,
+    anti_aliased_shapes       : bool,
+    curve_tesselation_tol     : f32,
+    colors                    : [GuiCol.COUNT]Vec4,
 }
 
 GuiIO :: struct #ordered {
-    display_size                : Vec2;
-    delta_time                  : f32;
-    ini_saving_rate             : f32;
-    ini_file_name               : Cstring;
-    log_file_name               : Cstring;
-    mouse_double_click_time     : f32;
-    mouse_double_click_max_dist : f32;
-    mouse_drag_threshold        : f32;
-    key_map                     : [GuiKey.COUNT]i32;
-    key_repeat_delay            : f32;
-    key_repear_rate             : f32;
-    user_data                   : rawptr;
-    fonts                       : ^FontAtlas; 
-    font_global_scale           : f32;
-    font_allow_user_scaling     : bool;
-    display_framebuffer_scale   : Vec2;
-    display_visible_min         : Vec2;
-    display_visible_max         : Vec2;
-    word_movement_uses_alt_key  : bool;
-    shortcuts_use_super_key     : bool;
-    double_click_selects_word   : bool;
-    multi_select_uses_super_key : bool;
+    display_size                : Vec2,
+    delta_time                  : f32,
+    ini_saving_rate             : f32,
+    ini_file_name               : Cstring,
+    log_file_name               : Cstring,
+    mouse_double_click_time     : f32,
+    mouse_double_click_max_dist : f32,
+    mouse_drag_threshold        : f32,
+    key_map                     : [GuiKey.COUNT]i32,
+    key_repeat_delay            : f32,
+    key_repear_rate             : f32,
+    user_data                   : rawptr,
+    fonts                       : ^FontAtlas, 
+    font_global_scale           : f32,
+    font_allow_user_scaling     : bool,
+    display_framebuffer_scale   : Vec2,
+    display_visible_min         : Vec2,
+    display_visible_max         : Vec2,
+    word_movement_uses_alt_key  : bool,
+    shortcuts_use_super_key     : bool,
+    double_click_selects_word   : bool,
+    multi_select_uses_super_key : bool,
 
-    render_draw_list_fn         : proc(data : ^DrawData)              #cc_c;
-    get_clipboard_text_fn       : proc() -> Cstring                   #cc_c;
-    set_clipboard_text_fn       : proc(text : Cstring)                #cc_c;
-    mem_alloc_fn                : proc(sz : u64 /*size_t*/) -> rawptr #cc_c;
-    mem_free_fn                 : proc(ptr : rawptr)                  #cc_c;
-    ime_set_input_screen_pos_fn : proc(x : i32, y : i32)              #cc_c;
+    render_draw_list_fn         : proc(data : ^DrawData)              #cc_c,
+    get_clipboard_text_fn       : proc() -> Cstring                   #cc_c,
+    set_clipboard_text_fn       : proc(text : Cstring)                #cc_c,
+    mem_alloc_fn                : proc(sz : u64 /*size_t*/) -> rawptr #cc_c,
+    mem_free_fn                 : proc(ptr : rawptr)                  #cc_c,
+    ime_set_input_screen_pos_fn : proc(x : i32, y : i32)              #cc_c,
 
-    ime_window_handle           : rawptr;
-    mouse_pos                   : Vec2;
-    mouse_down                  : [5]bool;
-    mouse_wheel                 : f32;
-    mouse_draw_cursor           : bool;
-    key_ctrl                    : bool;
-    key_shift                   : bool;
-    key_alt                     : bool;
-    key_super                   : bool;
-    keys_down                   : [512]bool;
-    input_characters            : [16 + 1]Wchar;
-    want_mouse_capture          : bool;
-    want_keyboard_capture       : bool;
-    want_text_input             : bool;
-    framerate                   : f32;
-    metrics_allics              : i32;
-    metrics_render_vertices     : i32;
-    metrics_render_indices      : i32;
-    metrics_active_windows      : i32;
-    mouse_pos_prev              : Vec2;
-    mouse_delta                 : Vec2;
-    mouse_clicked               : [5]bool;
-    mouse_clicked_pos           : [5]Vec2;
-    mouse_clicked_time          : [5]f32;
-    mouse_double_clicked        : [5]bool;
-    mouse_released              : [5]bool;
-    mouse_down_onwed            : [5]bool;
-    mouse_down_durations        : [5]f32;
-    mouse_down_duration_prev    : [5]f32;
-    mouse_drag_max_distance_Sqr : [5]f32;
-    keys_down_duration          : [512]f32;
-    keys_down_duration_prev     : [512]f32;
+    ime_window_handle           : rawptr,
+    mouse_pos                   : Vec2,
+    mouse_down                  : [5]bool,
+    mouse_wheel                 : f32,
+    mouse_draw_cursor           : bool,
+    key_ctrl                    : bool,
+    key_shift                   : bool,
+    key_alt                     : bool,
+    key_super                   : bool,
+    keys_down                   : [512]bool,
+    input_characters            : [16 + 1]Wchar,
+    want_mouse_capture          : bool,
+    want_keyboard_capture       : bool,
+    want_text_input             : bool,
+    framerate                   : f32,
+    metrics_allics              : i32,
+    metrics_render_vertices     : i32,
+    metrics_render_indices      : i32,
+    metrics_active_windows      : i32,
+    mouse_pos_prev              : Vec2,
+    mouse_delta                 : Vec2,
+    mouse_clicked               : [5]bool,
+    mouse_clicked_pos           : [5]Vec2,
+    mouse_clicked_time          : [5]f32,
+    mouse_double_clicked        : [5]bool,
+    mouse_released              : [5]bool,
+    mouse_down_onwed            : [5]bool,
+    mouse_down_durations        : [5]f32,
+    mouse_down_duration_prev    : [5]f32,
+    mouse_drag_max_distance_Sqr : [5]f32,
+    keys_down_duration          : [512]f32,
+    keys_down_duration_prev     : [512]f32,
 }
 
 gui_text_edit_callback       :: proc(data : ^GuiTextEditCallbackData) -> i32 #cc_c;
