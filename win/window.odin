@@ -6,13 +6,12 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-09-2017 14:37:50
+ *  @Last Time: 06-12-2017 22:14:36
  *  
  *  @Description:
  *  
  */
-foreign_system_library "kernel32.lib" when ODIN_OS == "windows";
-
+foreign import kernel32 "system:kernel32.lib";
 import "core:fmt.odin";
 import win32 "core:sys/windows.odin";
 
@@ -22,8 +21,8 @@ import lib_msg "msg.odin";
 
 WndHandle :: win32.Hwnd;
 
-MAKEINTRESOURCEA :: proc(i : u16) -> ^u8 #inline {
-    return (^u8)(rawptr(int(u16(i))));
+MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
+    return (^u8)(rawptr(uintptr(int(u16(i)))));
 }
 
 IDC_ARROW : win32.Hcursor = win32.Hcursor(MAKEINTRESOURCEA(32512));
@@ -49,7 +48,7 @@ print_last_error :: proc() {
 FORMAT_MESSAGE_ALLOCATE_BUFFER  :: 0x00000100;
 FORMAT_MESSAGE_FROM_SYSTEM      :: 0x00001000;
 FORMAT_MESSAGE_IGNORE_INSERTS   :: 0x00000200;
-foreign kernel32 FormatMessageA :: proc(flags : u32, source : rawptr, msgId : u32, langId : u32, buffer : ^u8, size : u32) -> u32 #link_name "FormatMessageA" ---;
+foreign kernel32 FormatMessageA :: proc(flags : u32, source : rawptr, msgId : u32, langId : u32, buffer : ^u8, size : u32) -> u32 ---;
 
 create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
     return create_window(app, title, popup_window, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, width, height);
@@ -162,11 +161,11 @@ swap_buffers :: proc(wnd : WndHandle) {
     win32.release_dc(win32.Hwnd(wnd), dc);
 }
 
-_window_proc :: proc(hwnd: win32.Hwnd, 
+_window_proc :: proc "cdecl"(hwnd: win32.Hwnd, 
                      msg: u32, 
                      wparam: win32.Wparam, 
-                     lparam: win32.Lparam) -> win32.Lresult #cc_c {
-    match(msg) {    
+                     lparam: win32.Lparam) -> win32.Lresult {
+    switch msg {    
         case win32.WM_CLOSE : {
             win32.destroy_window(hwnd);
             return 0;
@@ -183,7 +182,7 @@ _window_proc :: proc(hwnd: win32.Hwnd,
         }
 
         case win32.WM_ACTIVATE  : {
-            //TODO
+            //TODO Handle WM_ACTIVE
             //win32.post_message(nil, msg_user.FOCUS, 0, 0);
             return 0;
         }
@@ -200,8 +199,8 @@ _window_proc :: proc(hwnd: win32.Hwnd,
 
         case win32.WM_SIZE : {
             lib_msg.window_resized = true;
-            lib_msg.window_new_width  = int(win32.LOWORD(lparam));
-            lib_msg.window_new_height = int(win32.HIWORD(lparam));
+            lib_msg.window_new_width  = int(win32.LOWORD_L(lparam));
+            lib_msg.window_new_height = int(win32.HIWORD_L(lparam));
             return 0;
         }
 

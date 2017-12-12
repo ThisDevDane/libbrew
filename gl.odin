@@ -6,18 +6,19 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 22-09-2017 22:01:55
+ *  @Last Time: 11-12-2017 04:03:13
  *  
  *  @Description:
  *  
  */
 
-foreign_system_library lib "opengl32.lib" when ODIN_OS == "WINDOWS";
+foreign import lib "system:opengl32.lib"
 import "core:fmt.odin";
 import "core:strings.odin";
 import "core:math.odin";
 
-import "libbrew.odin";
+import "win/misc.odin";
+import gl "win/opengl.odin";
 
 export "gl_enums.odin";
 
@@ -41,7 +42,28 @@ Program :: struct {
     Attributes : map[string]i32,
 }
 
-DebugMessageCallbackProc :: proc(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : ^u8, userParam : rawptr) #cc_c;
+OpenGLVars :: struct {
+    ctx                 : gl.GlContext,
+
+    version_major_max   : i32,
+    version_major_cur   : i32,
+    version_minor_max   : i32,
+    version_minor_cur   : i32,
+    version_string      : string,
+    glsl_version_string : string,
+
+    vendor_string       : string,
+    renderer_string     : string,
+
+    context_flags       : i32,
+
+    num_extensions      : i32,
+    extensions          : [dynamic]string,
+    num_wgl_extensions  : i32,
+    wgl_extensions      : [dynamic]string,
+}
+
+DebugMessageCallbackProc :: proc "cdecl"(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : ^u8, userParam : rawptr);
 
 // API 
 
@@ -92,15 +114,16 @@ clear :: proc(mask : ClearFlags) {
 
 buffer_data :: proc(target : BufferTargets, data : []f32, usage : BufferDataUsage) {
     if _buffer_data != nil {
-        _buffer_data(i32(target), size_of(data), &data[0], i32(usage));
+        _buffer_data(i32(target), i32(size_of(data[0]) * len(data)), &data[0], i32(usage));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }     
 }
 
+
 buffer_data :: proc(target : BufferTargets, data : []u32, usage : BufferDataUsage) {
     if _buffer_data != nil {
-        _buffer_data(i32(target), size_of(data), &data[0], i32(usage));
+        _buffer_data(i32(target), i32(size_of(data[0]) * len(data)), &data[0], i32(usage));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }     
@@ -205,9 +228,9 @@ enable_vertex_attrib_array :: proc(index : u32) {
     }       
 }
 
-vertex_attrib_pointer :: proc(index : u32, size : i32, type_ : VertexAttribDataType, normalized : bool, stride : u32, pointer : rawptr) {
+vertex_attrib_pointer :: proc(index : u32, size : int, type_ : VertexAttribDataType, normalized : bool, stride : u32, pointer : rawptr) {
     if _vertex_attrib_pointer != nil {
-        _vertex_attrib_pointer(index, size, i32(type_), normalized, stride, pointer);
+        _vertex_attrib_pointer(index, i32(size), i32(type_), normalized, stride, pointer);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }       
@@ -287,7 +310,7 @@ uniform :: proc(loc: i32, v0, v1, v2, v3: f32) {
 }
 
 uniform :: proc(loc: i32, v: math.Vec4) {
-    uniform(loc, v.x, v.y, v.z, v.w);
+    uniform(loc, v[0], v[1], v[2], v[3]);
 }
 
 uniform_matrix4fv :: proc(loc : i32, matrix : math.Mat4, transpose : bool) {
@@ -320,17 +343,17 @@ get_attrib_location :: proc(program : Program, name : string) -> i32 {
     }
 }
 
-draw_elements :: proc(mode : DrawModes, count : i32, type_ : DrawElementsType, indices : rawptr) {
+draw_elements :: proc(mode : DrawModes, count : int, type_ : DrawElementsType, indices : rawptr) {
     if _draw_elements != nil {
-        _draw_elements(i32(mode), count, i32(type_), indices);
+        _draw_elements(i32(mode), i32(count), i32(type_), indices);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }    
 }
 
-draw_arrays :: proc(mode : DrawModes, first : i32, count : i32) {
+draw_arrays :: proc(mode : DrawModes, first : int, count : int) {
     if _draw_arrays != nil {
-        _draw_arrays(i32(mode), first, count);
+        _draw_arrays(i32(mode), i32(first), i32(count));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }    
@@ -421,6 +444,18 @@ get_shader_value :: proc(shader : Shader, name : GetShaderNames) -> i32 {
 
     return 0;
 }
+//_get_shader_info_log        : proc(shader : u32, maxLength : i32, length : ^i32, infolog : ^u8)  
+get_shader_info_log :: proc(shader : Shader) -> string {
+    if _get_shader_info_log != nil {
+        logSize := get_shader_value(shader, GetShaderNames.InfoLogLength);
+        logBytes := make([]u8, logSize);
+        _get_shader_info_log(u32(shader), logSize, &logSize, &logBytes[0]);
+        return strings.to_odin_string(&logBytes[0]);
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+        return "<ERR>";
+    }
+}
 
 get_string :: proc(name : GetStringNames, index : u32) -> string {
     if _get_stringi != nil {
@@ -499,6 +534,8 @@ create_program :: proc() -> Program {
     return Program{};
 }
 
+//TODO(Hoej): since shader_source(shader, []string) does a mem alloc maybe we should just do the work here instead
+//            instead of relying on it.
 shader_source :: proc(obj : Shader, str : string) {
     array : [1]string;
     array[0] = str;
@@ -537,127 +574,148 @@ compile_shader :: proc(obj : Shader) {
     }
 }
 
+delete_shader :: proc(obj : Shader) {
+    if _delete_shader != nil {
+        _delete_shader(u32(obj));
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }
+}
+
 // Functions
     // Function variables
-    _buffer_data                : proc(target: i32, size: i32, data: rawptr, usage: i32)                                        #cc_c;
-    _bind_buffer                : proc(target : i32, buffer : u32)                                                              #cc_c;
-    _gen_buffers                : proc(n : i32, buffer : ^u32)                                                                  #cc_c;
-    _gen_vertex_arrays          : proc(count: i32, buffers: ^u32)                                                               #cc_c;
-    _enable_vertex_attrib_array : proc(index: u32)                                                                              #cc_c;
-    _vertex_attrib_pointer      : proc(index: u32, size: i32, type_: i32, normalized: bool, stride: u32, pointer: rawptr)        #cc_c;
-    _bind_vertex_array          : proc(buffer: u32)                                                                             #cc_c;
-    _uniform1i                  : proc(loc: i32, v0: i32)                                                                       #cc_c;
-    _uniform2i                  : proc(loc: i32, v0, v1: i32)                                                                   #cc_c;
-    _uniform3i                  : proc(loc: i32, v0, v1, v2: i32)                                                               #cc_c;
-    _uniform4i                  : proc(loc: i32, v0, v1, v2, v3: i32)                                                           #cc_c;
-    _uniform1f                  : proc(loc: i32, v0: f32)                                                                       #cc_c;
-    _uniform2f                  : proc(loc: i32, v0, v1: f32)                                                                   #cc_c;
-    _uniform3f                  : proc(loc: i32, v0, v1, v2: f32)                                                               #cc_c;
-    _uniform4f                  : proc(loc: i32, v0, v1, v2, v3: f32)                                                           #cc_c;
-    _uniform_matrix4fv          : proc(loc: i32, count: u32, transpose: i32, value: ^f32)                                       #cc_c;
-    _get_uniform_location       : proc(program: u32, name: ^u8) -> i32                                                        #cc_c;
-    _get_attrib_location        : proc(program: u32, name: ^u8) -> i32                                                        #cc_c;
-    _draw_elements              : proc(mode: i32, count: i32, type_: i32, indices: rawptr)                                      #cc_c;
-    _draw_arrays                : proc(mode: i32, first : i32, count : i32)                                                     #cc_c;
-    _use_program                : proc(program: u32)                                                                            #cc_c;
-    _link_program               : proc(program: u32)                                                                            #cc_c;
-    _active_texture             : proc(texture: i32)                                                                            #cc_c;
-    _blend_equation_separate    : proc(modeRGB : i32, modeAlpha : i32)                                                          #cc_c;
-    _blend_equation             : proc(mode : i32)                                                                              #cc_c;
-    _attach_shader              : proc(program, shader: u32)                                                                    #cc_c;
-    _create_program             : proc() -> u32                                                                                 #cc_c;
-    _shader_source              : proc(shader: u32, count: u32, str: ^^u8, length: ^i32)                                      #cc_c;
-    _create_shader              : proc(shader_type: i32) -> u32                                                                 #cc_c;
-    _compile_shader             : proc(shader: u32)                                                                             #cc_c;
-    _debug_message_control      : proc(source : i32, type_ : i32, severity : i32, count : i32, ids : ^u32, enabled : bool)       #cc_c;
-    _debug_message_callback     : proc(callback : DebugMessageCallbackProc, userParam : rawptr)                                 #cc_c;
-    _get_shaderiv               : proc(shader : u32, pname : i32, params : ^i32)                                                #cc_c;
-    _get_shader_info_log        : proc(shader : u32, maxLength : i32, length : ^i32, infolog : ^u8)                           #cc_c;
-    _get_stringi                : proc(name : i32, index : u32) -> ^u8                                                        #cc_c;
-    _bind_frag_data_location    : proc(program : u32, colorNumber : u32, name : ^u8)                                          #cc_c;
-    _polygon_mode               : proc(face : i32, mode : i32)                                                                  #cc_c;
-    _generate_mipmap            : proc(target : i32)                                                                            #cc_c;
-    _enable                     : proc(cap: i32)                                                                                #cc_c;
-    _depth_func                 : proc(func: i32)                                                                               #cc_c;
-    _get_string                 : proc(name : i32) -> ^u8                                                                     #cc_c;
-    _tex_image2d                : proc(target, level, internal_format, width, height, border, format, _type: i32, data: rawptr) #cc_c;
-    _tex_parameteri             : proc(target, pname, param: i32)                                                               #cc_c;
-    _bind_texture               : proc(target: i32, texture: u32)                                                               #cc_c;
-    _gen_textures               : proc(count: i32, result: ^u32)                                                                #cc_c;
-    _blend_func                 : proc(sfactor : i32, dfactor: i32)                                                             #cc_c;
-    _get_integerv               : proc(name: i32, v: ^i32)                                                                      #cc_c;
-    _disable                    : proc(cap: i32)                                                                                #cc_c;
-    _clear                      : proc(mask: i32)                                                                               #cc_c;
+    _buffer_data                : proc "c"(target : i32, size : i32, data : rawptr, usage : i32);
+    _bind_buffer                : proc "c"(target : i32, buffer : u32);
+    _gen_buffers                : proc "c"(n : i32, buffer : ^u32);
+    _gen_vertex_arrays          : proc "c"(count: i32, buffers: ^u32);
+    _enable_vertex_attrib_array : proc "c"(index: u32);
+    _vertex_attrib_pointer      : proc "c"(index: u32, size: i32, type_: i32, normalized: bool, stride: u32, pointer: rawptr);
+    _bind_vertex_array          : proc "c"(buffer: u32);
+    _uniform1i                  : proc "c"(loc : i32, v0: i32);
+    _uniform2i                  : proc "c"(loc : i32, v0 : i32, v1 : i32);
+    _uniform3i                  : proc "c"(loc : i32, v0 : i32, v1, v2 : i32);
+    _uniform4i                  : proc "c"(loc : i32, v0 : i32, v1, v2 : i32, v3: i32);
+    _uniform1f                  : proc "c"(loc : i32, v0 : f32);
+    _uniform2f                  : proc "c"(loc : i32, v0 : f32, v1 : f32);
+    _uniform3f                  : proc "c"(loc : i32, v0 : f32, v1 : f32, v2 : f32);
+    _uniform4f                  : proc "c"(loc : i32, v0 : f32, v1 : f32, v2 : f32, v3 : f32);
+    _uniform_matrix4fv          : proc "c"(loc : i32, count: u32, transpose: i32, value: ^f32);
+    _get_uniform_location       : proc "c"(program : u32, name : ^u8) -> i32;
+    _get_attrib_location        : proc "c"(program : u32, name : ^u8) -> i32;
+    _draw_elements              : proc "c"(mode: i32, count : i32, type_ : i32, indices : rawptr);
+    _draw_arrays                : proc "c"(mode: i32, first : i32, count : i32);
+    _use_program                : proc "c"(program: u32);
+    _link_program               : proc "c"(program: u32);
+    _active_texture             : proc "c"(texture: i32);
+    _blend_equation_separate    : proc "c"(modeRGB : i32, modeAlpha : i32);
+    _blend_equation             : proc "c"(mode : i32);
+    _attach_shader              : proc "c"(program, shader: u32);
+    _create_program             : proc "c"() -> u32;
+    _shader_source              : proc "c"(shader: u32, count: u32, str: ^^u8, length: ^i32);
+    _create_shader              : proc "c"(shader_type: i32) -> u32;
+    _compile_shader             : proc "c"(shader: u32);
+    _delete_shader              : proc "c"(shader: u32);
+    _debug_message_control      : proc "c"(source : i32, type_ : i32, severity : i32, count : i32, ids : ^u32, enabled : bool);
+    _debug_message_callback     : proc "c"(callback : DebugMessageCallbackProc, userParam : rawptr);
+    _get_shaderiv               : proc "c"(shader : u32, pname : i32, params : ^i32);
+    _get_shader_info_log        : proc "c"(shader : u32, maxLength : i32, length : ^i32, infolog : ^u8);
+    _get_stringi                : proc "c"(name : i32, index : u32) -> ^u8;
+    _bind_frag_data_location    : proc "c"(program : u32, colorNumber : u32, name : ^u8);
+    _polygon_mode               : proc "c"(face : i32, mode : i32);
+    _generate_mipmap            : proc "c"(target : i32);
+    _enable                     : proc "c"(cap: i32);
+    _depth_func                 : proc "c"(func: i32);
+    _get_string                 : proc "c"(name : i32) -> ^u8;
+    _tex_image2d                : proc "c"(target, level, internal_format, width, height, border, format, _type: i32, data: rawptr);
+    _tex_parameteri             : proc "c"(target, pname, param: i32);
+    _bind_texture               : proc "c"(target: i32, texture: u32);
+    _gen_textures               : proc "c"(count: i32, result: ^u32);
+    _blend_func                 : proc "c"(sfactor : i32, dfactor: i32);
+    _get_integerv               : proc "c"(name: i32, v: ^i32);
+    _disable                    : proc "c"(cap: i32);
+    _clear                      : proc "c"(mask: i32);
      
-    viewport                    : proc(x : i32, y : i32, width : i32, height : i32)                                             #cc_c;
-    clear_color                 : proc(red : f32, green : f32, blue : f32, alpha : f32)                                         #cc_c;
-    scissor                     : proc(x : i32, y : i32, width : i32, height : i32)                                             #cc_c;
+    viewport                    : proc "c"(x : i32, y : i32, width : i32, height : i32);
+    scissor                     : proc "c"(x : i32, y : i32, width : i32, height : i32);
+    clear_color                 : proc "c"(red : f32, green : f32, blue : f32, alpha : f32);
 
-load_functions :: proc() {
-    lib := libbrew.load_library("opengl32.dll"); defer libbrew.free_library(lib);
-    set_proc_address :: proc(lib : libbrew.LibHandle, p: rawptr, name: string) #inline {
-        res := libbrew.gl_get_proc_address(name);
-        if res == nil {
-            res = libbrew.get_proc_address(lib, name);
-        }   
+get_info :: proc(vars : ^OpenGLVars) {
+    vars.version_major_cur =   get_integer(GetIntegerNames.MajorVersion);
+    vars.version_minor_cur =   get_integer(GetIntegerNames.MinorVersion);
+    vars.context_flags =       get_integer(GetIntegerNames.ContextFlags);
+    vars.num_extensions =      get_integer(GetIntegerNames.NumExtensions);
+    
+    vars.version_string =      get_string(GetStringNames.Version);
+    vars.glsl_version_string = get_string(GetStringNames.ShadingLanguageVersion);
+    vars.vendor_string =       get_string(GetStringNames.Vendor);
+    vars.renderer_string =     get_string(GetStringNames.Renderer);
 
-        if res == nil {
-            fmt.println("Couldn't load:", name);
-        }
-
-        (^rawptr)(p)^ = rawptr(res);
+    reserve(&vars.extensions, int(vars.num_extensions));
+    for i in 0..vars.num_extensions {
+        ext := get_string(GetStringNames.Extensions, u32(i));
+        append(&vars.extensions, ext);
     }
+}
 
-    set_proc_address(lib, &_draw_elements,              "glDrawElements"           );
-    set_proc_address(lib, &_draw_arrays,                "glDrawArrays"             );
-    set_proc_address(lib, &_bind_vertex_array,          "glBindVertexArray"        );
-    set_proc_address(lib, &_vertex_attrib_pointer,      "glVertexAttribPointer"    );
-    set_proc_address(lib, &_enable_vertex_attrib_array, "glEnableVertexAttribArray");
-    set_proc_address(lib, &_gen_vertex_arrays,          "glGenVertexArrays"        );
-    set_proc_address(lib, &_buffer_data,                "glBufferData"             );
-    set_proc_address(lib, &_bind_buffer,                "glBindBuffer"             );
-    set_proc_address(lib, &_gen_buffers,                "glGenBuffers"             );
-    set_proc_address(lib, &_debug_message_control,      "glDebugMessageControlARB" );
-    set_proc_address(lib, &_debug_message_callback,     "glDebugMessageCallbackARB");
-    set_proc_address(lib, &_get_shaderiv,               "glGetShaderiv"            );
-    set_proc_address(lib, &_get_shader_info_log,        "glGetShaderInfoLog"       );
-    set_proc_address(lib, &_get_stringi,                "glGetStringi"             );
-    set_proc_address(lib, &_blend_equation,             "glBlendEquation"          );
-    set_proc_address(lib, &_blend_equation_separate,    "glBlendEquationSeparate"  );
-    set_proc_address(lib, &_compile_shader,             "glCompileShader"          );
-    set_proc_address(lib, &_create_shader,              "glCreateShader"           );
-    set_proc_address(lib, &_shader_source,              "glShaderSource"           );
-    set_proc_address(lib, &_attach_shader,              "glAttachShader"           ); 
-    set_proc_address(lib, &_create_program,             "glCreateProgram"          );
-    set_proc_address(lib, &_link_program,               "glLinkProgram"            );
-    set_proc_address(lib, &_use_program,                "glUseProgram"             );
-    set_proc_address(lib, &_active_texture,             "glActiveTexture"          );
-    set_proc_address(lib, &_uniform1i,                  "glUniform1i"              );
-    set_proc_address(lib, &_uniform2i,                  "glUniform2i"              );
-    set_proc_address(lib, &_uniform3i,                  "glUniform3i"              );
-    set_proc_address(lib, &_uniform4i,                  "glUniform4i"              );
-    set_proc_address(lib, &_uniform1f,                  "glUniform1f"              );
-    set_proc_address(lib, &_uniform2f,                  "glUniform2f"              );
-    set_proc_address(lib, &_uniform3f,                  "glUniform3f"              );
-    set_proc_address(lib, &_uniform4f,                  "glUniform4f"              );
-    set_proc_address(lib, &_uniform_matrix4fv,          "glUniformMatrix4fv"       );
-    set_proc_address(lib, &_get_uniform_location,       "glGetUniformLocation"     );
-    set_proc_address(lib, &_get_attrib_location,        "glGetAttribLocation"      );
-    set_proc_address(lib, &_polygon_mode,               "glPolygonMode"            );
-    set_proc_address(lib, &_generate_mipmap,            "glGenerateMipmap"         );
-    set_proc_address(lib, &_enable,                     "glEnable"                 );
-    set_proc_address(lib, &_depth_func,                 "glDepthFunc"              );
-    set_proc_address(lib, &_bind_frag_data_location,    "glBindFragDataLocation"   );
-    set_proc_address(lib, &_get_string,                 "glGetString"              );
-    set_proc_address(lib, &_tex_image2d,                "glTexImage2D"             );
-    set_proc_address(lib, &_tex_parameteri,             "glTexParameteri"          );
-    set_proc_address(lib, &_bind_texture,               "glBindTexture"            );
-    set_proc_address(lib, &_gen_textures,               "glGenTextures"            );
-    set_proc_address(lib, &_blend_func,                 "glBlendFunc"              );
-    set_proc_address(lib, &_get_integerv,               "glGetIntegerv"            );
-    set_proc_address(lib, &_disable,                    "glDisable"                );
-    set_proc_address(lib, &_clear,                      "glClear"                  );
-    set_proc_address(lib, &viewport,                    "glViewport"               );
-    set_proc_address(lib, &clear_color,                 "glClearColor"             );
-    set_proc_address(lib, &scissor,                     "glScissor"                );
+set_proc_address :: #type /*inline*/ proc(lib : rawptr, p: rawptr, name: string);
+load_library     :: #type proc(name : string) -> rawptr;
+free_library     :: #type proc(lib : rawptr);
+
+load_functions :: proc(set_proc : set_proc_address, load_lib : load_library, free_lib : free_library) {
+    lib := load_lib("opengl32.dll"); defer free_lib(lib);
+    //TODO(Hoej): How??? 
+    //debug_info.lib_address = int(rawptr(lib));
+
+    set_proc(lib, &_draw_elements,              "glDrawElements"           );
+    set_proc(lib, &_draw_arrays,                "glDrawArrays"             );
+    set_proc(lib, &_bind_vertex_array,          "glBindVertexArray"        );
+    set_proc(lib, &_vertex_attrib_pointer,      "glVertexAttribPointer"    );
+    set_proc(lib, &_enable_vertex_attrib_array, "glEnableVertexAttribArray");
+    set_proc(lib, &_gen_vertex_arrays,          "glGenVertexArrays"        );
+    set_proc(lib, &_buffer_data,                "glBufferData"             );
+    set_proc(lib, &_bind_buffer,                "glBindBuffer"             );
+    set_proc(lib, &_gen_buffers,                "glGenBuffers"             );
+    set_proc(lib, &_debug_message_control,      "glDebugMessageControlARB" );
+    set_proc(lib, &_debug_message_callback,     "glDebugMessageCallbackARB");
+    set_proc(lib, &_get_shaderiv,               "glGetShaderiv"            );
+    set_proc(lib, &_get_shader_info_log,        "glGetShaderInfoLog"       );
+    set_proc(lib, &_get_stringi,                "glGetStringi"             );
+    set_proc(lib, &_blend_equation,             "glBlendEquation"          );
+    set_proc(lib, &_blend_equation_separate,    "glBlendEquationSeparate"  );
+    set_proc(lib, &_compile_shader,             "glCompileShader"          );
+    set_proc(lib, &_create_shader,              "glCreateShader"           );
+    set_proc(lib, &_shader_source,              "glShaderSource"           );
+    set_proc(lib, &_attach_shader,              "glAttachShader"           ); 
+    set_proc(lib, &_create_program,             "glCreateProgram"          );
+    set_proc(lib, &_link_program,               "glLinkProgram"            );
+    set_proc(lib, &_use_program,                "glUseProgram"             );
+    set_proc(lib, &_active_texture,             "glActiveTexture"          );
+    set_proc(lib, &_uniform1i,                  "glUniform1i"              );
+    set_proc(lib, &_uniform2i,                  "glUniform2i"              );
+    set_proc(lib, &_uniform3i,                  "glUniform3i"              );
+    set_proc(lib, &_uniform4i,                  "glUniform4i"              );
+    set_proc(lib, &_uniform1f,                  "glUniform1f"              );
+    set_proc(lib, &_uniform2f,                  "glUniform2f"              );
+    set_proc(lib, &_uniform3f,                  "glUniform3f"              );
+    set_proc(lib, &_uniform4f,                  "glUniform4f"              );
+    set_proc(lib, &_uniform_matrix4fv,          "glUniformMatrix4fv"       );
+    set_proc(lib, &_get_uniform_location,       "glGetUniformLocation"     );
+    set_proc(lib, &_get_attrib_location,        "glGetAttribLocation"      );
+    set_proc(lib, &_polygon_mode,               "glPolygonMode"            );
+    set_proc(lib, &_generate_mipmap,            "glGenerateMipmap"         );
+    set_proc(lib, &_enable,                     "glEnable"                 );
+    set_proc(lib, &_depth_func,                 "glDepthFunc"              );
+    set_proc(lib, &_bind_frag_data_location,    "glBindFragDataLocation"   );
+    set_proc(lib, &_get_string,                 "glGetString"              );
+    set_proc(lib, &_tex_image2d,                "glTexImage2D"             );
+    set_proc(lib, &_tex_parameteri,             "glTexParameteri"          );
+    set_proc(lib, &_bind_texture,               "glBindTexture"            );
+    set_proc(lib, &_gen_textures,               "glGenTextures"            );
+    set_proc(lib, &_blend_func,                 "glBlendFunc"              );
+    set_proc(lib, &_get_integerv,               "glGetIntegerv"            );
+    set_proc(lib, &_disable,                    "glDisable"                );
+    set_proc(lib, &_clear,                      "glClear"                  );
+    set_proc(lib, &viewport,                    "glViewport"               );
+    set_proc(lib, &clear_color,                 "glClearColor"             );
+    set_proc(lib, &scissor,                     "glScissor"                );
 }
