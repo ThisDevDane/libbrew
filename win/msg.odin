@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 06-12-2017 22:14:45
+ *  @Last Time: 12-12-2017 01:24:20
  *  
  *  @Description:
  *  
@@ -21,6 +21,7 @@ window_new_width  : int;
 window_new_height : int;
 
 
+//TODO(Hoej): Remove Msg prefix from union members
 Msg :: union {
     MsgNotTranslated,
     MsgQuitMessage,

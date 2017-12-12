@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-12-2017 04:43:02
+ *  @Last Time: 12-12-2017 01:18:06
  *  
  *  @Description:
  *  
@@ -183,7 +183,7 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle) {
     //TODO(Hoej): Get from font catalog
     font := font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
     if font == nil {
-        fmt.println("Couldn't load Lato-Regular.tff for imgui");
+        fmt.println("Couldn't load data/fonts/Roboto-Medium.tff for dear imgui");
     }
 
     pixels : ^u8;
