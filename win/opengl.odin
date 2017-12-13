@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 06-12-2017 22:15:16
+ *  @Last Time: 13-12-2017 00:45:50
  *  
  *  @Description:
  *  
@@ -31,7 +31,9 @@ get_proc_address :: proc "cdecl"(name : string) -> proc "cdecl"() {
     return cast(proc "cdecl"())wgl.get_gl_proc_address(&c_str[0]);
 }
 
-create_gl_context :: proc(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
+create_gl_context :: proc[create_gl_context_min, create_gl_context_ext];
+
+create_gl_context_min :: proc(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
     extensions : map[string]rawptr;
     extensions["wglChoosePixelFormatARB"]    = &choose_pixel_format;
     extensions["wglCreateContextAttribsARB"] = &create_context_attribs;
@@ -53,7 +55,7 @@ create_gl_context :: proc(wnd_handle : window.WndHandle, major, minor : int) -> 
 }
 
 //TODO Clean this up and understand it better
-create_gl_context :: proc(handle : window.WndHandle, 
+create_gl_context_ext :: proc(handle : window.WndHandle, 
                           major, minor : int, 
                           requested_extensions : map[string]rawptr,
                           attribs : []Attrib,

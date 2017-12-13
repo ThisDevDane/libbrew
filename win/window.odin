@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 06-12-2017 22:14:36
+ *  @Last Time: 13-12-2017 00:45:20
  *  
  *  @Description:
  *  
@@ -50,10 +50,12 @@ FORMAT_MESSAGE_FROM_SYSTEM      :: 0x00001000;
 FORMAT_MESSAGE_IGNORE_INSERTS   :: 0x00000200;
 foreign kernel32 FormatMessageA :: proc(flags : u32, source : rawptr, msgId : u32, langId : u32, buffer : ^u8, size : u32) -> u32 ---;
 
-create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
+create_window :: proc[create_window1, create_window2];
+
+create_window1 :: proc(app : misc.AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
     return create_window(app, title, popup_window, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, width, height);
 }
-create_window :: proc(app : misc.AppHandle, title : string, popup_window : bool, x, y, width, height : int) -> WndHandle {
+create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool, x, y, width, height : int) -> WndHandle {
     wndClass : win32.Wnd_Class_Ex_A;
     wndClass.size = size_of(win32.Wnd_Class_Ex_A);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
@@ -110,11 +112,13 @@ get_window_rect :: proc(handle : WndHandle) -> (int, int, int, int) {
     return int(rect.left), int(rect.top), int(rect.right), int(rect.bottom); 
 }
 
-set_window_size :: proc(handle : WndHandle, width, height : int) {
+set_window_size :: proc[set_window_size_not_safe, set_window_size_safe];
+
+set_window_size_not_safe :: proc(handle : WndHandle, width, height : int) {
     set_window_size(handle, width, height, true);
 }
 
-set_window_size :: proc(handle : WndHandle, width, height : int, safe_min_max : bool) {
+set_window_size_safe :: proc(handle : WndHandle, width, height : int, safe_min_max : bool) {
     new_w : int = width; 
     new_h : int = height;
     if safe_min_max {

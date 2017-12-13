@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-12-2017 04:03:13
+ *  @Last Time: 13-12-2017 00:51:00
  *  
  *  @Description:
  *  
@@ -112,7 +112,8 @@ clear :: proc(mask : ClearFlags) {
     _clear(i32(mask));
 }
 
-buffer_data :: proc(target : BufferTargets, data : []f32, usage : BufferDataUsage) {
+buffer_data :: proc[buffer_data_slice_u32, buffer_data_slice_f32, buffer_data_ptr]; 
+buffer_data_slice_f32 :: proc(target : BufferTargets, data : []f32, usage : BufferDataUsage) {
     if _buffer_data != nil {
         _buffer_data(i32(target), i32(size_of(data[0]) * len(data)), &data[0], i32(usage));
     } else {
@@ -121,7 +122,8 @@ buffer_data :: proc(target : BufferTargets, data : []f32, usage : BufferDataUsag
 }
 
 
-buffer_data :: proc(target : BufferTargets, data : []u32, usage : BufferDataUsage) {
+
+buffer_data_slice_u32 :: proc(target : BufferTargets, data : []u32, usage : BufferDataUsage) {
     if _buffer_data != nil {
         _buffer_data(i32(target), i32(size_of(data[0]) * len(data)), &data[0], i32(usage));
     } else {
@@ -130,7 +132,7 @@ buffer_data :: proc(target : BufferTargets, data : []u32, usage : BufferDataUsag
 }
 
 
-buffer_data :: proc(target : BufferTargets, size : i32, data : rawptr, usage : BufferDataUsage) {
+buffer_data_ptr :: proc(target : BufferTargets, size : i32, data : rawptr, usage : BufferDataUsage) {
     if _buffer_data != nil {
         _buffer_data(i32(target), size, data, i32(usage));
     } else {
@@ -170,7 +172,9 @@ gen_buffers :: proc(n : i32) -> []BufferObject {
     }       
 }
 
-bind_buffer :: proc(target : BufferTargets, buffer : BufferObject) {
+bind_buffer :: proc[bind_buffer_vbo, bind_buffer_ebo, bind_buffer_legacy];
+
+bind_buffer_legacy :: proc(target : BufferTargets, buffer : BufferObject) {
     if _bind_buffer != nil {
         _bind_buffer(i32(target), u32(buffer));
     } else {
@@ -178,11 +182,12 @@ bind_buffer :: proc(target : BufferTargets, buffer : BufferObject) {
     }       
 }
 
-bind_buffer :: proc(vbo : VBO) {
+
+bind_buffer_vbo :: proc(vbo : VBO) {
     bind_buffer(BufferTargets.Array, BufferObject(vbo));
 }
 
-bind_buffer :: proc(ebo : EBO) {
+bind_buffer_ebo :: proc(ebo : EBO) {
     bind_buffer(BufferTargets.ElementArray, BufferObject(ebo));
      
 }
@@ -245,7 +250,17 @@ bind_vertex_array :: proc(buffer : VAO) {
     }    
 }
 
-uniform :: proc(loc : i32, v0 : i32) {
+uniform :: proc[uniform1i, 
+                uniform2i, 
+                uniform3i, 
+                uniform4i, 
+                uniform1f, 
+                uniform2f, 
+                uniform3f, 
+                uniform4f, 
+                uniform_vec4];
+
+uniform1i :: proc(loc : i32, v0 : i32) {
     if _uniform1i != nil {
         _uniform1i(loc, v0);
     } else {
@@ -253,7 +268,7 @@ uniform :: proc(loc : i32, v0 : i32) {
     }
 }
 
-uniform :: proc(loc: i32, v0, v1: i32) {
+uniform2i :: proc(loc: i32, v0, v1: i32) {
     if _uniform2i != nil {
         _uniform2i(loc, v0, v1);
     } else {
@@ -261,7 +276,7 @@ uniform :: proc(loc: i32, v0, v1: i32) {
     }
 }
 
-uniform :: proc(loc: i32, v0, v1, v2: i32) {
+uniform3i :: proc(loc: i32, v0, v1, v2: i32) {
     if _uniform3i != nil {
         _uniform3i(loc, v0, v1, v2);
     } else {
@@ -269,7 +284,7 @@ uniform :: proc(loc: i32, v0, v1, v2: i32) {
     }
 }
 
-uniform :: proc(loc: i32, v0, v1, v2, v3: i32) {
+uniform4i :: proc(loc: i32, v0, v1, v2, v3: i32) {
     if _uniform4i != nil {
         _uniform4i(loc, v0, v1, v2, v3);
     } else {
@@ -277,7 +292,7 @@ uniform :: proc(loc: i32, v0, v1, v2, v3: i32) {
     }
 }
 
-uniform :: proc(loc: i32, v0: f32) {
+uniform1f :: proc(loc: i32, v0: f32) {
     if _uniform1f != nil {
         _uniform1f(loc, v0);
     } else {
@@ -285,7 +300,7 @@ uniform :: proc(loc: i32, v0: f32) {
     }
 }
 
-uniform :: proc(loc: i32, v0, v1: f32) {
+uniform2f :: proc(loc: i32, v0, v1: f32) {
     if _uniform2f != nil {
         _uniform2f(loc, v0, v1);
     } else {
@@ -293,7 +308,7 @@ uniform :: proc(loc: i32, v0, v1: f32) {
     }
 }
 
-uniform :: proc(loc: i32, v0, v1, v2: f32) {
+uniform3f :: proc(loc: i32, v0, v1, v2: f32) {
     if _uniform3f != nil {
         _uniform3f(loc, v0, v1, v2);
     } else {
@@ -301,7 +316,7 @@ uniform :: proc(loc: i32, v0, v1, v2: f32) {
     }
 }
 
-uniform :: proc(loc: i32, v0, v1, v2, v3: f32) {
+uniform4f :: proc(loc: i32, v0, v1, v2, v3: f32) {
     if _uniform4f != nil {
         _uniform4f(loc, v0, v1, v2, v3);
     } else {
@@ -309,7 +324,7 @@ uniform :: proc(loc: i32, v0, v1, v2, v3: f32) {
     }
 }
 
-uniform :: proc(loc: i32, v: math.Vec4) {
+uniform_vec4 :: proc(loc: i32, v: math.Vec4) {
     uniform(loc, v[0], v[1], v[2], v[3]);
 }
 
@@ -457,7 +472,9 @@ get_shader_info_log :: proc(shader : Shader) -> string {
     }
 }
 
-get_string :: proc(name : GetStringNames, index : u32) -> string {
+get_string :: proc[get_string_single, get_string_index];
+
+get_string_index :: proc(name : GetStringNames, index : u32) -> string {
     if _get_stringi != nil {
         res := _get_stringi(i32(name), index);
         return strings.to_odin_string(res);
@@ -467,7 +484,7 @@ get_string :: proc(name : GetStringNames, index : u32) -> string {
     }
 }
 
-get_string :: proc(name : GetStringNames) -> string {
+get_string_single :: proc(name : GetStringNames) -> string {
     if _get_string != nil {
         res := _get_string(i32(name));
         return strings.to_odin_string(res);
@@ -477,7 +494,9 @@ get_string :: proc(name : GetStringNames) -> string {
     return "nil";
 }
 
-get_integer :: proc(name : GetIntegerNames) -> i32 {
+get_integer :: proc[get_integer_single, get_integer_slice];
+
+get_integer_single :: proc(name : GetIntegerNames) -> i32 {
     if _get_integerv != nil { 
         res : i32;
         _get_integerv(i32(name), &res);
@@ -488,7 +507,7 @@ get_integer :: proc(name : GetIntegerNames) -> i32 {
     }
 }
 
-get_integer :: proc(name : GetIntegerNames, res : []i32) {
+get_integer_slice :: proc(name : GetIntegerNames, res : []i32) {
     if _get_integerv != nil { 
         _get_integerv(i32(name), &res[0]);
     } else {
@@ -534,15 +553,17 @@ create_program :: proc() -> Program {
     return Program{};
 }
 
+shader_source :: proc[shader_source_str, shader_source_slice];
+
 //TODO(Hoej): since shader_source(shader, []string) does a mem alloc maybe we should just do the work here instead
 //            instead of relying on it.
-shader_source :: proc(obj : Shader, str : string) {
+shader_source_str :: proc(obj : Shader, str : string) {
     array : [1]string;
     array[0] = str;
     shader_source(obj, array[..]);
 }
 
-shader_source :: proc(obj : Shader, strs : []string) {
+shader_source_slice :: proc(obj : Shader, strs : []string) {
     if _shader_source != nil {
         newStrs := make([]^u8, len(strs)); defer free(newStrs);
         lengths := make([]i32, len(strs)); defer free(lengths);
