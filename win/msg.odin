@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 12-12-2017 01:24:20
+ *  @Last Time: 13-12-2017 17:47:58
  *  
  *  @Description:
  *  
@@ -32,6 +32,7 @@ Msg :: union {
     MsgMouseButton,
     MsgSizeChange,
     MsgChar,
+    MsgMouseWheel,
 }
 
 MsgNotTranslated :: struct {};
@@ -71,6 +72,10 @@ MsgSizeChange :: struct {
 
 MsgChar :: struct {
     char : rune,
+}
+
+MsgMouseWheel :: struct {
+    distance : int,
 }
 
 poll_message :: proc(msg : ^Msg) -> bool {
@@ -267,6 +272,15 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     key = input.VirtualKey.MMouse,
                     down = true,
                     double_click = true,
+                };
+                msg^ = l_msg;
+            }
+
+            case win32.WM_MOUSEWHEEL : {
+                WHEEL_DELTA :: 120;
+
+                l_msg := MsgMouseWheel {
+                    int(cast(i16)win32.HIWORD_W(w_msg.wparam)) / WHEEL_DELTA,
                 };
                 msg^ = l_msg;
             }

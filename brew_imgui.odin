@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 12-12-2017 04:14:23
+ *  @Last Time: 13-12-2017 17:51:11
  *  
  *  @Description:
  *  
@@ -43,6 +43,7 @@ FrameState :: struct {
     window_focus  : bool,
     mouse_x       : int,
     mouse_y       : int,
+    mouse_wheel   : int,
     left_mouse    : bool,
     right_mouse   : bool,
 }
@@ -210,7 +211,8 @@ begin_new_frame :: proc(new_state : ^FrameState) {
         io.mouse_pos.x = f32(new_state.mouse_x);
         io.mouse_pos.y = f32(new_state.mouse_y);
         io.mouse_down[0] = new_state.left_mouse;
-        io.mouse_down[1] = new_state.right_mouse;;
+        io.mouse_down[1] = new_state.right_mouse;
+        io.mouse_wheel   = f32(new_state.mouse_wheel);
         
         //io.mouse_wheel = f32(ctx.imgui_state.mouse_wheel_delta); 
 
@@ -227,6 +229,7 @@ begin_new_frame :: proc(new_state : ^FrameState) {
 
         io.mouse_down[0] = false;
         io.mouse_down[1] = false;
+        io.mouse_wheel   = 0;
         io.key_ctrl  = false;  
         io.key_shift = false; 
         io.key_alt   = false;   
