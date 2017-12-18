@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 13-12-2017 17:51:11
+ *  @Last Time: 18-12-2017 20:58:29 UTC+1
  *  
  *  @Description:
  *  
@@ -49,7 +49,7 @@ FrameState :: struct {
 }
 
 
-set_style :: proc() {
+brew_style :: proc() {
     style := get_style();
 
     style.window_padding = Vec2{6, 6};
@@ -95,7 +95,7 @@ set_style :: proc() {
     style.colors[Color.ModalWindowDarkening]  = Vec4{0.20, 0.20, 0.20, 0.35}; 
 }
 
-init :: proc(state : ^State, wnd_handle : window.WndHandle) {
+init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() = nil) {
     io := get_io();
     io.ime_window_handle = wnd_handle;
 
@@ -199,7 +199,9 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle) {
                   width, height, gl.PixelDataFormat.RGBA, 
                   gl.Texture2DDataType.UByte, pixels);
     font_atlas_set_text_id(io.fonts, rawptr(uintptr(uint(tex))));
-    set_style();
+    if style_proc != nil {
+        style_proc();
+    }
 }
 
 begin_new_frame :: proc(new_state : ^FrameState) {
