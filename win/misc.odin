@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-11-2017 14:04:49
+ *  @Last Time: 18-12-2017 23:35:18 UTC+1
  *  
  *  @Description:
  *  
@@ -67,4 +67,63 @@ time :: proc(data : ^TimeData) -> f64 {
     result /= f64(data._pf_freq);
 
     return result;
+}
+
+Week_Day :: enum {
+    Monday = 0,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday,
+}
+
+Month :: enum {
+    January = 0,
+    February,
+    March,
+    April,
+    May,
+    June,
+    July,
+    August,
+    September,
+    October,
+    November,
+    December,
+}
+
+Datetime :: struct {
+    day_of_week : Week_Day,
+    day         : int,
+    month       : Month,
+    year        : int,
+
+    hour        : int,
+    minute      : int,
+    second      : int,
+    millisecond : int,
+}
+
+unix_to_datetime :: proc(unixtime : int) -> Datetime {
+    filetime := win32.Filetime{};
+    systime := win32.Systemtime{};
+    
+
+    ll := (unixtime * 10000000) + 116444736000000000;
+    filetime.lo = u32(ll);
+    filetime.hi = u32(ll >> 32);
+    win32.file_time_to_system_time(&filetime, &systime);
+    using systime;
+    return Datetime{
+        Week_Day(day_of_week),
+        int(day),
+        Month(month),
+        int(year),
+        int(hour),
+        int(minute),
+        int(second),
+        int(millisecond)
+    };
 }
