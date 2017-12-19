@@ -6,7 +6,7 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-12-2017 20:26:39 UTC+1
+ *  @Last Time: 19-12-2017 00:17:00 UTC+1
  *  
  *  @Description:
  *  
@@ -110,6 +110,17 @@ remove_first_from_file :: proc(str : string, test : rune) -> string {
     }
 
     return str;
+}
+
+get_upto_first_from_file :: proc(str : string, test : rune) -> (string, bool) {
+    last_slash := -1;
+    for r, i in str {
+        if r == test  {
+            return str[..i], true;
+        }
+    }
+
+    return str, false;
 }
 
 null_terminate_odin_string :: proc(str : string) -> string {
