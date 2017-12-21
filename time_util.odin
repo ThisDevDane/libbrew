@@ -6,7 +6,7 @@
  *  @Creation: 18-12-2017 23:32:57 UTC-5
  *
  *  @Last By:   Brendan Punsky
- *  @Last Time: 18-12-2017 23:33:22 UTC-5
+ *  @Last Time: 19-12-2017 12:44:16 UTC-5
  *  
  *  @Description:
  *  
@@ -17,8 +17,17 @@ Timer :: struct {
     accum  : f64,
 }
 
-create_timer :: proc(length : f64) -> Timer {
-    return Timer{length=length};
+create_timer :: proc(length : f64, filled := false) -> Timer {
+    if filled do return Timer{length, length};
+    return Timer{length, 0.0};
+}
+
+fill :: proc(timer : ^Timer) {
+    timer.accum = timer.length;
+}
+
+reset :: proc(timer : ^Timer) {
+    timer.accum = 0.0;
 }
 
 query :: proc(timer : ^Timer, dt : f64) -> bool {
