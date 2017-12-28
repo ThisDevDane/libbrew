@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-12-2017 20:58:29 UTC+1
+ *  @Last Time: 28-12-2017 11:12:15 UTC+1
  *  
  *  @Description:
  *  
@@ -54,7 +54,7 @@ brew_style :: proc() {
 
     style.window_padding = Vec2{6, 6};
     style.window_rounding = 2;
-    style.child_window_rounding = 2;
+    style.child_rounding = 2;
     style.frame_padding = Vec2{4 ,2};
     style.frame_rounding = 1;
     style.item_spacing = Vec2{8, 4};
@@ -72,7 +72,7 @@ brew_style :: proc() {
     style.colors[Color.Text]                  = Vec4{1.00, 1.00, 1.00, 1.00};
     style.colors[Color.TextDisabled]          = Vec4{0.63, 0.63, 0.63, 1.00};
     style.colors[Color.WindowBg]              = Vec4{0.23, 0.23, 0.23, 0.98};
-    style.colors[Color.ChildWindowBg]         = Vec4{0.20, 0.20, 0.20, 1.00};
+    style.colors[Color.ChildBg]               = Vec4{0.20, 0.20, 0.20, 1.00};
     style.colors[Color.PopupBg]               = Vec4{0.25, 0.25, 0.25, 0.96};
     style.colors[Color.Border]                = Vec4{0.18, 0.18, 0.18, 0.98};
     style.colors[Color.BorderShadow]          = Vec4{0.00, 0.00, 0.00, 0.04};
@@ -330,13 +330,12 @@ render_proc :: proc(state : ^State, window_width, window_height : int) {
 }
 
 begin_panel :: proc(label : string, pos, size : Vec2) -> bool {
-    set_next_window_pos(pos, SetCond.Always);
-    set_next_window_size(size, SetCond.Always);
-    return begin(label, nil, WindowFlags.NoTitleBar            | 
-                             WindowFlags.NoMove                | 
-                             WindowFlags.NoResize              |
-                             WindowFlags.NoBringToFrontOnFocus | 
-                             WindowFlags.ShowBorders);
+    set_next_window_pos(pos, Set_Cond.Always);
+    set_next_window_size(size, Set_Cond.Always);
+    return begin(label, nil, Window_Flags.NoTitleBar            | 
+                             Window_Flags.NoMove                | 
+                             Window_Flags.NoResize              |
+                             Window_Flags.NoBringToFrontOnFocus);
 }
 
 columns_reset :: proc() {
