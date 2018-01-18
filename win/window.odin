@@ -6,13 +6,14 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 13-12-2017 00:45:20
+ *  @Last Time: 18-01-2018 16:45:30 UTC+1
  *  
  *  @Description:
  *  
  */
 foreign import kernel32 "system:kernel32.lib";
 import "core:fmt.odin";
+import "core:strings.odin";
 import win32 "core:sys/windows.odin";
 
 import "misc.odin";
@@ -27,22 +28,17 @@ MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
 
 IDC_ARROW : win32.Hcursor = win32.Hcursor(MAKEINTRESOURCEA(32512));
 
-//Remember to change get_last_error to u32, currently is i32, that is wrong
-//@FIXME: Does not work atm. FormatMessageA crashes.
 print_last_error :: proc() {
-    panic("You're calling a known broken procedure.");
-    buf_ptr : [1024]u8;
+    c_str : ^byte;
     err := win32.get_last_error();
-    fmt.println(err);
-    test := FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER,
                    nil,
                    u32(err), 
                    0,
-                   &buf_ptr[0],
-                   1024);
+                   c_str,
+                   0);
 
-    fmt.println("TEST:", test);
-    fmt.println("FormatError:", win32.get_last_error());
+    fmt.printf("Win32(%d): %s\n", err, strings.to_odin_string(c_str));
 }
 
 FORMAT_MESSAGE_ALLOCATE_BUFFER  :: 0x00000100;
@@ -60,7 +56,7 @@ create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool
     wndClass.size = size_of(win32.Wnd_Class_Ex_A);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
     wndClass.wnd_proc = _window_proc;
-    //TODO: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
+    //FIXME: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
     //wndClass.cursor = IDC_ARROW;
     wndClass.instance = win32.Hinstance(app);
     class_buf : [256+6]u8;
@@ -68,15 +64,14 @@ create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool
     wndClass.class_name = &class_buf[0];
 
     if win32.register_class_ex_a(&wndClass) == 0 {
-        err := win32.get_last_error();
-        str := fmt.aprintf("LibBrew: Could not register window class, win32 err: %v", err);
-        panic(str);
+        print_last_error();
+        panic("LibBrew: Could not register window");
     }
 
     WINDOW_STYLE : u32 = popup_window ? win32.WS_POPUPWINDOW : win32.WS_OVERLAPPEDWINDOW;
     WINDOW_STYLE |= win32.WS_VISIBLE;
     rect := win32.Rect{0, 0, i32(width), i32(height)};
-    win32.adjust_window_rect(&rect, WINDOW_STYLE, 0);
+    win32.adjust_window_rect(&rect, WINDOW_STYLE, false);
 
     title_buf : [256+1]u8;
     fmt.bprintf(title_buf[..], "%s\x00", title);

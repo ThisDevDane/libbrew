@@ -1,0 +1,129 @@
+/*
+ *  @Name:     leakcheck
+ *  
+ *  @Author:   Mikkel Hjortshoej
+ *  @Email:    hoej@northwolfprod.com
+ *  @Creation: 18-01-2018 20:08:01 UTC+1
+ *
+ *  @Last By:   Mikkel Hjortshoej
+ *  @Last Time: 18-01-2018 21:10:41 UTC+1
+ *  
+ *  @Description:
+ *  
+ */
+
+import "core:os.odin";
+import "core:mem.odin";
+import "core:fmt.odin";
+
+Allocation_Info :: struct {
+    location : Source_Code_Location,
+    size : uint,
+
+    next : ^Allocation_Info,
+    prev : ^Allocation_Info,
+}
+
+ai_head : ^Allocation_Info;
+
+leakcheck_allocator :: proc() -> Allocator {
+    return Allocator {
+        procedure = leakcheck_allocator_proc,
+    };
+}
+
+leakcheck_context ::proc() -> Context {
+    c := context;
+    c.allocator = leakcheck_allocator();
+    return c;
+}
+
+leakcheck_allocator_proc :: proc(allocator_data: rawptr, mode: Allocator_Mode,
+                             size, alignment: int,
+                             old_memory: rawptr, old_size: int, flags: u64, location := #caller_location) -> rawptr {
+
+    switch mode {
+        case Allocator_Mode.Alloc : {
+            return _alloc(uint(size), location);
+        }            
+
+        case Allocator_Mode.Free : {
+            _free(old_memory);
+            return nil; 
+        }
+
+        case Allocator_Mode.Resize : {
+            return _resize(old_memory, uint(size), location);
+        }
+    }
+
+    return nil;
+}
+
+print_leaks :: proc() {
+    ai := ai_head;
+    bc := uint(0);
+    c  := 0;
+    for ai != nil {
+        if ai.size > 0 {
+            fmt.printf("LEAKED: (%s:%d) %d bytes at %v\n", ai.location.file_path, ai.location.line, ai.size, ai+1);
+            bc += ai.size;
+            c += 1;
+        }
+        ai = ai.next;
+    }
+    fmt.printf("LEAKED IN TOTAL: %d bytes in %d leaks\n", bc, c);
+}
+
+_alloc :: proc(size : uint, location : Source_Code_Location) -> rawptr {
+    ai := cast(^Allocation_Info)os.heap_alloc(int(size) + size_of(Allocation_Info));
+    if ai == nil do return ai;
+
+    ai.location = location;
+    ai.next = ai_head;
+    if ai_head != nil {
+        ai.next.prev = ai;
+    }
+    ai.prev = nil;
+    ai.size = size;
+    ai_head = ai;
+    return ai + 1;
+}
+
+_free :: proc(ptr : rawptr) {
+    if ptr != nil {
+        ai := cast(^Allocation_Info)ptr - 1;
+        ai.size = 0;
+        if ai.prev == nil {
+            ai_head = ai.next;
+        } else {
+            ai.prev.next = ai.next;
+        }
+        if ai.next != nil {
+            ai.next.prev = ai.prev;
+        }
+        os.heap_free(ai);
+    }
+}
+
+_resize :: proc(ptr : rawptr, size : uint, location : Source_Code_Location) -> rawptr {
+    if ptr == nil {
+        return _alloc(size, location);
+    } else if size == 0 {
+        _free(ptr);
+        return nil;
+    } else {
+        ai := cast(^Allocation_Info)ptr - 1;
+        if size <= ai.size {
+            return ptr;
+        } else {
+            new_ptr := _alloc(size, ai.location);
+            if new_ptr != nil {
+                mem.copy(new_ptr, ptr,int(ai.size));
+                _free(ptr);
+            }
+
+            return new_ptr;
+        }
+    }
+}

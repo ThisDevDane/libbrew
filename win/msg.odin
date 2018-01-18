@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 13-12-2017 17:47:58
+ *  @Last Time: 18-01-2018 16:45:36 UTC+1
  *  
  *  @Description:
  *  
@@ -87,7 +87,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
     }
 
     w_msg : win32.Msg;
-    if win32.peek_message_a(&w_msg, nil, 0, 0, win32.PM_REMOVE) == win32.TRUE {
+    if win32.peek_message_a(&w_msg, nil, 0, 0, win32.PM_REMOVE) == true {
         switch w_msg.message {
             case win32.WM_QUIT : {
                 l_msg := MsgQuitMessage{

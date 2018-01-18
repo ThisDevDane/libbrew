@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 13-12-2017 00:45:50
+ *  @Last Time: 18-01-2018 21:07:18 UTC+1
  *  
  *  @Description:
  *  
@@ -51,7 +51,9 @@ create_gl_context_min :: proc(wnd_handle : window.WndHandle, major, minor : int)
                      depth_bits_arb(24),
                      framebuffer_srgb_capable_arb(true));
 
-    return create_gl_context(wnd_handle, major, minor, extensions, attribs[..], true, true);
+    ctx := create_gl_context(wnd_handle, major, minor, extensions, attribs[..], true, true);
+    free(attribs);
+    return ctx;
 }
 
 //TODO Clean this up and understand it better
@@ -96,7 +98,7 @@ create_gl_context_ext :: proc(handle : window.WndHandle,
     attrib_array := prepare_attrib_array(attribs[..]); defer free(attrib_array);
     success := choose_pixel_format(dc, &attrib_array[0], nil, 1, &format, &formats);
 
-    if (success == win32.TRUE) && (formats == 0) {
+    if (success == true) && (formats == 0) {
         panic("Couldn't find suitable pixel format");
     }
 
@@ -108,7 +110,7 @@ create_gl_context_ext :: proc(handle : window.WndHandle,
 
     win32.set_pixel_format(dc, format, &pfd);
 
-    create_attribs : [dynamic]Attrib;
+    create_attribs : [dynamic]Attrib; defer free(create_attribs);
     append(&create_attribs, context_major_version_arb(i32(major)),
                             context_minor_version_arb(i32(minor)));
 
@@ -122,7 +124,7 @@ create_gl_context_ext :: proc(handle : window.WndHandle,
         append(&create_attribs, context_flags_arb(ContextFlagsArbValues.DebugBitArb));
     }
 
-    create_attrib_array := prepare_attrib_array(create_attribs[..]);
+    create_attrib_array := prepare_attrib_array(create_attribs[..]); defer free(create_attrib_array);
 
     ctx := create_context_attribs(dc, nil, &create_attrib_array[0]);
     assert(ctx != nil);
