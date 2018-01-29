@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-01-2018 16:45:30 UTC+1
+ *  @Last Time: 28-01-2018 21:39:39 UTC+1
  *  
  *  @Description:
  *  
@@ -27,46 +27,27 @@ MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
 }
 
 IDC_ARROW : win32.Hcursor = win32.Hcursor(MAKEINTRESOURCEA(32512));
+Window_Style :: enum u32 {
+    Resizeable  = win32.WS_THICKFRAME,
+    Minimizable = win32.WS_MINIMIZEBOX,
+    Maximizable = win32.WS_MAXIMIZEBOX,
+    HasTitlebar = win32.WS_CAPTION,
+    ThinBorder  = win32.WS_BORDER,
 
-print_last_error :: proc() {
-    c_str : ^byte;
-    err := win32.get_last_error();
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                   nil,
-                   u32(err), 
-                   0,
-                   c_str,
-                   0);
 
-    fmt.printf("Win32(%d): %s\n", err, strings.to_odin_string(c_str));
-}
 
-FORMAT_MESSAGE_ALLOCATE_BUFFER  :: 0x00000100;
-FORMAT_MESSAGE_FROM_SYSTEM      :: 0x00001000;
-FORMAT_MESSAGE_IGNORE_INSERTS   :: 0x00000200;
-foreign kernel32 FormatMessageA :: proc(flags : u32, source : rawptr, msgId : u32, langId : u32, buffer : ^u8, size : u32) -> u32 ---;
+    NormalWindow = win32.WS_OVERLAPPED | HasTitlebar | Resizeable | Minimizable | Maximizable | win32.WS_SYSMENU,
+    NonresizeableWindow =  win32.WS_OVERLAPPED | HasTitlebar | Minimizable | win32.WS_SYSMENU,
+    NoChromaWindow = win32.WS_POPUP | ThinBorder | win32.WS_SYSMENU,
+}  
 
-create_window :: proc[create_window1, create_window2];
+create_window :: proc[create_window1, create_window2, create_window3];
 
 create_window1 :: proc(app : misc.AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
     return create_window(app, title, popup_window, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, width, height);
 }
 create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool, x, y, width, height : int) -> WndHandle {
-    wndClass : win32.Wnd_Class_Ex_A;
-    wndClass.size = size_of(win32.Wnd_Class_Ex_A);
-    wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
-    wndClass.wnd_proc = _window_proc;
-    //FIXME: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
-    //wndClass.cursor = IDC_ARROW;
-    wndClass.instance = win32.Hinstance(app);
-    class_buf : [256+6]u8;
-    fmt.bprintf(class_buf[..], "%s_class\x00", title);
-    wndClass.class_name = &class_buf[0];
-
-    if win32.register_class_ex_a(&wndClass) == 0 {
-        print_last_error();
-        panic("LibBrew: Could not register window");
-    }
+    wndClass := _register_class(app, title);
 
     WINDOW_STYLE : u32 = popup_window ? win32.WS_POPUPWINDOW : win32.WS_OVERLAPPEDWINDOW;
     WINDOW_STYLE |= win32.WS_VISIBLE;
@@ -93,6 +74,57 @@ create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool
     }
 
     return WndHandle(handle);
+}
+
+create_window3 :: proc(app : misc.AppHandle, title : string, width : int, height : int, style := Window_Style.NormalWindow) -> WndHandle {
+    wndClass := _register_class(app, title);
+
+    WINDOW_STYLE : u32 = u32(style);
+    WINDOW_STYLE |= win32.WS_VISIBLE;
+    rect := win32.Rect{0, 0, i32(width), i32(height)};
+    win32.adjust_window_rect(&rect, WINDOW_STYLE, false);
+
+    title_buf : [256+1]u8;
+    fmt.bprintf(title_buf[..], "%s\x00", title);
+
+    handle := win32.create_window_ex_a(0,
+                                       wndClass.class_name,
+                                       &title_buf[0],
+                                       WINDOW_STYLE,
+                                       win32.CW_USEDEFAULT,
+                                       win32.CW_USEDEFAULT,
+                                       rect.right - rect.left,
+                                       rect.bottom - rect.top,
+                                       nil, nil,
+                                       wndClass.instance,
+                                       nil);
+
+    if handle == nil {
+        err := win32.get_last_error();
+        panic(fmt.aprintf("LibBrew(%d): Couldn't create window\n", err));
+    }
+
+    return WndHandle(handle);
+}
+
+_register_class :: proc(app : misc.AppHandle, title : string) -> win32.Wnd_Class_Ex_A {
+    wndClass : win32.Wnd_Class_Ex_A;
+    wndClass.size = size_of(win32.Wnd_Class_Ex_A);
+    wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
+    wndClass.wnd_proc = _window_proc;
+    //FIXME: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
+    //wndClass.cursor = IDC_ARROW;
+    wndClass.instance = win32.Hinstance(app);
+    class_buf := make([]u8, 256+6);
+    fmt.bprintf(class_buf[..], "%s_class\x00", title);
+    wndClass.class_name = &class_buf[0];
+
+    if win32.register_class_ex_a(&wndClass) == 0 {
+        err := win32.get_last_error();
+        panic(fmt.aprintf("LibBrew(%d): Couldn't create class", err));
+    }
+
+    return wndClass;
 }
 
 get_client_size :: proc(handle : WndHandle) -> (int, int) {

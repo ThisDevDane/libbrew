@@ -6,7 +6,7 @@
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 11-12-2017 03:32:19
+ *  @Last Time: 24-01-2018 05:11:04 UTC+1
  *  
  *  @Description:
  *  
@@ -16,14 +16,14 @@ import       "core:fmt.odin";
 import       "core:strings.odin";
 import win32 "core:sys/windows.odin";
 
-import "mantle:libbrew/string_util.odin";
+import "shared:libbrew/string_util.odin";
 
 
-/*does_file_or_dir_exists :: proc(str : string) -> bool {
+does_file_or_dir_exists :: proc(str : string) -> bool {
     str = string_util.null_terminate_odin_string(str); defer free(str); //TODO(Hoej): Do a copy into a buffer instead
-    retval := win32.path_file_exists_a(&str[0]);
-    return retval == win32.TRUE;
-}*/
+    attr := win32.get_file_attributes_a(&str[0]);
+    return i32(attr) != win32.INVALID_FILE_ATTRIBUTES;
+}
 
 is_directory :: proc(str : string) -> bool {
     str = string_util.null_terminate_odin_string(str); defer free(str); //TODO(Hoej): Do a copy into a buffer instead
@@ -74,7 +74,7 @@ get_all_entries_in_directory :: proc(dir_path : string, full_path : bool = false
             count += 1;
         } 
 
-        for win32.find_next_file_a(file_handle, &find_data) == win32.TRUE {
+        for win32.find_next_file_a(file_handle, &find_data) == true {
             if skip_dot(find_data.file_name[..]) {
                 continue;
             }
@@ -92,7 +92,7 @@ get_all_entries_in_directory :: proc(dir_path : string, full_path : bool = false
             i += 1;
         } 
 
-        for win32.find_next_file_a(file_handle, &find_data) == win32.TRUE {
+        for win32.find_next_file_a(file_handle, &find_data) == true {
             if skip_dot(find_data.file_name[..]) {
                 continue;
             }

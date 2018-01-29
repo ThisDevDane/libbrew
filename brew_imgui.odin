@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 28-12-2017 11:12:15 UTC+1
+ *  @Last Time: 24-01-2018 22:15:42 UTC+1
  *  
  *  @Description:
  *  
@@ -95,7 +95,7 @@ brew_style :: proc() {
     style.colors[Color.ModalWindowDarkening]  = Vec4{0.20, 0.20, 0.20, 0.35}; 
 }
 
-init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() = nil) {
+init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() = nil, custom_font := false) {
     io := get_io();
     io.ime_window_handle = wnd_handle;
 
@@ -182,11 +182,20 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() 
 
     //CreateFont
     //TODO(Hoej): Get from font catalog
-    font := font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
-    if font == nil {
-        fmt.println("Couldn't load data/fonts/Roboto-Medium.tff for dear imgui");
+    if custom_font {
+        font := font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
+        if font == nil {
+            fmt.println("Couldn't load data/fonts/Roboto-Medium.tff for dear imgui");
+        } else {
+            conf : FontConfig;
+            font_config_default_constructor(&conf);
+            conf.merge_mode = true;
+            ICON_MIN_FA :: 0xf000;
+            ICON_MAX_FA :: 0xf2e0;
+            icon_ranges := []Wchar{ ICON_MIN_FA, ICON_MAX_FA, 0 };
+            font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/fontawesome-webfont.ttf", 10, &conf, icon_ranges[..]);
+        }
     }
-
     pixels : ^u8;
     width : i32;
     height : i32;

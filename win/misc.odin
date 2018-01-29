@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-12-2017 23:35:18 UTC+1
+ *  @Last Time: 28-01-2018 23:10:43 UTC+1
  *  
  *  @Description:
  *  
@@ -106,7 +106,7 @@ Datetime :: struct {
     millisecond : int,
 }
 
-unix_to_datetime :: proc(unixtime : int) -> Datetime {
+unix_to_datetime :: proc(unixtime : int)  -> Datetime {
     filetime := win32.Filetime{};
     systime := win32.Systemtime{};
     
@@ -116,6 +116,22 @@ unix_to_datetime :: proc(unixtime : int) -> Datetime {
     filetime.hi = u32(ll >> 32);
     win32.file_time_to_system_time(&filetime, &systime);
     using systime;
+    return Datetime{
+        Week_Day(day_of_week),
+        int(day),
+        Month(month),
+        int(year),
+        int(hour),
+        int(minute),
+        int(second),
+        int(millisecond)
+    };
+}
+
+filetime_to_datetime :: proc(ft : win32.Filetime) -> Datetime {
+    st := win32.Systemtime{};
+    win32.file_time_to_system_time(&ft, &st);
+    using st;
     return Datetime{
         Week_Day(day_of_week),
         int(day),

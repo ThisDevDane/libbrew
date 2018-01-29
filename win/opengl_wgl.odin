@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-01-2018 21:05:49 UTC+1
+ *  @Last Time: 18-01-2018 21:35:38 UTC+1
  *  
  *  @Description:
  *  
@@ -136,11 +136,11 @@ context_profile_mask_arb :: proc(value : ContextProfileMaskArbValues) -> Attrib 
 prepare_attrib_array :: proc(attribList : []Attrib, location := #caller_location) -> [dynamic]i32 {
     array :[dynamic]i32;
     for attr in attribList {
-        append(&array, attr.type_);
-        append(&array, attr.value);
+        append(array = &array, args = []i32{attr.type_}, loc = location);
+        append(array = &array, args = []i32{attr.value}, loc = location);
     }
 
-    append(&array, 0, );
+    append(array = &array, args = []i32{0}, loc = location);
     return array;
 }
 CreateContextAttribsARB :: proc "cdecl"(hdc : win32.Hdc, 

@@ -6,7 +6,7 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 19-12-2017 00:17:00 UTC+1
+ *  @Last Time: 29-01-2018 01:13:15 UTC+1
  *  
  *  @Description:
  *  
@@ -101,8 +101,20 @@ remove_path_from_file :: proc(str : string) -> string {
     }
 }
 
+to_second_last_rune :: proc(str : string, test : rune) -> (string, bool) {
+    before := -1;
+    last := -1;
+    for r, i in str {
+        if r == test {
+            before = last;
+            last = i;
+        }
+    }
+
+    return str[..before+1], before != -1;
+}
+
 remove_first_from_file :: proc(str : string, test : rune) -> string {
-    last_slash := -1;
     for r, i in str {
         if r == test  {
             return str[i...];
@@ -113,7 +125,6 @@ remove_first_from_file :: proc(str : string, test : rune) -> string {
 }
 
 get_upto_first_from_file :: proc(str : string, test : rune) -> (string, bool) {
-    last_slash := -1;
     for r, i in str {
         if r == test  {
             return str[..i], true;
@@ -170,3 +181,19 @@ split_first :: proc(str : string, r : rune) -> (string, string) {
 
     return str, "";
 } 
+
+str_from_buf :: proc(buf : []byte) -> string {
+    fat_str := string(buf[..]);
+    length := clen(fat_str);
+    return fat_str[..length];
+}
+
+clen :: proc(str : string) -> int {
+    for r, i in str {
+        if r == '\x00' {
+            return i;
+        }
+    }
+
+    return len(str);
+}
