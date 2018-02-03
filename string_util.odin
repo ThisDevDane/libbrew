@@ -6,7 +6,7 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 29-01-2018 01:13:15 UTC+1
+ *  @Last Time: 02-02-2018 23:20:55 UTC+1
  *  
  *  @Description:
  *  
@@ -181,6 +181,38 @@ split_first :: proc(str : string, r : rune) -> (string, string) {
 
     return str, "";
 } 
+
+split_by :: proc(str : string, r : rune) -> []string {
+    count := 0;
+    if rune(str[0]) != r {
+        count += 1;
+    }
+
+    for r_ in str {
+        if r_ == r {
+            count += 1;
+        }
+    }
+
+    result := make([]string, count);
+    n := 0;
+    i := 0;
+    slen := len(str) - 1;
+    
+    for r_, idx in str {
+        if r_ == r || idx == slen {
+            if idx == slen {
+                result[n] = str[i..idx+1];
+            } else {
+                result[n] = str[i..idx];
+            }
+            i = idx + 1;
+            n += 1;
+        }
+    }
+
+    return result;
+}
 
 str_from_buf :: proc(buf : []byte) -> string {
     fat_str := string(buf[..]);

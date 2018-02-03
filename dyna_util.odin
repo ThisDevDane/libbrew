@@ -1,12 +1,12 @@
 /*
- *  @Name:     remove
+ *  @Name:     dyna_util
  *  
  *  @Author:   Brendan Punsky
  *  @Email:    bpunsky@gmail.com
  *  @Creation: 28-11-2017 00:10:03 UTC-5
  *
- *  @Last By:   Brendan Punsky
- *  @Last Time: 21-12-2017 20:40:11 UTC-5
+ *  @Last By:   Mikkel Hjortshoej
+ *  @Last Time: 03-02-2018 01:49:34 UTC+1
  *  
  *  @Description:
  *  
