@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 13-12-2017 00:51:00
+ *  @Last Time: 06-02-2018 00:17:20 UTC+1
  *  
  *  @Description:
  *  
@@ -25,7 +25,6 @@ export "gl_enums.odin";
 TRUE  :: 1;
 FALSE :: 0;
 
-
 // Types
 VAO          :: u32;
 VBO          :: u32;
@@ -35,14 +34,28 @@ Texture      :: u32;
 Shader       :: u32; 
 
 Program :: struct {
-    ID         : u32,
-    Vertex     : Shader,
-    Fragment   : Shader,
-    Uniforms   : map[string]i32,
-    Attributes : map[string]i32,
+    id         : u32,
+    vertex     : Shader,
+    fragment   : Shader,
+    uniforms   : map[string]Uniform,
+    attributes : map[string]Attrib,
 }
 
-OpenGLVars :: struct {
+Uniform :: struct {
+    location : i32 = -1,
+    name     : string,
+    size     : i32,
+    type_    : UniformTypes,
+}
+
+Attrib :: struct {
+    location : i32 = -1,
+    name     : string,
+    size     : i32,
+    type_    : AttribTypes,
+}
+
+Opengl_Vars :: struct {
     ctx                 : gl.GlContext,
 
     version_major_max   : i32,
@@ -195,7 +208,7 @@ bind_buffer_ebo :: proc(ebo : EBO) {
 bind_frag_data_location :: proc(program : Program, colorNumber : u32, name : string) {
     if _bind_frag_data_location != nil {
         c := strings.new_c_string(name);
-        _bind_frag_data_location(program.ID, colorNumber, c);
+        _bind_frag_data_location(program.id, colorNumber, c);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);      
     }
@@ -225,17 +238,23 @@ gen_vertex_arrays :: proc(count : i32) -> []VAO {
     return nil;
 }
 
-enable_vertex_attrib_array :: proc(index : u32) {
+enable_vertex_attrib_array :: proc[enable_vertex_attrib_array_u, enable_vertex_attrib_array_v];
+enable_vertex_attrib_array_u :: proc(attrib : Attrib) do enable_vertex_attrib_array_v(attrib.location);
+enable_vertex_attrib_array_v :: proc(index : i32) {
     if _enable_vertex_attrib_array != nil {
-        _enable_vertex_attrib_array(index);
+        _enable_vertex_attrib_array(u32(index));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }       
 }
 
-vertex_attrib_pointer :: proc(index : u32, size : int, type_ : VertexAttribDataType, normalized : bool, stride : u32, pointer : rawptr) {
+vertex_attrib_pointer :: proc[vertex_attrib_pointer_u, vertex_attrib_pointer_v];
+vertex_attrib_pointer_u :: proc(attrib : Attrib, size : int, type_ : VertexAttribDataType, normalized : bool, stride : u32, offset_pointer : uintptr = nil) {
+    vertex_attrib_pointer_v(attrib.location, size, type_, normalized, stride, offset_pointer);
+}
+vertex_attrib_pointer_v :: proc(index : i32, size : int, type_ : VertexAttribDataType, normalized : bool, stride : u32, offset_pointer : uintptr = nil) {
     if _vertex_attrib_pointer != nil {
-        _vertex_attrib_pointer(index, i32(size), i32(type_), normalized, stride, pointer);
+        _vertex_attrib_pointer(u32(index), i32(size), i32(type_), normalized, stride, rawptr(offset_pointer));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }       
@@ -250,17 +269,29 @@ bind_vertex_array :: proc(buffer : VAO) {
     }    
 }
 
-uniform :: proc[uniform1i, 
-                uniform2i, 
-                uniform3i, 
-                uniform4i, 
-                uniform1f, 
-                uniform2f, 
-                uniform3f, 
-                uniform4f, 
-                uniform_vec4];
+uniform :: proc[uniform1i_u,
+                uniform1i_v, 
+                uniform2i_u, 
+                uniform2i_v, 
+                uniform3i_u, 
+                uniform3i_v, 
+                uniform4i_u, 
+                uniform4i_v, 
+                uniform1f_u, 
+                uniform1f_v, 
+                uniform2f_u, 
+                uniform2f_v, 
+                uniform3f_u, 
+                uniform3f_v, 
+                uniform4f_u, 
+                uniform4f_v, 
+                uniform_vec4_u,
+                uniform_vec4_v,
+                uniform_matrix4_u,
+                uniform_matrix4_v];
 
-uniform1i :: proc(loc : i32, v0 : i32) {
+uniform1i_u :: proc(uni : Uniform, v0 : i32) do uniform1i_v(uni.location, v0); 
+uniform1i_v :: proc(loc : i32, v0 : i32) {
     if _uniform1i != nil {
         _uniform1i(loc, v0);
     } else {
@@ -268,7 +299,8 @@ uniform1i :: proc(loc : i32, v0 : i32) {
     }
 }
 
-uniform2i :: proc(loc: i32, v0, v1: i32) {
+uniform2i_u :: proc(uni : Uniform, v0, v1 : i32) do uniform2i_v(uni.location, v0, v0); 
+uniform2i_v :: proc(loc: i32, v0, v1: i32) {
     if _uniform2i != nil {
         _uniform2i(loc, v0, v1);
     } else {
@@ -276,7 +308,8 @@ uniform2i :: proc(loc: i32, v0, v1: i32) {
     }
 }
 
-uniform3i :: proc(loc: i32, v0, v1, v2: i32) {
+uniform3i_u :: proc(uni : Uniform, v0, v1, v2: i32) do uniform3i_v(uni.location, v0, v1, v2);
+uniform3i_v :: proc(loc : i32, v0, v1, v2: i32) {
     if _uniform3i != nil {
         _uniform3i(loc, v0, v1, v2);
     } else {
@@ -284,7 +317,8 @@ uniform3i :: proc(loc: i32, v0, v1, v2: i32) {
     }
 }
 
-uniform4i :: proc(loc: i32, v0, v1, v2, v3: i32) {
+uniform4i_u :: proc(uni : Uniform, v0, v1, v2, v3: i32) do uniform4i_v(uni.location, v0, v1, v2, v3);
+uniform4i_v :: proc(loc : i32, v0, v1, v2, v3: i32) {
     if _uniform4i != nil {
         _uniform4i(loc, v0, v1, v2, v3);
     } else {
@@ -292,7 +326,8 @@ uniform4i :: proc(loc: i32, v0, v1, v2, v3: i32) {
     }
 }
 
-uniform1f :: proc(loc: i32, v0: f32) {
+uniform1f_u :: proc(uni : Uniform, v0: f32) do uniform1f_v(uni.location, v0);
+uniform1f_v :: proc(loc : i32, v0: f32) {
     if _uniform1f != nil {
         _uniform1f(loc, v0);
     } else {
@@ -300,7 +335,8 @@ uniform1f :: proc(loc: i32, v0: f32) {
     }
 }
 
-uniform2f :: proc(loc: i32, v0, v1: f32) {
+uniform2f_u :: proc(uni : Uniform, v0, v1: f32) do uniform2f_v(uni.location, v0, v1);
+uniform2f_v :: proc(loc : i32, v0, v1: f32) {
     if _uniform2f != nil {
         _uniform2f(loc, v0, v1);
     } else {
@@ -308,7 +344,8 @@ uniform2f :: proc(loc: i32, v0, v1: f32) {
     }
 }
 
-uniform3f :: proc(loc: i32, v0, v1, v2: f32) {
+uniform3f_u :: proc(uni : Uniform, v0, v1, v2: f32) do uniform3f_v(uni.location, v0, v1, v2);
+uniform3f_v :: proc(loc : i32, v0, v1, v2: f32) {
     if _uniform3f != nil {
         _uniform3f(loc, v0, v1, v2);
     } else {
@@ -316,7 +353,8 @@ uniform3f :: proc(loc: i32, v0, v1, v2: f32) {
     }
 }
 
-uniform4f :: proc(loc: i32, v0, v1, v2, v3: f32) {
+uniform4f_u :: proc(uni : Uniform, v0, v1, v2, v3: f32) do uniform4f_v(uni.location, v0, v1, v2, v3);
+uniform4f_v :: proc(loc : i32, v0, v1, v2, v3: f32) {
     if _uniform4f != nil {
         _uniform4f(loc, v0, v1, v2, v3);
     } else {
@@ -324,11 +362,13 @@ uniform4f :: proc(loc: i32, v0, v1, v2, v3: f32) {
     }
 }
 
-uniform_vec4 :: proc(loc: i32, v: math.Vec4) {
+uniform_vec4_u :: proc(uni : Uniform, v: math.Vec4) do uniform(uni.location, v[0], v[1], v[2], v[3]);
+uniform_vec4_v :: proc(loc : i32, v: math.Vec4) {
     uniform(loc, v[0], v[1], v[2], v[3]);
 }
 
-uniform_matrix4fv :: proc(loc : i32, matrix : math.Mat4, transpose : bool) {
+uniform_matrix4_u :: proc(uni : Uniform, matrix : math.Mat4, transpose := false) do uniform_matrix4_v(uni.location, matrix, transpose);
+uniform_matrix4_v :: proc(loc : i32, matrix : math.Mat4, transpose := false) {
     if _uniform_matrix4fv != nil {
         _uniform_matrix4fv(loc, 1, i32(transpose), (^f32)(&matrix));
     } else {
@@ -339,7 +379,7 @@ uniform_matrix4fv :: proc(loc : i32, matrix : math.Mat4, transpose : bool) {
 get_uniform_location :: proc(program : Program, name : string) -> i32{
     if _get_uniform_location != nil {
         str := strings.new_c_string(name); defer free(str);
-        res := _get_uniform_location(u32(program.ID), str);
+        res := _get_uniform_location(u32(program.id), str);
         return res;
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -350,7 +390,7 @@ get_uniform_location :: proc(program : Program, name : string) -> i32{
 get_attrib_location :: proc(program : Program, name : string) -> i32 {
     if _get_attrib_location != nil {
         str := strings.new_c_string(name); defer free(str);
-        res := _get_attrib_location(u32(program.ID), str);
+        res := _get_attrib_location(u32(program.id), str);
         return res;
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -376,7 +416,7 @@ draw_arrays :: proc(mode : DrawModes, first : int, count : int) {
 
 use_program :: proc(program : Program) {
     if _use_program != nil {
-        _use_program(program.ID);
+        _use_program(program.id);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }
@@ -384,7 +424,7 @@ use_program :: proc(program : Program) {
 
 link_program :: proc(program : Program) {
     if _link_program != nil {
-        _link_program(program.ID);
+        _link_program(program.id);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }
@@ -454,7 +494,7 @@ get_shader_value :: proc(shader : Shader, name : GetShaderNames) -> i32 {
         _get_shaderiv(u32(shader), i32(name), &res);
         return res;
     } else {
-
+        fmt.printf("%s isn't loaded! \n", #procedure);
     }
 
     return 0;
@@ -471,6 +511,91 @@ get_shader_info_log :: proc(shader : Shader) -> string {
         return "<ERR>";
     }
 }
+
+get_program_value :: proc(program : Program, name : GetProgramNames) -> i32 {
+    if _get_programiv != nil {
+        res : i32;
+        _get_programiv(program.id, i32(name), &res);
+        return res;
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }
+
+    return 0;
+}
+
+get_active_uniform :: proc (program : Program, index : uint) -> Uniform {
+     if _get_active_uniform != nil {
+        type_ : u32;
+        size : i32;
+        buf : [1024]byte;
+        out_len : u32;
+        _get_active_uniform(program.id, u32(index), len(buf), &out_len, &size, &type_, &buf[0]);
+        name := strings.new_string(string(buf[..out_len]));
+        
+        result := Uniform {
+            get_uniform_location(program, name),
+            name,
+            size,
+            UniformTypes(type_),
+        };
+        return result;
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }
+
+    return Uniform{};
+}
+
+get_uniform_by_name :: proc(program : Program, name : string) -> Uniform {
+    loc := get_uniform_location(program, name);
+    return Uniform{location = loc, name = name};
+}
+
+get_active_uniform_name :: proc(program : Program, index : uint) -> string {
+    if _get_active_uniform_name != nil {
+        buf : [1024]byte;
+        out_len : u32;
+        _get_active_uniform_name(program.id, u32(index), len(buf), &out_len, &buf[0]);
+        str := string(buf[..out_len]);
+        return strings.new_string(str);
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }
+
+    return "<ERR>";
+}
+
+//type_ should be an enum
+get_active_attrib :: proc (program : Program, index : uint) -> Attrib {
+     if _get_active_attrib != nil {
+        type_ : u32;
+        size : i32;
+        buf : [1024]byte;
+        out_len : u32;
+        _get_active_attrib(program.id, u32(index), len(buf), &out_len, &size, &type_, &buf[0]);
+        name := strings.new_string(string(buf[..out_len]));
+        
+        result := Attrib {
+            get_attrib_location(program, name),
+            name,
+            size,
+            AttribTypes(type_),
+        };
+
+        return result;
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }
+
+    return Attrib{};
+}
+
+get_attrib_by_name :: proc(program : Program, name : string) -> Attrib {
+    loc := get_attrib_location(program, name);
+    return Attrib{location = loc, name = name};
+}
+
 
 get_string :: proc[get_string_single, get_string_index];
 
@@ -533,7 +658,7 @@ disable :: proc (cap : Capabilities) {
 
 attach_shader :: proc(program : Program, shader : Shader) {
     if _attach_shader != nil {
-        _attach_shader(program.ID, u32(shader));
+        _attach_shader(program.id, u32(shader));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }
@@ -543,7 +668,7 @@ create_program :: proc() -> Program {
     if _create_program != nil {
         id := _create_program();
         res : Program;
-        res.ID = id;
+        res.id = id;
 
         return res;
     } else {
@@ -640,6 +765,10 @@ delete_shader :: proc(obj : Shader) {
     _debug_message_callback     : proc "c"(callback : DebugMessageCallbackProc, userParam : rawptr);
     _get_shaderiv               : proc "c"(shader : u32, pname : i32, params : ^i32);
     _get_shader_info_log        : proc "c"(shader : u32, maxLength : i32, length : ^i32, infolog : ^u8);
+    _get_programiv              : proc "c"(program : u32, pname : i32, params : ^i32);
+    _get_active_uniform         : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, size : ^i32, type_ : ^u32, name : ^byte);
+    _get_active_uniform_name    : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, name : ^byte);
+    _get_active_attrib          : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, size : ^i32, type_ : ^u32, name : ^byte);
     _get_stringi                : proc "c"(name : i32, index : u32) -> ^u8;
     _bind_frag_data_location    : proc "c"(program : u32, colorNumber : u32, name : ^u8);
     _polygon_mode               : proc "c"(face : i32, mode : i32);
@@ -660,7 +789,7 @@ delete_shader :: proc(obj : Shader) {
     scissor                     : proc "c"(x : i32, y : i32, width : i32, height : i32);
     clear_color                 : proc "c"(red : f32, green : f32, blue : f32, alpha : f32);
 
-get_info :: proc(vars : ^OpenGLVars) {
+get_info :: proc(vars : ^Opengl_Vars) {
     vars.version_major_cur =   get_integer(GetIntegerNames.MajorVersion);
     vars.version_minor_cur =   get_integer(GetIntegerNames.MinorVersion);
     vars.context_flags =       get_integer(GetIntegerNames.ContextFlags);
@@ -700,6 +829,11 @@ load_functions :: proc(set_proc : set_proc_address, load_lib : load_library, fre
     set_proc(lib, &_debug_message_callback,     "glDebugMessageCallbackARB");
     set_proc(lib, &_get_shaderiv,               "glGetShaderiv"            );
     set_proc(lib, &_get_shader_info_log,        "glGetShaderInfoLog"       );
+    set_proc(lib, &_get_programiv,              "glGetProgramiv"           );
+    set_proc(lib, &_get_active_uniform,         "glGetActiveUniform"       );
+    set_proc(lib, &_get_active_uniform_name,    "glGetActiveUniformName"   );
+    set_proc(lib, &_get_active_attrib,          "glGetActiveAttrib"        );
+    set_proc(lib, &_get_programiv,              "glGetProgramiv"           );
     set_proc(lib, &_get_stringi,                "glGetStringi"             );
     set_proc(lib, &_blend_equation,             "glBlendEquation"          );
     set_proc(lib, &_blend_equation_separate,    "glBlendEquationSeparate"  );

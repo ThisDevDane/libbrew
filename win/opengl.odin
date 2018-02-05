@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-01-2018 21:07:18 UTC+1
+ *  @Last Time: 05-02-2018 04:45:37 UTC+1
  *  
  *  @Description:
  *  
@@ -51,7 +51,7 @@ create_gl_context_min :: proc(wnd_handle : window.WndHandle, major, minor : int)
                      depth_bits_arb(24),
                      framebuffer_srgb_capable_arb(true));
 
-    ctx := create_gl_context(wnd_handle, major, minor, extensions, attribs[..], true, true);
+    ctx := create_gl_context(wnd_handle, major, minor, extensions, attribs[..], false, true);
     free(attribs);
     return ctx;
 }

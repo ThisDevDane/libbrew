@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 24-01-2018 22:15:42 UTC+1
+ *  @Last Time: 05-02-2018 01:16:39 UTC+1
  *  
  *  @Description:
  *  
@@ -23,6 +23,9 @@ import       "win/window.odin";
 import input "win/keys.odin";
 
 import "gl.odin";
+
+default_font  : ^Font;
+mono_font     : ^Font;
 
 
 State :: struct {
@@ -154,16 +157,17 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() 
     gl.shader_source(fragment_shader, fragmentShaderString);
     gl.compile_shader(fragment_shader);
     gl.attach_shader(state.main_program, vertex_shader);
-    state.main_program.Vertex = vertex_shader;
+    state.main_program.vertex = vertex_shader;
     gl.attach_shader(state.main_program, fragment_shader);
-    state.main_program.Fragment = fragment_shader;
+    state.main_program.fragment = fragment_shader;
     gl.link_program(state.main_program);
-    state.main_program.Uniforms["Texture"] = gl.get_uniform_location(state.main_program, "Texture");    
-    state.main_program.Uniforms["ProjMtx"] = gl.get_uniform_location(state.main_program, "ProjMtx");
 
-    state.main_program.Attributes["Position"] = gl.get_attrib_location(state.main_program, "Position");    
-    state.main_program.Attributes["UV"]       = gl.get_attrib_location(state.main_program, "UV");    
-    state.main_program.Attributes["Color"]    = gl.get_attrib_location(state.main_program, "Color");    
+    state.main_program.uniforms["Texture"] = gl.get_uniform_by_name(state.main_program, "Texture");
+    state.main_program.uniforms["ProjMtx"] = gl.get_uniform_by_name(state.main_program, "ProjMtx");
+
+    state.main_program.attributes["Position"] = gl.get_attrib_by_name(state.main_program, "Position");    
+    state.main_program.attributes["UV"]       = gl.get_attrib_by_name(state.main_program, "UV");    
+    state.main_program.attributes["Color"]    = gl.get_attrib_by_name(state.main_program, "Color");    
 
     state.vbo_handle = gl.VBO(gl.gen_buffer());
     state.ebo_handle = gl.EBO(gl.gen_buffer());
@@ -172,19 +176,19 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() 
     gl.bind_buffer(state.ebo_handle);
     gl.bind_vertex_array(state.vao_handle);
 
-    gl.enable_vertex_attrib_array(u32(state.main_program.Attributes["Position"]));
-    gl.enable_vertex_attrib_array(u32(state.main_program.Attributes["UV"]));
-    gl.enable_vertex_attrib_array(u32(state.main_program.Attributes["Color"]));
+    gl.enable_vertex_attrib_array(state.main_program.attributes["Position"]);
+    gl.enable_vertex_attrib_array(state.main_program.attributes["UV"]);
+    gl.enable_vertex_attrib_array(state.main_program.attributes["Color"]);
 
-    gl.vertex_attrib_pointer(u32(state.main_program.Attributes["Position"]),   2, gl.VertexAttribDataType.Float, false, size_of(DrawVert), rawptr(uintptr(int(offset_of(DrawVert, pos)))));
-    gl.vertex_attrib_pointer(u32(state.main_program.Attributes["UV"]),         2, gl.VertexAttribDataType.Float, false, size_of(DrawVert), rawptr(uintptr(int(offset_of(DrawVert, uv)))));
-    gl.vertex_attrib_pointer(u32(state.main_program.Attributes["Color"]),      4, gl.VertexAttribDataType.UByte, true,  size_of(DrawVert), rawptr(uintptr(int(offset_of(DrawVert, col)))));
+    gl.vertex_attrib_pointer(state.main_program.attributes["Position"],   2, gl.VertexAttribDataType.Float, false, size_of(DrawVert), offset_of(DrawVert, pos));
+    gl.vertex_attrib_pointer(state.main_program.attributes["UV"],         2, gl.VertexAttribDataType.Float, false, size_of(DrawVert), offset_of(DrawVert, uv));
+    gl.vertex_attrib_pointer(state.main_program.attributes["Color"],      4, gl.VertexAttribDataType.UByte, true,  size_of(DrawVert), offset_of(DrawVert, col));
 
-    //CreateFont
+    
     //TODO(Hoej): Get from font catalog
     if custom_font {
-        font := font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
-        if font == nil {
+        default_font = font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
+        if default_font == nil {
             fmt.println("Couldn't load data/fonts/Roboto-Medium.tff for dear imgui");
         } else {
             conf : FontConfig;
@@ -195,7 +199,18 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() 
             icon_ranges := []Wchar{ ICON_MIN_FA, ICON_MAX_FA, 0 };
             font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/fontawesome-webfont.ttf", 10, &conf, icon_ranges[..]);
         }
+
+        conf : FontConfig;
+        font_config_default_constructor(&conf);
+        mono_font = font_atlas_add_font_default(io.fonts, &conf);
+    
+    } else {
+        conf : FontConfig;
+        font_config_default_constructor(&conf);
+        default_font = font_atlas_add_font_default(io.fonts, &conf);
+        mono_font = default_font;
     }
+
     pixels : ^u8;
     width : i32;
     height : i32;
@@ -255,9 +270,12 @@ begin_new_frame :: proc(new_state : ^FrameState) {
     io.delta_time = new_state.deltatime;
     new_frame();
 }
- 
-render_proc :: proc(state : ^State, window_width, window_height : int) {
+
+render_proc :: proc(state : ^State, render_to_screen : bool, window_width, window_height : int) {
     render();
+    if !render_to_screen {
+        return;
+    } 
     data := get_draw_data();
 
     io := get_io();
@@ -302,16 +320,14 @@ render_proc :: proc(state : ^State, window_width, window_height : int) {
         { -1.0,                     1.0,                        0.0,    1.0 },
     };
 
-    gl.use_program(state.main_program);
-    gl.uniform(state.main_program.Uniforms["Texture"], i32(0));
-    //gl.uniform_matrix4fv(state.main_program.Uniforms["ProjMtx"], 1, 0, &ortho_projection[0][0]);
-    gl.uniform_matrix4fv(state.main_program.Uniforms["ProjMtx"], ortho_projection, false);
     gl.bind_vertex_array(state.vao_handle);
+    gl.use_program(state.main_program);
+    gl.uniform(state.main_program.uniforms["Texture"], i32(0));
+    gl.uniform(state.main_program.uniforms["ProjMtx"], ortho_projection, false);
 
-    newList := mem.slice_ptr(data.cmd_lists, int(data.cmd_lists_count));
-    for n : i32 = 0; n < data.cmd_lists_count; n += 1 {
-        list := newList[n];
-        idxBufferOffset : ^DrawIdx = nil;
+    new_list := mem.slice_ptr(data.cmd_lists, int(data.cmd_lists_count));
+    for list in new_list {
+        idx_buffer_offset : ^DrawIdx = nil;
 
         gl.bind_buffer(state.vbo_handle);
         gl.buffer_data(gl.BufferTargets.Array, i32(draw_list_get_vertex_buffer_size(list) * size_of(DrawVert)), draw_list_get_vertex_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
@@ -323,8 +339,8 @@ render_proc :: proc(state : ^State, window_width, window_height : int) {
             cmd := draw_list_get_cmd_ptr(list, j);
             gl.bind_texture(gl.TextureTargets.Texture2D, gl.Texture(uint(uintptr(cmd.texture_id))));
             gl.scissor(i32(cmd.clip_rect.x), height - i32(cmd.clip_rect.w), i32(cmd.clip_rect.z - cmd.clip_rect.x), i32(cmd.clip_rect.w - cmd.clip_rect.y));
-            gl.draw_elements(gl.DrawModes.Triangles, int(cmd.elem_count), gl.DrawElementsType.UShort, idxBufferOffset);
-            idxBufferOffset += cmd.elem_count;
+            gl.draw_elements(gl.DrawModes.Triangles, int(cmd.elem_count), gl.DrawElementsType.UShort, idx_buffer_offset);
+            idx_buffer_offset += cmd.elem_count;
         }
     }
 
@@ -348,5 +364,5 @@ begin_panel :: proc(label : string, pos, size : Vec2) -> bool {
 }
 
 columns_reset :: proc() {
-    columns(1, "", false);
+    columns(count = 1, border = false);
 }

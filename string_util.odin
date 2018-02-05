@@ -6,7 +6,7 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-02-2018 23:20:55 UTC+1
+ *  @Last Time: 05-02-2018 23:57:28 UTC+1
  *  
  *  @Description:
  *  
@@ -134,8 +134,12 @@ get_upto_first_from_file :: proc(str : string, test : rune) -> (string, bool) {
     return str, false;
 }
 
-null_terminate_odin_string :: proc(str : string) -> string {
-    return strings.new_string(str);
+//@COPYPASTE(Hoej): from strings.new_string, in case new_string would suddenly not null-terminate
+null_terminate_odin_string :: proc(s : string) -> string {
+    c := make([]byte, len(s)+1);
+    copy(c, cast([]byte)s);
+    c[len(s)] = 0;
+    return string(c[..len(s)]);
 }
 
 get_c_string_length :: proc(c_str : ^u8) -> int {
@@ -183,18 +187,7 @@ split_first :: proc(str : string, r : rune) -> (string, string) {
 } 
 
 split_by :: proc(str : string, r : rune) -> []string {
-    count := 0;
-    if rune(str[0]) != r {
-        count += 1;
-    }
-
-    for r_ in str {
-        if r_ == r {
-            count += 1;
-        }
-    }
-
-    result := make([]string, count);
+    result : [dynamic]string;
     n := 0;
     i := 0;
     slen := len(str) - 1;
@@ -202,16 +195,16 @@ split_by :: proc(str : string, r : rune) -> []string {
     for r_, idx in str {
         if r_ == r || idx == slen {
             if idx == slen {
-                result[n] = str[i..idx+1];
+                append(&result, str[i..idx+1]);
             } else {
-                result[n] = str[i..idx];
+                append(&result, str[i..idx]);
             }
             i = idx + 1;
             n += 1;
         }
     }
 
-    return result;
+    return result[..];
 }
 
 str_from_buf :: proc(buf : []byte) -> string {

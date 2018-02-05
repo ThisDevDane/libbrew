@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 03-02-2018 18:16:45 UTC+1
+ *  @Last Time: 04-02-2018 17:06:26 UTC+1
  *  
  *  @Description:
  *      The console is an in engine window that can be pulled up for viewing.
@@ -55,12 +55,14 @@ LogLevel :: enum {
     Info,
     ConsoleInput,
     Error,
+    Warning,
 }
 
 _log_level_strings := []string{
     "[Info]:",
     "\\\\:",
-    "[Error]:"
+    "[Error]:",
+    "[Warning]:"
 };
 
 _error_callback : proc();
@@ -78,6 +80,21 @@ log :: proc(args : ...any, loc := #caller_location) {
     str  := fmt.sbprint(&buf, ...args);   
     _internal_log(LogLevel.Info, str, loc);
 }
+
+logf_warning :: proc(fmt_ : string, args : ...any, loc := #caller_location) {
+    data : [_BUF_SIZE]u8;
+    buf  := fmt.string_buffer_from_slice(data[..]);
+    str  := fmt.sbprintf(&buf, fmt_, ...args);   
+    _internal_log(LogLevel.Warning, str, loc);
+}
+
+log_warning :: proc(args : ...any, loc := #caller_location) {
+    data : [_BUF_SIZE]u8;
+    buf  := fmt.string_buffer_from_slice(data[..]);
+    str  := fmt.sbprint(&buf, ...args);   
+    _internal_log(LogLevel.Warning, str, loc);
+}
+
 
 logf_error :: proc(fmt_ : string, args : ...any, loc := #caller_location) {
     buf  : [_BUF_SIZE]u8;
@@ -130,6 +147,11 @@ _internal_log :: proc(level : LogLevel, txt : string, loc := #caller_location) {
         h := os.stdout;
         level_col := FOR_GREEN;
         switch level {
+            case LogLevel.Warning : {
+                h = os.stderr;
+                level_col = FOR_YELLOW;
+            }
+
             case LogLevel.Error : {
                 h = os.stderr;
                 level_col = FOR_RED;
@@ -215,6 +237,8 @@ draw_log :: proc(show : ^bool) {
     {
         imgui.begin_child("Items");
         {
+            imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
+            defer imgui.pop_font();
             imgui.columns(count = 4, border = false);
             for t in _internal_data.log {
                 imgui.set_column_width(width = 80);
@@ -227,13 +251,18 @@ draw_log :: proc(show : ^bool) {
                         pop = true;
                     }
 
+                    case LogLevel.Warning : {
+                        imgui.push_style_color(imgui.Color.Text, imgui.Vec4{0.96, 0.86, 0.26, 1});
+                        pop = true;
+                    }
+
                     case LogLevel.ConsoleInput : {
                         imgui.push_style_color(imgui.Color.Text, imgui.Vec4{0.7, 0.7, 0.7, 1});
                         pop = true;
                     }
                 }
 
-                imgui.set_column_width(width = 45);
+                imgui.set_column_width(width = 70);
                 imgui.text(_log_level_strings[t.level]);
                 imgui.next_column();
                 imgui.set_column_width(width = 150);
@@ -251,17 +280,17 @@ draw_log :: proc(show : ^bool) {
 
 
 draw_history :: proc(show : ^bool) {
-    imgui.begin("History", show,  imgui.Window_Flags.NoCollapse);
-    {
-        imgui.begin_child("Items");
-        {
+    if imgui.begin("History", show,  imgui.Window_Flags.NoCollapse) {
+        defer imgui.end();
+        imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
+        defer imgui.pop_font();
+        if imgui.begin_child("Items") {
+            defer imgui.end_child();
             for t in _internal_data.history {
                 imgui.text(t);
             }
         }
-        imgui.end_child();
     }
-    imgui.end();
 }
 
 draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
@@ -286,8 +315,10 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
             imgui.end_menu_bar();
         }
 
-        imgui.begin_child("Buffer", imgui.Vec2{-1, -40}, true);
-        {
+        if imgui.begin_child("Buffer", imgui.Vec2{-1, -40}, true) {
+            defer imgui.end_child();
+            imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
+            defer imgui.pop_font();
             for t in _internal_data.current_log {
                 pop := false;
                 switch t.level {
@@ -296,6 +327,10 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
                         pop = true;
                     }
 
+                    case LogLevel.Warning : {
+                        imgui.push_style_color(imgui.Color.Text, imgui.Vec4{0.96, 0.86, 0.26, 1});
+                        pop = true;
+                    }
                     case LogLevel.ConsoleInput : {
                         imgui.push_style_color(imgui.Color.Text, imgui.Vec4{0.7, 0.7, 0.7, 1});
                         pop = true;
@@ -311,7 +346,6 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
             }
             _internal_data._scroll_to_bottom = false;
         }
-        imgui.end_child();
 
         TEXT_FLAGS :: imgui.Input_Text_Flags.EnterReturnsTrue | imgui.Input_Text_Flags.CallbackCompletion | imgui.Input_Text_Flags.CallbackHistory;
         if imgui.input_text("##Input", _internal_data.input_buf[..], TEXT_FLAGS, _text_edit_callback) {
@@ -339,7 +373,7 @@ enter_input :: proc(input : []u8) {
         append(&_internal_data.history, strings.new_string(str)); 
         if !execute_command(str) {
             cmd_name, _ := string_util.split_first(str, ' ');
-            logf_error("%s is not a command", cmd_name);
+            logf_warning("%s is not a command", cmd_name);
         }
         input[0] = 0;
         _internal_data._scroll_to_bottom = true;

@@ -6,7 +6,7 @@
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 24-01-2018 05:11:04 UTC+1
+ *  @Last Time: 05-02-2018 23:57:57 UTC+1
  *  
  *  @Description:
  *  
@@ -19,7 +19,7 @@ import win32 "core:sys/windows.odin";
 import "shared:libbrew/string_util.odin";
 
 
-does_file_or_dir_exists :: proc(str : string) -> bool {
+is_path_valid :: proc(str : string) -> bool {
     str = string_util.null_terminate_odin_string(str); defer free(str); //TODO(Hoej): Do a copy into a buffer instead
     attr := win32.get_file_attributes_a(&str[0]);
     return i32(attr) != win32.INVALID_FILE_ATTRIBUTES;

@@ -6,12 +6,160 @@
  *  @Creation: 02-05-2017 21:38:35
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 23-11-2017 03:38:51
+ *  @Last Time: 05-02-2018 01:07:43 UTC+1
  *  
  *  @Description:
- *      Part of the GL Wrapper, makes enum for all constants.
+ *      Part of the GL Wrapper, makes enum for all constants in use
  */
 import gl_const "core:opengl_constants.odin";
+
+UniformTypes :: enum i32 {
+    float                              = gl_const.FLOAT,
+    float_vec2                         = gl_const.FLOAT_VEC2,
+    float_vec3                         = gl_const.FLOAT_VEC3,
+    float_vec4                         = gl_const.FLOAT_VEC4,
+
+    double                             = gl_const.DOUBLE,
+    double_vec2                        = gl_const.DOUBLE_VEC2,
+    double_vec3                        = gl_const.DOUBLE_VEC3,
+    double_vec4                        = gl_const.DOUBLE_VEC4,
+
+    int_                               = gl_const.INT,
+    int_vec2                           = gl_const.INT_VEC2,
+    int_vec3                           = gl_const.INT_VEC3,
+    int_vec4                           = gl_const.INT_VEC4,
+
+    unsigned_int                       = gl_const.UNSIGNED_INT,
+    unsigned_int_vec2                  = gl_const.UNSIGNED_INT_VEC2,
+    unsigned_int_vec3                  = gl_const.UNSIGNED_INT_VEC3,
+    unsigned_int_vec4                  = gl_const.UNSIGNED_INT_VEC4,
+
+    bool_                              = gl_const.BOOL,
+    bool_vec2                          = gl_const.BOOL_VEC2,
+    bool_vec3                          = gl_const.BOOL_VEC3,
+    bool_vec4                          = gl_const.BOOL_VEC4,
+
+    float_mat2                         = gl_const.FLOAT_MAT2,
+    float_mat3                         = gl_const.FLOAT_MAT3,
+    float_mat4                         = gl_const.FLOAT_MAT4,
+    float_mat2x3                       = gl_const.FLOAT_MAT2x3,
+    float_mat2x4                       = gl_const.FLOAT_MAT2x4,
+    float_mat3x2                       = gl_const.FLOAT_MAT3x2,
+    float_mat3x4                       = gl_const.FLOAT_MAT3x4,
+    float_mat4x2                       = gl_const.FLOAT_MAT4x2,
+    float_mat4x3                       = gl_const.FLOAT_MAT4x3,
+
+    double_mat2                        = gl_const.DOUBLE_MAT2,
+    double_mat3                        = gl_const.DOUBLE_MAT3,
+    double_mat4                        = gl_const.DOUBLE_MAT4,
+    double_mat2x3                      = gl_const.DOUBLE_MAT2x3,
+    double_mat2x4                      = gl_const.DOUBLE_MAT2x4,
+    double_mat3x2                      = gl_const.DOUBLE_MAT3x2,
+    double_mat3x4                      = gl_const.DOUBLE_MAT3x4,
+    double_mat4x2                      = gl_const.DOUBLE_MAT4x2,
+    double_mat4x3                      = gl_const.DOUBLE_MAT4x3,
+
+    sampler_1d                         = gl_const.SAMPLER_1D,
+    sampler_2d                         = gl_const.SAMPLER_2D,
+    sampler_3d                         = gl_const.SAMPLER_3D,
+    sampler_cube                       = gl_const.SAMPLER_CUBE,
+    sampler_1d_shadow                  = gl_const.SAMPLER_1D_SHADOW,
+    sampler_2d_shadow                  = gl_const.SAMPLER_2D_SHADOW,
+    sampler_1d_array                   = gl_const.SAMPLER_1D_ARRAY,
+    sampler_2d_array                   = gl_const.SAMPLER_2D_ARRAY,
+    sampler_1d_array_shadow            = gl_const.SAMPLER_1D_ARRAY_SHADOW,
+    sampler_2d_array_shadow            = gl_const.SAMPLER_2D_ARRAY_SHADOW,
+    sampler_2d_multisample             = gl_const.SAMPLER_2D_MULTISAMPLE,
+    sampler_2d_multisample_array       = gl_const.SAMPLER_2D_MULTISAMPLE_ARRAY,
+    sampler_cube_shadow                = gl_const.SAMPLER_CUBE_SHADOW,
+    sampler_buffer                     = gl_const.SAMPLER_BUFFER,
+    sampler_2d_rect                    = gl_const.SAMPLER_2D_RECT,
+    sampler_2d_rect_shadow             = gl_const.SAMPLER_2D_RECT_SHADOW,
+
+    int_sampler_1d                     = gl_const.INT_SAMPLER_1D,
+    int_sampler_2d                     = gl_const.INT_SAMPLER_2D,
+    int_sampler_3d                     = gl_const.INT_SAMPLER_3D,
+    int_sampler_cube                   = gl_const.INT_SAMPLER_CUBE,
+    int_sampler_1d_array               = gl_const.INT_SAMPLER_1D_ARRAY,
+    int_sampler_2d_array               = gl_const.INT_SAMPLER_2D_ARRAY,
+    int_sampler_2d_multisample         = gl_const.INT_SAMPLER_2D_MULTISAMPLE,
+    int_sampler_2d_multisample_array   = gl_const.INT_SAMPLER_2D_MULTISAMPLE_ARRAY,
+    int_sampler_buffer                 = gl_const.INT_SAMPLER_BUFFER,
+    int_sampler_2d_rect                = gl_const.INT_SAMPLER_2D_RECT,
+
+    uint_sampler_1d                    = gl_const.UNSIGNED_INT_SAMPLER_1D,
+    uint_sampler_2d                    = gl_const.UNSIGNED_INT_SAMPLER_2D,
+    uint_sampler_3d                    = gl_const.UNSIGNED_INT_SAMPLER_3D,
+    uint_sampler_cube                  = gl_const.UNSIGNED_INT_SAMPLER_CUBE,
+    uint_sampler_1d_array              = gl_const.UNSIGNED_INT_SAMPLER_1D_ARRAY,
+    uint_sampler_2d_array              = gl_const.UNSIGNED_INT_SAMPLER_2D_ARRAY,
+    uint_sampler_2d_multisample        = gl_const.UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE,
+    uint_sampler_2d_multisample_array  = gl_const.UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY,
+    uint_sampler_buffer                = gl_const.UNSIGNED_INT_SAMPLER_BUFFER,
+    uint_sampler_2d_rect               = gl_const.UNSIGNED_INT_SAMPLER_2D_RECT,
+
+    image_1d                           = gl_const.IMAGE_1D,
+    image_2d                           = gl_const.IMAGE_2D,
+    image_3d                           = gl_const.IMAGE_3D,
+    image_2d_rect                      = gl_const.IMAGE_2D_RECT,
+    image_cube                         = gl_const.IMAGE_CUBE,
+    image_buffer                       = gl_const.IMAGE_BUFFER,
+    image_1d_array                     = gl_const.IMAGE_1D_ARRAY,
+    image_2d_array                     = gl_const.IMAGE_2D_ARRAY,
+    image_cube_map_array               = gl_const.IMAGE_CUBE_MAP_ARRAY,
+    image_2d_multisample               = gl_const.IMAGE_2D_MULTISAMPLE,
+    image_2d_multisample_array         = gl_const.IMAGE_2D_MULTISAMPLE_ARRAY,
+
+    int_image_1d                       = gl_const.INT_IMAGE_1D,
+    int_image_2d                       = gl_const.INT_IMAGE_2D,
+    int_image_3d                       = gl_const.INT_IMAGE_3D,
+    int_image_2d_rect                  = gl_const.INT_IMAGE_2D_RECT,
+    int_image_cube                     = gl_const.INT_IMAGE_CUBE,
+    int_image_buffer                   = gl_const.INT_IMAGE_BUFFER,
+    int_image_1d_array                 = gl_const.INT_IMAGE_1D_ARRAY,
+    int_image_2d_array                 = gl_const.INT_IMAGE_2D_ARRAY,
+    int_image_cube_map_array           = gl_const.INT_IMAGE_CUBE_MAP_ARRAY,
+    int_image_2d_multisample           = gl_const.INT_IMAGE_2D_MULTISAMPLE,
+    int_image_2d_multisample_array     = gl_const.INT_IMAGE_2D_MULTISAMPLE_ARRAY,
+
+    uint_image_1d                      = gl_const.UNSIGNED_INT_IMAGE_1D,
+    uint_image_2d                      = gl_const.UNSIGNED_INT_IMAGE_2D,
+    uint_image_3d                      = gl_const.UNSIGNED_INT_IMAGE_3D,
+    uint_image_2d_rect                 = gl_const.UNSIGNED_INT_IMAGE_2D_RECT,
+    uint_image_cube                    = gl_const.UNSIGNED_INT_IMAGE_CUBE,
+    uint_image_buffer                  = gl_const.UNSIGNED_INT_IMAGE_BUFFER,
+    uint_image_1d_array                = gl_const.UNSIGNED_INT_IMAGE_1D_ARRAY,
+    uint_image_2d_array                = gl_const.UNSIGNED_INT_IMAGE_2D_ARRAY,
+    uint_image_cube_map_array          = gl_const.UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY,
+    uint_image_2d_multisample          = gl_const.UNSIGNED_INT_IMAGE_2D_MULTISAMPLE,
+    uint_image_2d_multisample_array    = gl_const.UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY,
+
+    unsigned_int_atomic_counter        = gl_const.UNSIGNED_INT_ATOMIC_COUNTER,
+}
+
+AttribTypes :: enum i32 {
+    float             = gl_const.FLOAT,
+    float_vec2        = gl_const.FLOAT_VEC2,
+    float_vec3        = gl_const.FLOAT_VEC3,
+    float_vec4        = gl_const.FLOAT_VEC4,
+    float_mat2        = gl_const.FLOAT_MAT2,
+    float_mat3        = gl_const.FLOAT_MAT3,
+    float_mat4        = gl_const.FLOAT_MAT4,
+    float_mat2x3      = gl_const.FLOAT_MAT2x3,
+    float_mat2x4      = gl_const.FLOAT_MAT2x4,
+    float_mat3x2      = gl_const.FLOAT_MAT3x2,
+    float_mat3x4      = gl_const.FLOAT_MAT3x4,
+    float_mat4x2      = gl_const.FLOAT_MAT4x2,
+    float_mat4x3      = gl_const.FLOAT_MAT4x3,
+    int_              = gl_const.INT,
+    int_vec2          = gl_const.INT_VEC2,
+    int_vec3          = gl_const.INT_VEC3,
+    int_vec4          = gl_const.INT_VEC4,
+    uint_             = gl_const.UNSIGNED_INT,
+    uint_vec2         = gl_const.UNSIGNED_INT_VEC2,
+    uint_vec3         = gl_const.UNSIGNED_INT_VEC3,
+    uint_vec4         = gl_const.UNSIGNED_INT_VEC4,
+}
 
 GetShaderNames :: enum i32 {
     ShaderType                         = gl_const.SHADER_TYPE,
@@ -19,6 +167,23 @@ GetShaderNames :: enum i32 {
     CompileStatus                      = gl_const.COMPILE_STATUS,
     InfoLogLength                      = gl_const.INFO_LOG_LENGTH,
     ShaderSourceLength                 = gl_const.SHADER_SOURCE_LENGTH,
+}
+
+GetProgramNames :: enum i32 {
+    DeleteStatus                       = gl_const.DELETE_STATUS,
+    LinkStatus                         = gl_const.LINK_STATUS,
+    ValidateStatus                     = gl_const.VALIDATE_STATUS,
+    InfoLogLength                      = gl_const.INFO_LOG_LENGTH,
+    AttachedShaders                    = gl_const.ATTACHED_SHADERS,
+    ActiveAttributes                   = gl_const.ACTIVE_ATTRIBUTES,
+    ActiveAttributeMaxLength           = gl_const.ACTIVE_ATTRIBUTE_MAX_LENGTH,
+    ActiveUniforms                     = gl_const.ACTIVE_UNIFORMS,
+    ActiveUniformMaxLength             = gl_const.ACTIVE_UNIFORM_MAX_LENGTH,
+    TransformFeedbackBufferMode        = gl_const.TRANSFORM_FEEDBACK_BUFFER_MODE,
+    TransformFeedbackVaryingMaxLength  = gl_const.TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH,
+    GeometryVerticesOut                = gl_const.GEOMETRY_VERTICES_OUT,
+    GeometryInputType                  = gl_const.GEOMETRY_INPUT_TYPE,
+    GeometryOutputType                 = gl_const.GEOMETRY_OUTPUT_TYPE,
 }
 
 DebugSource :: enum i32 {
@@ -474,16 +639,4 @@ DepthFuncs :: enum i32 {
     NotEqual                           = gl_const.NOTEQUAL,
     Gequal                             = gl_const.GEQUAL,
     Always                             = gl_const.ALWAYS,
-}/*
- *  @Name:     gl_:: enums
- *  
- *  @Author:   Mikkel Hjortshoej
- *  @Email:    hjortshoej@handmade.network
- *  @Creation: 10-06-2017 17:41:03
- *
- *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 10-06-2017 17:41:03
- *  
- *  @Description:
- *  
- */
+}
