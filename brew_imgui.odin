@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 05-02-2018 01:16:39 UTC+1
+ *  @Last Time: 07-02-2018 21:13:06 UTC+1
  *  
  *  @Description:
  *  
@@ -19,8 +19,8 @@ import       "core:math.odin";
 import       "core:os.odin";
 import win32 "core:sys/windows.odin"
 
-import       "win/window.odin";
-import input "win/keys.odin";
+import       "sys/window.odin";
+import input "sys/keys.odin";
 
 import "gl.odin";
 

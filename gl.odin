@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 06-02-2018 00:17:20 UTC+1
+ *  @Last Time: 07-02-2018 21:13:32 UTC+1
  *  
  *  @Description:
  *  
@@ -17,8 +17,8 @@ import "core:fmt.odin";
 import "core:strings.odin";
 import "core:math.odin";
 
-import "win/misc.odin";
-import gl "win/opengl.odin";
+import "sys/misc.odin";
+import gl "sys/opengl.odin";
 
 export "gl_enums.odin";
 
@@ -56,7 +56,7 @@ Attrib :: struct {
 }
 
 Opengl_Vars :: struct {
-    ctx                 : gl.GlContext,
+    ctx                 : gl.Gl_Context,
 
     version_major_max   : i32,
     version_major_cur   : i32,

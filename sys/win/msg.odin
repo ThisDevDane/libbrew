@@ -6,14 +6,14 @@
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 24-01-2018 22:20:07 UTC+1
+ *  @Last Time: 07-02-2018 21:12:09 UTC+1
  *  
  *  @Description:
  *  
  */
 import "core:fmt.odin";
 import win32 "core:sys/windows.odin";
-import "msg_user.odin";
+export "msg_user.odin";
 import input "keys.odin";
 
 window_resized    := false;
@@ -293,14 +293,14 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 msg^ = l_msg;
             }
 
-            case msg_user.WINDOW_FOCUS : {
+            case WINDOW_FOCUS : {
                 l_msg := MsgWindowFocus{
                     enter_focus = bool(w_msg.wparam)
                 };
                 msg^ = l_msg;
             }
 
-            case msg_user.KEYBOARD_FOCUS : {
+            case KEYBOARD_FOCUS : {
                 l_msg := MsgKeyboardFocus{
                     enter_focus = bool(w_msg.wparam)
                 };

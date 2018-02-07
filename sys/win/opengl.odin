@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 05-02-2018 04:45:37 UTC+1
+ *  @Last Time: 07-02-2018 21:13:47 UTC+1
  *  
  *  @Description:
  *  
@@ -21,7 +21,7 @@ import "window.odin";
 
 export "opengl_wgl.odin";
 
-GlContext :: wgl.Hglrc;
+Gl_Context :: wgl.Hglrc;
 
 _string_data :: inline proc(s: string) -> ^u8 { return &s[0]; }
 
@@ -33,7 +33,7 @@ get_proc_address :: proc "cdecl"(name : string) -> proc "cdecl"() {
 
 create_gl_context :: proc[create_gl_context_min, create_gl_context_ext];
 
-create_gl_context_min :: proc(wnd_handle : window.WndHandle, major, minor : int) -> GlContext {
+create_gl_context_min :: proc(wnd_handle : window.WndHandle, major, minor : int) -> Gl_Context {
     extensions : map[string]rawptr;
     extensions["wglChoosePixelFormatARB"]    = &choose_pixel_format;
     extensions["wglCreateContextAttribsARB"] = &create_context_attribs;
@@ -61,7 +61,7 @@ create_gl_context_ext :: proc(handle : window.WndHandle,
                           major, minor : int, 
                           requested_extensions : map[string]rawptr,
                           attribs : []Attrib,
-                          core, debug : bool) -> GlContext {
+                          core, debug : bool) -> Gl_Context {
     wndHandle := win32.create_window_ex_a(0, 
                        _string_data("STATIC\x00"), 
                        _string_data("Opengl Loader\x00"), 
@@ -130,7 +130,7 @@ create_gl_context_ext :: proc(handle : window.WndHandle,
     assert(ctx != nil);
     wgl.make_current(dc, ctx);
     win32.release_dc(win32.Hwnd(handle), dc);
-    return GlContext(ctx);
+    return Gl_Context(ctx);
 }
 
 
