@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 28-01-2018 23:10:43 UTC+1
+ *  @Last Time: 07-02-2018 20:47:46 UTC+1
  *  
  *  @Description:
  *  
@@ -142,4 +142,39 @@ filetime_to_datetime :: proc(ft : win32.Filetime) -> Datetime {
         int(second),
         int(millisecond)
     };
+}
+
+odin_to_wchar_string :: proc(str : string) -> ^u16 {
+    olen := i32(len(str) * size_of(byte));
+    wlen := win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, &str[0], olen, nil, 0);
+    buf := make([]u16, wlen * size_of(u16) + 1);
+    ptr := &buf[0];
+    win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, &str[0], olen, ptr, wlen);
+
+    return ptr;
+}
+
+wchar_to_odin_string :: proc(wc_str : ^u16, wlen : i32 = -1) -> string {
+    olen := win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
+                                          nil, 0, 
+                                          nil, nil);
+
+    buf := make([]byte, olen);
+    win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
+                                  &buf[0], olen, 
+                                  nil, nil);
+
+    return string(buf[..olen]);
+}
+
+wchar_to_odin_string_from_buf :: proc(buf : []byte, wc_str : ^u16, wlen : i32 = -1) -> string {
+    olen := win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
+                                          nil, 0, 
+                                          nil, nil);
+
+    win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
+                                  &buf[0], olen, 
+                                  nil, nil);
+
+    return string(buf[..olen]);
 }
