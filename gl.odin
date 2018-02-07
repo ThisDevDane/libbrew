@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 21:13:32 UTC+1
+ *  @Last Time: 07-02-2018 21:23:53 UTC+1
  *  
  *  @Description:
  *  
@@ -26,12 +26,12 @@ TRUE  :: 1;
 FALSE :: 0;
 
 // Types
-VAO          :: u32;
-VBO          :: u32;
-EBO          :: u32;
-BufferObject :: u32;
-Texture      :: u32;
-Shader       :: u32; 
+VAO          :: distinct u32;
+VBO          :: distinct u32;
+EBO          :: distinct u32;
+BufferObject :: distinct u32;
+Texture      :: distinct u32;
+Shader       :: distinct u32; 
 
 Program :: struct {
     id         : u32,
