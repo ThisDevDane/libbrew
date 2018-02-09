@@ -6,12 +6,12 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 21:13:06 UTC+1
+ *  @Last Time: 09-02-2018 22:11:03 UTC+1
  *  
  *  @Description:
  *  
  */
-export "shared:odin-dear_imgui/dear_imgui.odin";
+export "shared:odin-imgui/dear_imgui.odin";
 
 import       "core:fmt.odin";
 import       "core:mem.odin";
