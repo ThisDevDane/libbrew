@@ -285,11 +285,11 @@ draw_history :: proc(show : ^bool) {
         imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
         defer imgui.pop_font();
         if imgui.begin_child("Items") {
-            defer imgui.end_child();
             for t in _internal_data.history {
                 imgui.text(t);
             }
         }
+        imgui.end_child();
     }
 }
 
@@ -316,7 +316,6 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
         }
 
         if imgui.begin_child("Buffer", imgui.Vec2{-1, -40}, true) {
-            defer imgui.end_child();
             imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
             defer imgui.pop_font();
             for t in _internal_data.current_log {
@@ -346,6 +345,7 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
             }
             _internal_data._scroll_to_bottom = false;
         }
+        imgui.end_child();
 
         TEXT_FLAGS :: imgui.Input_Text_Flags.EnterReturnsTrue | imgui.Input_Text_Flags.CallbackCompletion | imgui.Input_Text_Flags.CallbackHistory;
         if imgui.input_text("##Input", _internal_data.input_buf[..], TEXT_FLAGS, _text_edit_callback) {
