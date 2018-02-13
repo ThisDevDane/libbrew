@@ -219,10 +219,6 @@ unmarshal :: proc(value: Value, data: any) -> bool {
         if _, ok := type_info.variant.(Type_Info_Integer); !ok do return false; // @error
         
         switch type_info.size {
-       /* case 16:
-            tmp := i128(v);
-            mem.copy(data.data, &tmp, type_info.size);*/
-
         case 8:
             tmp := i64(v);
             mem.copy(data.data, &tmp, type_info.size);

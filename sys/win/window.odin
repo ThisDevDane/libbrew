@@ -5,8 +5,8 @@
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 01-06-2017 02:25:37
  *
- *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 21:06:31 UTC+1
+ *  @Last By:   Brendan Punsky
+ *  @Last Time: 13-02-2018 08:45:49 UTC-5
  *  
  *  @Description:
  *  
@@ -26,7 +26,8 @@ MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
     return (^u8)(rawptr(uintptr(int(u16(i)))));
 }
 
-IDC_ARROW : win32.Hcursor = win32.Hcursor(MAKEINTRESOURCEA(32512));
+IDC_ARROW := MAKEINTRESOURCEA(32512);
+
 Window_Style :: enum u32 {
     Resizeable  = win32.WS_THICKFRAME,
     Minimizable = win32.WS_MINIMIZEBOX,
@@ -113,7 +114,7 @@ _register_class :: proc(app : misc.AppHandle, title : string) -> win32.Wnd_Class
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
     wndClass.wnd_proc = _window_proc;
     //FIXME: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
-    //wndClass.cursor = IDC_ARROW;
+    wndClass.cursor = win32.load_cursor_a(nil, IDC_ARROW);
     wndClass.instance = win32.Hinstance(app);
     class_buf := make([]u8, 256+6);
     fmt.bprintf(class_buf[..], "%s_class\x00", title);
