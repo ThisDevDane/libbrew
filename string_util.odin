@@ -6,14 +6,30 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 05-02-2018 23:57:28 UTC+1
+ *  @Last Time: 22-02-2018 15:05:22 UTC+1
  *  
  *  @Description:
  *  
  */
 
+import "core:utf8.odin";
 import "core:fmt.odin";
 import "core:strings.odin";
+
+replace :: proc(str: string, old, new: rune) -> string {
+    new_str := make([]byte, 4*len(str));
+    i := 0;
+    for r in str {
+        c := r;
+        if c == old {
+            c = new;
+        }
+        buf, n := utf8.encode_rune(c);
+        copy(new_str[i..], buf[..n]);
+        i += n;
+    }
+    return string(new_str[..i]);
+}
 
 get_last_extension :: proc(str : string) -> string {
     last_dot := -1;

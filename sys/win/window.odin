@@ -5,8 +5,8 @@
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 01-06-2017 02:25:37
  *
- *  @Last By:   Brendan Punsky
- *  @Last Time: 13-02-2018 08:45:49 UTC-5
+ *  @Last By:   Mikkel Hjortshoej
+ *  @Last Time: 13-02-2018 15:11:22 UTC+1
  *  
  *  @Description:
  *  
@@ -26,7 +26,12 @@ MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
     return (^u8)(rawptr(uintptr(int(u16(i)))));
 }
 
-IDC_ARROW := MAKEINTRESOURCEA(32512);
+IDC_ARROW    := MAKEINTRESOURCEA(32512);
+IDC_IBEAM    := MAKEINTRESOURCEA(32513);
+IDC_SIZENESW := MAKEINTRESOURCEA(32513);
+IDC_SIZENS   := MAKEINTRESOURCEA(32513);
+IDC_SIZENWSE := MAKEINTRESOURCEA(32513);
+IDC_SIZEWE   := MAKEINTRESOURCEA(32513);
 
 Window_Style :: enum u32 {
     Resizeable  = win32.WS_THICKFRAME,

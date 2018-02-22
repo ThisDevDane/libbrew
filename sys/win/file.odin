@@ -6,7 +6,7 @@
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 20:51:53 UTC+1
+ *  @Last Time: 16-02-2018 05:08:13 UTC+1
  *  
  *  @Description:
  *  
@@ -124,7 +124,7 @@ _count_entries_from_find_handle :: proc(handle : win32.Handle, find_data : ^win3
 _skip_dot_check :: proc(find_data : ^win32.Find_Data_W) -> bool {
     buf : [1024]byte;
     str := misc.wchar_to_odin_string_from_buf(buf[..], &find_data.file_name[0]);
-    return str == "." || str == ".."; 
+    return str == ".\x00" || str == "..\x00"; 
 }
 
 //NOTE(Hoej): skips . and ..
