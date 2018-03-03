@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 13-02-2018 15:11:22 UTC+1
+ *  @Last Time: 03-03-2018 18:58:02 UTC+1
  *  
  *  @Description:
  *  
@@ -26,12 +26,12 @@ MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
     return (^u8)(rawptr(uintptr(int(u16(i)))));
 }
 
-IDC_ARROW    := MAKEINTRESOURCEA(32512);
-IDC_IBEAM    := MAKEINTRESOURCEA(32513);
-IDC_SIZENESW := MAKEINTRESOURCEA(32513);
-IDC_SIZENS   := MAKEINTRESOURCEA(32513);
-IDC_SIZENWSE := MAKEINTRESOURCEA(32513);
-IDC_SIZEWE   := MAKEINTRESOURCEA(32513);
+IDC_ARROW    := cast(cstring)MAKEINTRESOURCEA(32512);
+IDC_IBEAM    := cast(cstring)MAKEINTRESOURCEA(32513);
+IDC_SIZENESW := cast(cstring)MAKEINTRESOURCEA(32513);
+IDC_SIZENS   := cast(cstring)MAKEINTRESOURCEA(32513);
+IDC_SIZENWSE := cast(cstring)MAKEINTRESOURCEA(32513);
+IDC_SIZEWE   := cast(cstring)MAKEINTRESOURCEA(32513);
 
 Window_Style :: enum u32 {
     Resizeable  = win32.WS_THICKFRAME,
@@ -65,7 +65,7 @@ create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool
 
     handle := win32.create_window_ex_a(0,
                                        wndClass.class_name,
-                                       &title_buf[0],
+                                       cstring(&title_buf[0]),
                                        WINDOW_STYLE,
                                        i32(x),
                                        i32(y),
@@ -95,7 +95,7 @@ create_window3 :: proc(app : misc.AppHandle, title : string, width : int, height
 
     handle := win32.create_window_ex_a(0,
                                        wndClass.class_name,
-                                       &title_buf[0],
+                                       cstring(&title_buf[0]),
                                        WINDOW_STYLE,
                                        win32.CW_USEDEFAULT,
                                        win32.CW_USEDEFAULT,
@@ -123,7 +123,7 @@ _register_class :: proc(app : misc.AppHandle, title : string) -> win32.Wnd_Class
     wndClass.instance = win32.Hinstance(app);
     class_buf := make([]u8, 256+6);
     fmt.bprintf(class_buf[..], "%s_class\x00", title);
-    wndClass.class_name = &class_buf[0];
+    wndClass.class_name = cstring(&class_buf[0]);
 
     if win32.register_class_ex_a(&wndClass) == 0 {
         err := win32.get_last_error();

@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 21:13:47 UTC+1
+ *  @Last Time: 03-03-2018 18:58:02 UTC+1
  *  
  *  @Description:
  *  
@@ -28,7 +28,7 @@ _string_data :: inline proc(s: string) -> ^u8 { return &s[0]; }
 get_proc_address :: proc "cdecl"(name : string) -> proc "cdecl"() {
     buf : [256]u8;
     c_str := fmt.bprintf(buf[..], "%s\x00", name);
-    return cast(proc "cdecl"())wgl.get_gl_proc_address(&c_str[0]);
+    return cast(proc "cdecl"())wgl.get_gl_proc_address(cstring(&c_str[0]));
 }
 
 create_gl_context :: proc[create_gl_context_min, create_gl_context_ext];
@@ -63,8 +63,8 @@ create_gl_context_ext :: proc(handle : window.WndHandle,
                           attribs : []Attrib,
                           core, debug : bool) -> Gl_Context {
     wndHandle := win32.create_window_ex_a(0, 
-                       _string_data("STATIC\x00"), 
-                       _string_data("Opengl Loader\x00"), 
+                       cast(cstring)_string_data("STATIC\x00"), 
+                       cast(cstring)_string_data("Opengl Loader\x00"), 
                        win32.WS_OVERLAPPED, 
                        win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT,
                        nil, nil, nil, nil);

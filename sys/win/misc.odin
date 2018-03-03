@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 20:47:46 UTC+1
+ *  @Last Time: 03-03-2018 19:19:32 UTC+1
  *  
  *  @Description:
  *  
@@ -17,6 +17,29 @@ import win32 "core:sys/windows.odin";
 
 AppHandle :: win32.Hinstance;
 LibHandle :: win32.Hmodule;
+
+//BUG(Hoej): sub-processes don't aggregate up their errors
+execute_system_command :: proc(fmt_ : string, args : ...any) -> int {
+    exit_code : u32;
+
+    su := win32.Startup_Info{};
+    su.cb = size_of(win32.Startup_Info);
+    pi := win32.Process_Information{};
+    cmd := fmt.aprintf(fmt_, ...args);
+    
+    if win32.create_process_w(nil, odin_to_wchar_string(cmd), nil, nil, false, 0, nil, nil, &su, &pi) {
+        win32.wait_for_single_object(pi.process, win32.INFINITE);
+        win32.get_exit_code_process(pi.process, &exit_code);
+        win32.close_handle(pi.process);
+        win32.close_handle(pi.thread);
+    } else {
+        fmt.printf_err("Failed to execute:\n\t%s\n", cmd);
+        return -1;
+    }
+    
+
+    return int(exit_code);
+}
 
 TimeData :: struct {
     _pf_freq : i64,
@@ -34,7 +57,7 @@ sleep :: proc(ms : int) {
 load_library :: proc(name : string) -> LibHandle {
     buf : [256]u8;
     c_str := fmt.bprintf(buf[..], "%s\x00", name);
-    h := win32.load_library_a(&c_str[0]);
+    h := win32.load_library_a(cstring(&c_str[0]));
     return LibHandle(h);
 }
 
@@ -45,7 +68,7 @@ free_library :: proc(lib : LibHandle) {
 get_proc_address :: proc "cdecl"(lib : LibHandle, name : string) -> proc "cdecl"(){
     buf : [256]u8;
     c_str := fmt.bprintf(buf[..], "%s\x00", name);
-    return proc "cdecl"()(win32.get_proc_address(win32.Hmodule(lib), &c_str[0]));
+    return proc "cdecl"()(win32.get_proc_address(win32.Hmodule(lib), cstring(&c_str[0])));
 }
 
 create_time_data :: proc() -> TimeData {
@@ -144,36 +167,36 @@ filetime_to_datetime :: proc(ft : win32.Filetime) -> Datetime {
     };
 }
 
-odin_to_wchar_string :: proc(str : string) -> ^u16 {
+odin_to_wchar_string :: proc(str : string) -> win32.Wstring {
     olen := i32(len(str) * size_of(byte));
-    wlen := win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, &str[0], olen, nil, 0);
+    wlen := win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, cstring(&str[0]), olen, nil, 0);
     buf := make([]u16, wlen * size_of(u16) + 1);
-    ptr := &buf[0];
-    win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, &str[0], olen, ptr, wlen);
+    ptr := win32.Wstring(&buf[0]);
+    win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, cstring(&str[0]), olen, ptr, wlen);
 
     return ptr;
 }
 
-wchar_to_odin_string :: proc(wc_str : ^u16, wlen : i32 = -1) -> string {
+wchar_to_odin_string :: proc(wc_str : win32.Wstring, wlen : i32 = -1) -> string {
     olen := win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
                                           nil, 0, 
                                           nil, nil);
 
     buf := make([]byte, olen);
     win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
-                                  &buf[0], olen, 
+                                  cstring(&buf[0]), olen, 
                                   nil, nil);
 
     return string(buf[..olen]);
 }
 
-wchar_to_odin_string_from_buf :: proc(buf : []byte, wc_str : ^u16, wlen : i32 = -1) -> string {
+wchar_to_odin_string_from_buf :: proc(buf : []byte, wc_str : win32.Wstring, wlen : i32 = -1) -> string {
     olen := win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
                                           nil, 0, 
                                           nil, nil);
 
     win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
-                                  &buf[0], olen, 
+                                  cstring(&buf[0]), olen, 
                                   nil, nil);
 
     return string(buf[..olen]);

@@ -6,7 +6,7 @@
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 16-02-2018 05:08:13 UTC+1
+ *  @Last Time: 03-03-2018 19:09:53 UTC+1
  *  
  *  @Description:
  *  
@@ -87,7 +87,7 @@ get_all_entries_in_directory :: proc(path : string) -> []DiskEntry {
 
 _make_disk_entry_from_find_data :: proc(data : win32.Find_Data_W) -> DiskEntry {
     result := DiskEntry{};
-    tmp := misc.wchar_to_odin_string(&data.file_name[0]);
+    tmp := misc.wchar_to_odin_string(win32.Wstring(&data.file_name[0]));
     tmp = tmp[..string_util.clen(tmp)];
     result.name = strings.new_string(tmp);
     result.modified = misc.filetime_to_datetime(data.last_write_time);
@@ -123,7 +123,7 @@ _count_entries_from_find_handle :: proc(handle : win32.Handle, find_data : ^win3
 
 _skip_dot_check :: proc(find_data : ^win32.Find_Data_W) -> bool {
     buf : [1024]byte;
-    str := misc.wchar_to_odin_string_from_buf(buf[..], &find_data.file_name[0]);
+    str := misc.wchar_to_odin_string_from_buf(buf[..], win32.Wstring(&find_data.file_name[0]));
     return str == ".\x00" || str == "..\x00"; 
 }
 
@@ -140,7 +140,7 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
     fmt.bprintf(path_buf[..], "%s%r", dir_path, '*');
 
     find_data := win32.Find_Data_A{};
-    file_handle := win32.find_first_file_a(&path_buf[0], &find_data);
+    file_handle := win32.find_first_file_a(cstring(&path_buf[0]), &find_data);
 
     skip_dot :: proc(c_str : []u8) -> bool {
         len := string_util.get_c_string_length(&c_str[0]);
@@ -149,13 +149,13 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
         return f == "." || f == ".."; 
     }
 
-    copy_file_name :: proc(c_str : ^u8, path : string, full_path : bool) -> string {
+    copy_file_name :: proc(c_str : cstring, path : string, full_path : bool) -> string {
         if !full_path {
-            str := strings.to_odin_string(c_str);
+            str := string(c_str);
             return strings.new_string(str);
         } else {
             pathBuf := make([]u8, win32.MAX_PATH);
-            return fmt.bprintf(pathBuf[..], "%s%s", path, strings.to_odin_string(c_str));
+            return fmt.bprintf(pathBuf[..], "%s%s", path, string(c_str));
         }
     }
 
@@ -177,10 +177,10 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
     //copy file names
     result := make([]string, count);
     i := 0;
-    file_handle = win32.find_first_file_a(&path_buf[0], &find_data);
+    file_handle = win32.find_first_file_a(cstring(&path_buf[0]), &find_data);
     if file_handle != win32.INVALID_HANDLE {
         if !skip_dot(find_data.file_name[..]) {
-            result[i] = copy_file_name(&find_data.file_name[0], dir_path, full_path);
+            result[i] = copy_file_name(cstring(&find_data.file_name[0]), dir_path, full_path);
             i += 1;
         } 
 
@@ -188,7 +188,7 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
             if skip_dot(find_data.file_name[..]) {
                 continue;
             }
-            result[i] = copy_file_name(&find_data.file_name[0], dir_path, full_path);
+            result[i] = copy_file_name(cstring(&find_data.file_name[0]), dir_path, full_path);
             i += 1;
         }
     }

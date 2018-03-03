@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 21:23:53 UTC+1
+ *  @Last Time: 03-03-2018 19:15:10 UTC+1
  *  
  *  @Description:
  *  
@@ -207,7 +207,7 @@ bind_buffer_ebo :: proc(ebo : EBO) {
 
 bind_frag_data_location :: proc(program : Program, colorNumber : u32, name : string) {
     if _bind_frag_data_location != nil {
-        c := strings.new_c_string(name);
+        c := strings.new_cstring(name);
         _bind_frag_data_location(program.id, colorNumber, c);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);      
@@ -378,7 +378,7 @@ uniform_matrix4_v :: proc(loc : i32, matrix : math.Mat4, transpose := false) {
 
 get_uniform_location :: proc(program : Program, name : string) -> i32{
     if _get_uniform_location != nil {
-        str := strings.new_c_string(name); defer free(str);
+        str := strings.new_cstring(name); defer free(str);
         res := _get_uniform_location(u32(program.id), str);
         return res;
     } else {
@@ -389,7 +389,7 @@ get_uniform_location :: proc(program : Program, name : string) -> i32{
 
 get_attrib_location :: proc(program : Program, name : string) -> i32 {
     if _get_attrib_location != nil {
-        str := strings.new_c_string(name); defer free(str);
+        str := strings.new_cstring(name); defer free(str);
         res := _get_attrib_location(u32(program.id), str);
         return res;
     } else {
@@ -505,7 +505,7 @@ get_shader_info_log :: proc(shader : Shader) -> string {
         logSize := get_shader_value(shader, GetShaderNames.InfoLogLength);
         logBytes := make([]u8, logSize);
         _get_shader_info_log(u32(shader), logSize, &logSize, &logBytes[0]);
-        return strings.to_odin_string(&logBytes[0]);
+        return string(logBytes);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
         return "<ERR>";
@@ -530,7 +530,7 @@ get_active_uniform :: proc (program : Program, index : uint) -> Uniform {
         size : i32;
         buf : [1024]byte;
         out_len : u32;
-        _get_active_uniform(program.id, u32(index), len(buf), &out_len, &size, &type_, &buf[0]);
+        _get_active_uniform(program.id, u32(index), len(buf), &out_len, &size, &type_, cstring(&buf[0]));
         name := strings.new_string(string(buf[..out_len]));
         
         result := Uniform {
@@ -556,7 +556,7 @@ get_active_uniform_name :: proc(program : Program, index : uint) -> string {
     if _get_active_uniform_name != nil {
         buf : [1024]byte;
         out_len : u32;
-        _get_active_uniform_name(program.id, u32(index), len(buf), &out_len, &buf[0]);
+        _get_active_uniform_name(program.id, u32(index), len(buf), &out_len, cstring(&buf[0]));
         str := string(buf[..out_len]);
         return strings.new_string(str);
     } else {
@@ -573,7 +573,7 @@ get_active_attrib :: proc (program : Program, index : uint) -> Attrib {
         size : i32;
         buf : [1024]byte;
         out_len : u32;
-        _get_active_attrib(program.id, u32(index), len(buf), &out_len, &size, &type_, &buf[0]);
+        _get_active_attrib(program.id, u32(index), len(buf), &out_len, &size, &type_, cstring(&buf[0]));
         name := strings.new_string(string(buf[..out_len]));
         
         result := Attrib {
@@ -602,7 +602,7 @@ get_string :: proc[get_string_single, get_string_index];
 get_string_index :: proc(name : GetStringNames, index : u32) -> string {
     if _get_stringi != nil {
         res := _get_stringi(i32(name), index);
-        return strings.to_odin_string(res);
+        return string(cstring(res));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
         return "nil";
@@ -612,7 +612,7 @@ get_string_index :: proc(name : GetStringNames, index : u32) -> string {
 get_string_single :: proc(name : GetStringNames) -> string {
     if _get_string != nil {
         res := _get_string(i32(name));
-        return strings.to_odin_string(res);
+        return string(cstring(res));
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }
@@ -690,10 +690,11 @@ shader_source_str :: proc(obj : Shader, str : string) {
 
 shader_source_slice :: proc(obj : Shader, strs : []string) {
     if _shader_source != nil {
-        newStrs := make([]^u8, len(strs)); defer free(newStrs);
+        newStrs := make([]cstring, len(strs)); defer free(newStrs);
         lengths := make([]i32, len(strs)); defer free(lengths);
         for s, i in strs {
-            newStrs[i] = &(([]u8)(s))[0];
+            c := &(([]u8)(s))[0];
+            newStrs[i] = (cstring)(c);
             lengths[i] = i32(len(s));
         }
         _shader_source(u32(obj), u32(len(strs)), &newStrs[0], &lengths[0]);
@@ -746,8 +747,8 @@ delete_shader :: proc(obj : Shader) {
     _uniform3f                  : proc "c"(loc : i32, v0 : f32, v1 : f32, v2 : f32);
     _uniform4f                  : proc "c"(loc : i32, v0 : f32, v1 : f32, v2 : f32, v3 : f32);
     _uniform_matrix4fv          : proc "c"(loc : i32, count: u32, transpose: i32, value: ^f32);
-    _get_uniform_location       : proc "c"(program : u32, name : ^u8) -> i32;
-    _get_attrib_location        : proc "c"(program : u32, name : ^u8) -> i32;
+    _get_uniform_location       : proc "c"(program : u32, name : cstring) -> i32;
+    _get_attrib_location        : proc "c"(program : u32, name : cstring) -> i32;
     _draw_elements              : proc "c"(mode: i32, count : i32, type_ : i32, indices : rawptr);
     _draw_arrays                : proc "c"(mode: i32, first : i32, count : i32);
     _use_program                : proc "c"(program: u32);
@@ -757,7 +758,7 @@ delete_shader :: proc(obj : Shader) {
     _blend_equation             : proc "c"(mode : i32);
     _attach_shader              : proc "c"(program, shader: u32);
     _create_program             : proc "c"() -> u32;
-    _shader_source              : proc "c"(shader: u32, count: u32, str: ^^u8, length: ^i32);
+    _shader_source              : proc "c"(shader: u32, count: u32, str: ^cstring, length: ^i32);
     _create_shader              : proc "c"(shader_type: i32) -> u32;
     _compile_shader             : proc "c"(shader: u32);
     _delete_shader              : proc "c"(shader: u32);
@@ -766,11 +767,11 @@ delete_shader :: proc(obj : Shader) {
     _get_shaderiv               : proc "c"(shader : u32, pname : i32, params : ^i32);
     _get_shader_info_log        : proc "c"(shader : u32, maxLength : i32, length : ^i32, infolog : ^u8);
     _get_programiv              : proc "c"(program : u32, pname : i32, params : ^i32);
-    _get_active_uniform         : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, size : ^i32, type_ : ^u32, name : ^byte);
-    _get_active_uniform_name    : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, name : ^byte);
-    _get_active_attrib          : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, size : ^i32, type_ : ^u32, name : ^byte);
+    _get_active_uniform         : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, size : ^i32, type_ : ^u32, name : cstring);
+    _get_active_uniform_name    : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, name : cstring);
+    _get_active_attrib          : proc "c"(program : u32, index : u32, buf_size : u32, length : ^u32, size : ^i32, type_ : ^u32, name : cstring);
     _get_stringi                : proc "c"(name : i32, index : u32) -> ^u8;
-    _bind_frag_data_location    : proc "c"(program : u32, colorNumber : u32, name : ^u8);
+    _bind_frag_data_location    : proc "c"(program : u32, colorNumber : u32, name : cstring);
     _polygon_mode               : proc "c"(face : i32, mode : i32);
     _generate_mipmap            : proc "c"(target : i32);
     _enable                     : proc "c"(cap: i32);
