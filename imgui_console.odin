@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 04-02-2018 17:06:26 UTC+1
+ *  @Last Time: 05-03-2018 10:41:28 UTC+1
  *  
  *  @Description:
  *      The console is an in engine window that can be pulled up for viewing.

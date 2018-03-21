@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 03-03-2018 18:58:02 UTC+1
+ *  @Last Time: 05-03-2018 12:21:26 UTC+1
  *  
  *  @Description:
  *  
@@ -22,16 +22,16 @@ import lib_msg "msg.odin";
 
 WndHandle :: win32.Hwnd;
 
-MAKEINTRESOURCEA :: inline proc(i : u16) -> ^u8 {
-    return (^u8)(rawptr(uintptr(int(u16(i)))));
+MAKEINTRESOURCEA :: inline proc(i : u16) -> cstring {
+    return cast(cstring)(cast(^u8)(rawptr(uintptr(int(u16(i))))));
 }
 
-IDC_ARROW    := cast(cstring)MAKEINTRESOURCEA(32512);
-IDC_IBEAM    := cast(cstring)MAKEINTRESOURCEA(32513);
-IDC_SIZENESW := cast(cstring)MAKEINTRESOURCEA(32513);
-IDC_SIZENS   := cast(cstring)MAKEINTRESOURCEA(32513);
-IDC_SIZENWSE := cast(cstring)MAKEINTRESOURCEA(32513);
-IDC_SIZEWE   := cast(cstring)MAKEINTRESOURCEA(32513);
+IDC_ARROW    := win32.load_cursor_a(nil, MAKEINTRESOURCEA(32512));
+IDC_IBEAM    := win32.load_cursor_a(nil, MAKEINTRESOURCEA(32513));
+IDC_SIZENESW := win32.load_cursor_a(nil, MAKEINTRESOURCEA(32513));
+IDC_SIZENS   := win32.load_cursor_a(nil, MAKEINTRESOURCEA(32513));
+IDC_SIZENWSE := win32.load_cursor_a(nil, MAKEINTRESOURCEA(32513));
+IDC_SIZEWE   := win32.load_cursor_a(nil, MAKEINTRESOURCEA(32513));
 
 Window_Style :: enum u32 {
     Resizeable  = win32.WS_THICKFRAME,
@@ -119,11 +119,16 @@ _register_class :: proc(app : misc.AppHandle, title : string) -> win32.Wnd_Class
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
     wndClass.wnd_proc = _window_proc;
     //FIXME: Since this doesn't work, err 87, then we should just try and do LoadCursor() SetCursor()
-    wndClass.cursor = win32.load_cursor_a(nil, IDC_ARROW);
+    wndClass.cursor = IDC_ARROW;
     wndClass.instance = win32.Hinstance(app);
     class_buf := make([]u8, 256+6);
     fmt.bprintf(class_buf[..], "%s_class\x00", title);
     wndClass.class_name = cstring(&class_buf[0]);
+
+
+    LR_DEFAULTSIZE :: 0x00000040;
+    icon := cast(win32.Hicon) win32.load_image_a(wndClass.instance, MAKEINTRESOURCEA(6123), 1, 0, 0, LR_DEFAULTSIZE);
+    wndClass.icon = icon;
 
     if win32.register_class_ex_a(&wndClass) == 0 {
         err := win32.get_last_error();
