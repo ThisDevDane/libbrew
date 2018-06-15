@@ -6,7 +6,7 @@
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:39:03 UTC+1
+ *  @Last Time: 15-06-2018 23:31:17 UTC+1
  *  
  *  @Description:
  *  
@@ -22,8 +22,8 @@ import util "shared:libbrew/util";
 
 DiskEntry :: struct {
     name     : string,
-    creation : Datetime,
-    modified : Datetime,
+    creation : DateTime,
+    modified : DateTime,
     type_    : string,
     dir      : bool,
     size     : int,
@@ -32,6 +32,29 @@ DiskEntry :: struct {
     system   : bool,
 }
 
+move_file :: proc(src, dest : string, force := false) -> bool {
+    flags : u32 = win32.MOVEFILE_WRITE_THROUGH | win32.MOVEFILE_COPY_ALLOWED;
+    if force {
+        flags |= win32.MOVEFILE_REPLACE_EXISTING;
+    }
+    src_wc := odin_to_wchar_string(src); defer free(src_wc);
+    dst_wc := odin_to_wchar_string(dest); defer free(dst_wc);
+    res := win32.move_file_ex_w(src_wc, dst_wc, flags);
+    return bool(res);
+}
+
+copy_file :: proc(src, dest : string, force := false) -> bool {
+    src_wc := odin_to_wchar_string(src); defer free(src_wc);
+    dst_wc := odin_to_wchar_string(dest); defer free(dst_wc);
+    res := win32.copy_file_w(src_wc, dst_wc, win32.Bool(!force));
+    return bool(res);
+}
+
+delete_file :: proc(path : string) -> bool {
+    wc_str := odin_to_wchar_string(path); defer free(wc_str);
+    res := win32.delete_file_w(wc_str);
+    return bool(res);
+}
 
 is_path_valid :: proc(str : string) -> bool {
     wc_str := odin_to_wchar_string(str); defer free(wc_str);
@@ -48,6 +71,12 @@ is_directory :: proc(str : string) -> bool {
     }
 
     return result;
+}
+
+create_directory :: proc(name : string) -> bool {
+    wc_str := odin_to_wchar_string(name); defer free(wc_str);
+    res := win32.create_directory_w(wc_str, nil);
+    return bool(res);
 }
 
 get_all_entries_in_directory :: proc(path : string) -> []DiskEntry {

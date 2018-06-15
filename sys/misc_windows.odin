@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 15:47:13 UTC+1
+ *  @Last Time: 15-06-2018 22:33:33 UTC+1
  *  
  *  @Description:
  *  
@@ -119,7 +119,7 @@ Month :: enum {
     December,
 }
 
-Datetime :: struct {
+DateTime :: struct {
     day_of_week : Week_Day,
     day         : int,
     month       : Month,
@@ -131,7 +131,7 @@ Datetime :: struct {
     millisecond : int,
 }
 
-unix_to_datetime :: proc(unixtime : int)  -> Datetime {
+unix_to_datetime :: proc(unixtime : int)  -> DateTime {
     filetime := win32.Filetime{};
     systime := win32.Systemtime{};
     
@@ -141,7 +141,7 @@ unix_to_datetime :: proc(unixtime : int)  -> Datetime {
     filetime.hi = u32(ll >> 32);
     win32.file_time_to_system_time(&filetime, &systime);
     using systime;
-    return Datetime{
+    return DateTime{
         Week_Day(day_of_week),
         int(day),
         Month(month),
@@ -153,11 +153,11 @@ unix_to_datetime :: proc(unixtime : int)  -> Datetime {
     };
 }
 
-filetime_to_datetime :: proc(ft : win32.Filetime) -> Datetime {
+filetime_to_datetime :: proc(ft : win32.Filetime) -> DateTime {
     st := win32.Systemtime{};
     win32.file_time_to_system_time(&ft, &st);
     using st;
-    return Datetime{
+    return DateTime{
         Week_Day(day_of_week),
         int(day),
         Month(month),
