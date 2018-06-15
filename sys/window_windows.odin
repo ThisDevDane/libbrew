@@ -1,24 +1,23 @@
 /*
- *  @Name:     window
+ *  @Name:     window_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 05-03-2018 12:21:26 UTC+1
+ *  @Last Time: 15-06-2018 16:19:06 UTC+1
  *  
  *  @Description:
  *  
  */
-foreign import kernel32 "system:kernel32.lib";
-import "core:fmt.odin";
-import "core:strings.odin";
-import win32 "core:sys/windows.odin";
 
-import "misc.odin";
-import "msg_user.odin";
-import lib_msg "msg.odin";
+package brew_sys;
+
+foreign import kernel32 "system:kernel32.lib";
+import "core:fmt";
+import "core:strings";
+import "core:sys/win32";
 
 WndHandle :: win32.Hwnd;
 
@@ -49,10 +48,10 @@ Window_Style :: enum u32 {
 
 create_window :: proc[create_window1, create_window2, create_window3];
 
-create_window1 :: proc(app : misc.AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
+create_window1 :: proc(app : AppHandle, title : string, popup_window : bool, width, height : int) -> WndHandle {
     return create_window(app, title, popup_window, win32.CW_USEDEFAULT, win32.CW_USEDEFAULT, width, height);
 }
-create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool, x, y, width, height : int) -> WndHandle {
+create_window2 :: proc(app : AppHandle, title : string, popup_window : bool, x, y, width, height : int) -> WndHandle {
     wndClass := _register_class(app, title);
 
     WINDOW_STYLE : u32 = popup_window ? win32.WS_POPUPWINDOW : win32.WS_OVERLAPPEDWINDOW;
@@ -82,7 +81,7 @@ create_window2 :: proc(app : misc.AppHandle, title : string, popup_window : bool
     return WndHandle(handle);
 }
 
-create_window3 :: proc(app : misc.AppHandle, title : string, width : int, height : int, style := Window_Style.NormalWindow) -> WndHandle {
+create_window3 :: proc(app : AppHandle, title : string, width : int, height : int, style := Window_Style.NormalWindow) -> WndHandle {
     wndClass := _register_class(app, title);
 
     WINDOW_STYLE : u32 = u32(style);
@@ -113,7 +112,7 @@ create_window3 :: proc(app : misc.AppHandle, title : string, width : int, height
     return WndHandle(handle);
 }
 
-_register_class :: proc(app : misc.AppHandle, title : string) -> win32.Wnd_Class_Ex_A {
+_register_class :: proc(app : AppHandle, title : string) -> win32.Wnd_Class_Ex_A {
     wndClass : win32.Wnd_Class_Ex_A;
     wndClass.size = size_of(win32.Wnd_Class_Ex_A);
     wndClass.style = win32.CS_OWNDC|win32.CS_HREDRAW|win32.CS_VREDRAW;
@@ -219,7 +218,7 @@ _window_proc :: proc "cdecl"(hwnd: win32.Hwnd,
         }
 
         case win32.WM_ACTIVATEAPP  : {
-            win32.post_message(nil, msg_user.WINDOW_FOCUS, u32(wparam), 0);
+            win32.post_message(nil, WINDOW_FOCUS, u32(wparam), 0);
             return 0;
         }
 
@@ -230,19 +229,19 @@ _window_proc :: proc "cdecl"(hwnd: win32.Hwnd,
         }
 
         case win32.WM_KILLFOCUS  : {
-            win32.post_message(nil, msg_user.KEYBOARD_FOCUS, 0, 0);
+            win32.post_message(nil, KEYBOARD_FOCUS, 0, 0);
             return 0;
         }
 
         case win32.WM_SETFOCUS  : {
-            win32.post_message(nil, msg_user.KEYBOARD_FOCUS, 0, 1);
+            win32.post_message(nil, KEYBOARD_FOCUS, 0, 1);
             return 0;
         }
 
         case win32.WM_SIZE : {
-            lib_msg.window_resized = true;
-            lib_msg.window_new_width  = int(win32.LOWORD_L(lparam));
-            lib_msg.window_new_height = int(win32.HIWORD_L(lparam));
+            window_resized = true;
+            window_new_width  = int(win32.LOWORD_L(lparam));
+            window_new_height = int(win32.HIWORD_L(lparam));
             return 0;
         }
 

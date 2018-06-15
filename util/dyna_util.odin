@@ -6,14 +6,15 @@
  *  @Creation: 28-11-2017 00:10:03 UTC-5
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 03-02-2018 01:49:34 UTC+1
+ *  @Last Time: 15-06-2018 17:15:10 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import "core:mem.odin"
-import "core:raw.odin"
+package brew_util;
+
+import "core:mem"
 
 remove :: inline proc(array: ^[dynamic]$T, indices: ...int) do remove_unordered(array, ...indices);
 
@@ -21,7 +22,7 @@ remove :: inline proc(array: ^[dynamic]$T, indices: ...int) do remove_unordered(
 remove_unordered :: proc(array: ^[dynamic]$T, indices: ...int) {
     assert(array != nil && len(array^) != 0);
 
-    a := cast(^raw.Dynamic_Array) array;
+    a := cast(^mem.Raw_Dynamic_Array) array;
 
     for i := len(indices) - 1; i >= 0; i -= 1 {
         index := indices[i];
@@ -39,7 +40,7 @@ remove_unordered :: proc(array: ^[dynamic]$T, indices: ...int) {
 remove_ordered :: proc(array: ^[dynamic]$T, indices: ...int) {
     assert(array != nil && len(array^) != 0);
 
-    a := cast(^raw.Dynamic_Array) array;
+    a := cast(^mem.Raw_Dynamic_Array) array;
 
     for idx, i in indices {
         index := idx - i;

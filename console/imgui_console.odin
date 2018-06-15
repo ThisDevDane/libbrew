@@ -6,21 +6,25 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 05-03-2018 10:41:28 UTC+1
+ *  @Last Time: 15-06-2018 16:20:51 UTC+1
  *  
  *  @Description:
  *      The console is an in engine window that can be pulled up for viewing.
  *      It also takes care of outputting to a log file if enabled.
  *      The console can also execute commands if matched with input.
  */
-import       "core:fmt.odin";
-import       "core:os.odin";
-import       "core:mem.odin";
-import       "core:strings.odin";
-import win32 "core:sys/windows.odin";
+ 
+package console;
 
-import       "shared:libbrew/string_util.odin"
-import imgui "shared:libbrew/brew_imgui.odin";
+import       "core:fmt";
+import       "core:os";
+import       "core:mem";
+import       "core:strings";
+import       "core:sys/win32";
+
+import       "shared:libbrew/imgui"
+import util  "shared:libbrew/util"
+import imgui "shared:odin-imgui";
 
 OUTPUT_TO_CLI  :: true;
 OUTPUT_TO_FILE :: false;
@@ -133,7 +137,7 @@ _internal_log :: proc(level : LogLevel, txt : string, loc := #caller_location) {
     item.time     = _get_system_time();;
     item.level    = level;
     item.loc_line = loc.line;
-    item.loc_file = string_util.remove_path_from_file(loc.file_path);
+    item.loc_file = util.remove_path_from_file(loc.file_path);
 
     append(&_internal_data.current_log, item);
     item.text = strings.new_string(txt); //Note: needed cause clear console free's the item.text
@@ -237,7 +241,7 @@ draw_log :: proc(show : ^bool) {
     {
         imgui.begin_child("Items");
         {
-            imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
+            imgui.push_font(brew_imgui.mono_font); // Pushes Poggy Clean
             defer imgui.pop_font();
             imgui.columns(count = 4, border = false);
             for t in _internal_data.log {
@@ -282,7 +286,7 @@ draw_log :: proc(show : ^bool) {
 draw_history :: proc(show : ^bool) {
     if imgui.begin("History", show,  imgui.Window_Flags.NoCollapse) {
         defer imgui.end();
-        imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
+        imgui.push_font(brew_imgui.mono_font); // Pushes Poggy Clean
         defer imgui.pop_font();
         if imgui.begin_child("Items") {
             for t in _internal_data.history {
@@ -316,7 +320,7 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
         }
 
         if imgui.begin_child("Buffer", imgui.Vec2{-1, -40}, true) {
-            imgui.push_font(imgui.mono_font); // Pushes Poggy Clean
+            imgui.push_font(brew_imgui.mono_font); // Pushes Poggy Clean
             defer imgui.pop_font();
             for t in _internal_data.current_log {
                 pop := false;
@@ -372,7 +376,7 @@ enter_input :: proc(input : []u8) {
         _internal_log(LogLevel.ConsoleInput, str);
         append(&_internal_data.history, strings.new_string(str)); 
         if !execute_command(str) {
-            cmd_name, _ := string_util.split_first(str, ' ');
+            cmd_name, _ := util.split_first(str, ' ');
             logf_warning("%s is not a command", cmd_name);
         }
         input[0] = 0;
@@ -389,7 +393,7 @@ clear_console :: proc() {
 }
 
 execute_command :: proc(cmdString : string) -> bool {
-    name, _ := string_util.split_first(cmdString, ' ');
+    name, _ := util.split_first(cmdString, ' ');
     if cmd, ok := _internal_data.commands[name]; ok {
         args : [dynamic]string;
         //TODO(Hoej): Revisist all of this

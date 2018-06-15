@@ -1,20 +1,21 @@
 /*
- *  @Name:     msg
+ *  @Name:     msg_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 01-06-2017 02:24:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-02-2018 21:12:09 UTC+1
+ *  @Last Time: 15-06-2018 16:18:59 UTC+1
  *  
  *  @Description:
  *  
  */
-import "core:fmt.odin";
-import win32 "core:sys/windows.odin";
-export "msg_user.odin";
-import input "keys.odin";
+
+package brew_sys;
+
+import "core:fmt";
+import "core:sys/win32";
 
 window_resized    := false;
 window_new_width  : int;
@@ -41,7 +42,7 @@ MsgQuitMessage :: struct {
 }
 
 MsgKey :: struct {
-    key       : input.VirtualKey,
+    key       : VirtualKey,
     down      : bool,
     prev_down : bool,
 }   
@@ -60,7 +61,7 @@ MsgMouseMove :: struct {
 }
 
 MsgMouseButton :: struct {
-    key          : input.VirtualKey,
+    key          : VirtualKey,
     down         : bool,
     double_click : bool,
 }
@@ -140,7 +141,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 }
 
                 l_msg := MsgKey{
-                    key = input.VirtualKey(w_key),
+                    key = VirtualKey(w_key),
                     down = true,
                     prev_down = bool((w_msg.lparam >> 30) & 1),
                 };
@@ -154,7 +155,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     w_key = extended ? win32.Key_Code.Rmenu : win32.Key_Code.Lmenu; 
                 }
                 l_msg := MsgKey{
-                    key = input.VirtualKey(w_key),
+                    key = VirtualKey(w_key),
                     down = true,
                     prev_down = bool((w_msg.lparam >> 30) & 1)
                 };
@@ -182,7 +183,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                 }
 
                 l_msg := MsgKey{
-                    key = input.VirtualKey(w_key),
+                    key = VirtualKey(w_key),
                     down = false,
                     prev_down = false,
                 };
@@ -196,7 +197,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
                     w_key = extended ? win32.Key_Code.Rmenu : win32.Key_Code.Lmenu; 
                 }
                 l_msg := MsgKey{
-                    key = input.VirtualKey(w_key),
+                    key = VirtualKey(w_key),
                     down = false,
                     prev_down = false,
                 };
@@ -205,7 +206,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_LBUTTONDOWN : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.LMouse,
+                    key = VirtualKey.LMouse,
                     down = true,
                     double_click = false,
                 };
@@ -214,7 +215,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_LBUTTONUP : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.LMouse,
+                    key = VirtualKey.LMouse,
                     down = false,
                     double_click = false,
                 };
@@ -223,7 +224,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_LBUTTONDBLCLK : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.LMouse,
+                    key = VirtualKey.LMouse,
                     down = true,
                     double_click = true,
                 };
@@ -232,7 +233,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_RBUTTONDOWN : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.RMouse,
+                    key = VirtualKey.RMouse,
                     down = true,
                     double_click = false,
                 };
@@ -241,7 +242,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_RBUTTONUP : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.RMouse,
+                    key = VirtualKey.RMouse,
                     down = false,
                     double_click = false,
                 };
@@ -250,7 +251,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_RBUTTONDBLCLK : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.RMouse,
+                    key = VirtualKey.RMouse,
                     down = true,
                     double_click = true,
                 };
@@ -259,7 +260,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_MBUTTONDOWN : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.MMouse,
+                    key = VirtualKey.MMouse,
                     down = true,
                     double_click = false,
                 };
@@ -268,7 +269,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_MBUTTONUP : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.MMouse,
+                    key = VirtualKey.MMouse,
                     down = false,
                     double_click = false,
                 };
@@ -277,7 +278,7 @@ poll_message :: proc(msg : ^Msg) -> bool {
 
             case win32.WM_MBUTTONDBLCLK : {
                 l_msg := MsgMouseButton{
-                    key = input.VirtualKey.MMouse,
+                    key = VirtualKey.MMouse,
                     down = true,
                     double_click = true,
                 };

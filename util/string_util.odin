@@ -6,15 +6,18 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 22-02-2018 15:05:22 UTC+1
+ *  @Last Time: 15-06-2018 16:22:29 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import "core:utf8.odin";
-import "core:fmt.odin";
-import "core:strings.odin";
+package brew_util;
+
+import "core:unicode/utf8";
+import "core:fmt";
+import "core:mem";
+import "core:strings";
 
 replace :: proc(str: string, old, new: rune) -> string {
     new_str := make([]byte, 4*len(str));
@@ -156,19 +159,6 @@ null_terminate_odin_string :: proc(s : string) -> string {
     copy(c, cast([]byte)s);
     c[len(s)] = 0;
     return string(c[..len(s)]);
-}
-
-get_c_string_length :: proc(c_str : ^u8) -> int {
-    if c_str == nil {
-        return 0;
-    }
-
-    len := 0;
-    for (c_str+len)^ != 0 {
-        len += 1;
-    }
-
-    return len;
 }
 
 get_line_and_remainder :: proc(str : string) -> (string, string) {

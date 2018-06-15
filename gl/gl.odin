@@ -6,22 +6,20 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 03-03-2018 19:15:10 UTC+1
+ *  @Last Time: 15-06-2018 16:06:18 UTC+1
  *  
  *  @Description:
  *  
  */
 
+package gl;
+
 foreign import lib "system:opengl32.lib"
-import "core:fmt.odin";
-import "core:strings.odin";
-import "core:math.odin";
+import "core:fmt";
+import "core:strings";
+import "core:math";
 
-import "sys/misc.odin";
-import gl "sys/opengl.odin";
-
-export "gl_enums.odin";
-
+import sys "shared:libbrew/sys";
 TRUE  :: 1;
 FALSE :: 0;
 
@@ -42,21 +40,21 @@ Program :: struct {
 }
 
 Uniform :: struct {
-    location : i32 = -1,
+    location : i32,
     name     : string,
     size     : i32,
     type_    : UniformTypes,
 }
 
 Attrib :: struct {
-    location : i32 = -1,
+    location : i32,
     name     : string,
     size     : i32,
     type_    : AttribTypes,
 }
 
 Opengl_Vars :: struct {
-    ctx                 : gl.Gl_Context,
+    ctx                 : sys.Gl_Context,
 
     version_major_max   : i32,
     version_major_cur   : i32,
@@ -290,7 +288,14 @@ uniform :: proc[uniform1i_u,
                 uniform_matrix4_u,
                 uniform_matrix4_v];
 
-uniform1i_u :: proc(uni : Uniform, v0 : i32) do uniform1i_v(uni.location, v0); 
+uniform1i_u :: proc(program : ^Program, uni : string, v0 : i32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform1i_v(uni.location, v0);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform1i_v :: proc(loc : i32, v0 : i32) {
     if _uniform1i != nil {
         _uniform1i(loc, v0);
@@ -299,7 +304,14 @@ uniform1i_v :: proc(loc : i32, v0 : i32) {
     }
 }
 
-uniform2i_u :: proc(uni : Uniform, v0, v1 : i32) do uniform2i_v(uni.location, v0, v0); 
+uniform2i_u :: proc(program : ^Program, uni : string, v0, v1 : i32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform2i_v(uni.location, v0, v1);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform2i_v :: proc(loc: i32, v0, v1: i32) {
     if _uniform2i != nil {
         _uniform2i(loc, v0, v1);
@@ -308,7 +320,14 @@ uniform2i_v :: proc(loc: i32, v0, v1: i32) {
     }
 }
 
-uniform3i_u :: proc(uni : Uniform, v0, v1, v2: i32) do uniform3i_v(uni.location, v0, v1, v2);
+uniform3i_u :: proc(program : ^Program, uni : string, v0, v1, v2: i32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform3i_v(uni.location, v0, v1, v2);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform3i_v :: proc(loc : i32, v0, v1, v2: i32) {
     if _uniform3i != nil {
         _uniform3i(loc, v0, v1, v2);
@@ -317,7 +336,14 @@ uniform3i_v :: proc(loc : i32, v0, v1, v2: i32) {
     }
 }
 
-uniform4i_u :: proc(uni : Uniform, v0, v1, v2, v3: i32) do uniform4i_v(uni.location, v0, v1, v2, v3);
+uniform4i_u :: proc(program : ^Program, uni : string, v0, v1, v2, v3: i32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform4i_v(uni.location, v0, v1, v2, v3);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform4i_v :: proc(loc : i32, v0, v1, v2, v3: i32) {
     if _uniform4i != nil {
         _uniform4i(loc, v0, v1, v2, v3);
@@ -326,7 +352,14 @@ uniform4i_v :: proc(loc : i32, v0, v1, v2, v3: i32) {
     }
 }
 
-uniform1f_u :: proc(uni : Uniform, v0: f32) do uniform1f_v(uni.location, v0);
+uniform1f_u :: proc(program : ^Program, uni : string, v0: f32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform1f_v(uni.location, v0);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform1f_v :: proc(loc : i32, v0: f32) {
     if _uniform1f != nil {
         _uniform1f(loc, v0);
@@ -335,7 +368,14 @@ uniform1f_v :: proc(loc : i32, v0: f32) {
     }
 }
 
-uniform2f_u :: proc(uni : Uniform, v0, v1: f32) do uniform2f_v(uni.location, v0, v1);
+uniform2f_u :: proc(program : ^Program, uni : string, v0, v1: f32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform2f_v(uni.location, v0, v1);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform2f_v :: proc(loc : i32, v0, v1: f32) {
     if _uniform2f != nil {
         _uniform2f(loc, v0, v1);
@@ -344,7 +384,14 @@ uniform2f_v :: proc(loc : i32, v0, v1: f32) {
     }
 }
 
-uniform3f_u :: proc(uni : Uniform, v0, v1, v2: f32) do uniform3f_v(uni.location, v0, v1, v2);
+uniform3f_u :: proc(program : ^Program, uni : string, v0, v1, v2: f32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform3f_v(uni.location, v0, v1, v2);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform3f_v :: proc(loc : i32, v0, v1, v2: f32) {
     if _uniform3f != nil {
         _uniform3f(loc, v0, v1, v2);
@@ -353,7 +400,14 @@ uniform3f_v :: proc(loc : i32, v0, v1, v2: f32) {
     }
 }
 
-uniform4f_u :: proc(uni : Uniform, v0, v1, v2, v3: f32) do uniform4f_v(uni.location, v0, v1, v2, v3);
+uniform4f_u :: proc(program : ^Program, uni : string, v0, v1, v2, v3: f32) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform4f_v(uni.location, v0, v1, v2, v3);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform4f_v :: proc(loc : i32, v0, v1, v2, v3: f32) {
     if _uniform4f != nil {
         _uniform4f(loc, v0, v1, v2, v3);
@@ -362,12 +416,27 @@ uniform4f_v :: proc(loc : i32, v0, v1, v2, v3: f32) {
     }
 }
 
-uniform_vec4_u :: proc(uni : Uniform, v: math.Vec4) do uniform(uni.location, v[0], v[1], v[2], v[3]);
+uniform_vec4_u :: proc(program : ^Program, uni : string, v: math.Vec4) 
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform_vec4_v(uni.location, v);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
 uniform_vec4_v :: proc(loc : i32, v: math.Vec4) {
     uniform(loc, v[0], v[1], v[2], v[3]);
 }
 
-uniform_matrix4_u :: proc(uni : Uniform, matrix : math.Mat4, transpose := false) do uniform_matrix4_v(uni.location, matrix, transpose);
+uniform_matrix4_u :: proc(program : ^Program, uni : string, matrix : math.Mat4, transpose := false)
+{
+    if uni, ok := program.uniforms[uni]; ok {
+        uniform_matrix4_v(uni.location, matrix, transpose);
+    } else {
+        fmt.printf("Uniform %s is not present in program!!!", uni);
+    }
+}
+
 uniform_matrix4_v :: proc(loc : i32, matrix : math.Mat4, transpose := false) {
     if _uniform_matrix4fv != nil {
         _uniform_matrix4fv(loc, 1, i32(transpose), (^f32)(&matrix));

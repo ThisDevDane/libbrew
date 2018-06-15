@@ -6,12 +6,15 @@
  *  @Creation: 02-05-2017 21:38:35
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 05-02-2018 01:07:43 UTC+1
+ *  @Last Time: 15-06-2018 15:31:10 UTC+1
  *  
  *  @Description:
  *      Part of the GL Wrapper, makes enum for all constants in use
  */
-import gl_const "core:opengl_constants.odin";
+
+package gl;
+
+import gl_const "core:opengl";
 
 UniformTypes :: enum i32 {
     float                              = gl_const.FLOAT,

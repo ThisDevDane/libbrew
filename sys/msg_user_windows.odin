@@ -1,18 +1,20 @@
 /*
- *  @Name:     msg_user
+ *  @Name:     msg_user_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 10-06-2017 16:42:50
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-09-2017 23:25:53
+ *  @Last Time: 15-06-2018 15:45:10 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import win32 "core:sys/windows.odin";
+package brew_sys;
+
+import "core:sys/win32";
 
 // @wparam Indicates whether the window is being activated or deactivated
 WINDOW_FOCUS   :: win32.WM_USER + 1;

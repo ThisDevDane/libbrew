@@ -1,20 +1,21 @@
 /*
- *  @Name:     opengl_wgl
+ *  @Name:     opengl_wgl_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-01-2018 21:35:38 UTC+1
+ *  @Last Time: 15-06-2018 15:59:57 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import win32 "core:sys/windows.odin";
-import wgl "core:sys/wgl.odin";
-import consts "core:opengl_constants.odin"; 
+package brew_sys;
+
+import "core:sys/win32";
+import consts "core:opengl"; 
 
 Attrib :: struct {
     type_  : i32,
@@ -144,8 +145,8 @@ prepare_attrib_array :: proc(attribList : []Attrib, location := #caller_location
     return array;
 }
 CreateContextAttribsARB :: proc "cdecl"(hdc : win32.Hdc, 
-                                      shareContext : wgl.Hglrc, 
-                                      attribList : ^i32) -> wgl.Hglrc;
+                                      shareContext : win32.Hglrc, 
+                                      attribList : ^i32) -> win32.Hglrc;
 ChoosePixelFormatARB    :: proc "cdecl"(hdc : win32.Hdc, 
                                       piAttribIList : ^i32, 
                                       pfAttribFList : ^f32, 

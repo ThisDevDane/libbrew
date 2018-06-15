@@ -6,26 +6,26 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 09-02-2018 22:11:03 UTC+1
+ *  @Last Time: 15-06-2018 16:28:07 UTC+1
  *  
  *  @Description:
  *  
  */
-export "shared:odin-imgui/dear_imgui.odin";
+package brew_imgui
 
-import       "core:fmt.odin";
-import       "core:mem.odin";
-import       "core:math.odin";
-import       "core:os.odin";
-import win32 "core:sys/windows.odin"
+import "core:fmt";
+import "core:mem";
+import "core:math";
+import "core:os";
+import "core:sys/win32"
 
-import       "sys/window.odin";
-import input "sys/keys.odin";
+import sys "shared:libbrew/sys";
+import gl "shared:libbrew/gl";
 
-import "gl.odin";
+import "shared:odin-imgui"
 
-default_font  : ^Font;
-mono_font     : ^Font;
+default_font  : ^imgui.Font;
+mono_font     : ^imgui.Font;
 
 
 State :: struct {
@@ -53,74 +53,74 @@ FrameState :: struct {
 
 
 brew_style :: proc() {
-    style := get_style();
+    style := imgui.get_style();
 
-    style.window_padding = Vec2{6, 6};
+    style.window_padding = imgui.Vec2{6, 6};
     style.window_rounding = 2;
     style.child_rounding = 2;
-    style.frame_padding = Vec2{4 ,2};
+    style.frame_padding = imgui.Vec2{4 ,2};
     style.frame_rounding = 1;
-    style.item_spacing = Vec2{8, 4};
-    style.item_inner_spacing = Vec2{4, 4};
-    style.touch_extra_padding = Vec2{0, 0};
+    style.item_spacing = imgui.Vec2{8, 4};
+    style.item_inner_spacing = imgui.Vec2{4, 4};
+    style.touch_extra_padding = imgui.Vec2{0, 0};
     style.indent_spacing = 20;
     style.scrollbar_size = 12;
     style.scrollbar_rounding = 9;
     style.grab_min_size = 9;
     style.grab_rounding = 1;
 
-    style.window_title_align = Vec2{0.48, 0.5};
-    style.button_text_align = Vec2{0.5, 0.5};
+    style.window_title_align = imgui.Vec2{0.48, 0.5};
+    style.button_text_align = imgui.Vec2{0.5, 0.5};
 
-    style.colors[Color.Text]                  = Vec4{1.00, 1.00, 1.00, 1.00};
-    style.colors[Color.TextDisabled]          = Vec4{0.63, 0.63, 0.63, 1.00};
-    style.colors[Color.WindowBg]              = Vec4{0.23, 0.23, 0.23, 0.98};
-    style.colors[Color.ChildBg]               = Vec4{0.20, 0.20, 0.20, 1.00};
-    style.colors[Color.PopupBg]               = Vec4{0.25, 0.25, 0.25, 0.96};
-    style.colors[Color.Border]                = Vec4{0.18, 0.18, 0.18, 0.98};
-    style.colors[Color.BorderShadow]          = Vec4{0.00, 0.00, 0.00, 0.04};
-    style.colors[Color.FrameBg]               = Vec4{0.00, 0.00, 0.00, 0.29};
-    style.colors[Color.TitleBg]               = Vec4{0.25, 0.25, 0.25, 0.98};
-    style.colors[Color.TitleBgCollapsed]      = Vec4{0.12, 0.12, 0.12, 0.49};
-    style.colors[Color.TitleBgActive]         = Vec4{0.33, 0.33, 0.33, 0.98};
-    style.colors[Color.MenuBarBg]             = Vec4{0.11, 0.11, 0.11, 0.42};
-    style.colors[Color.ScrollbarBg]           = Vec4{0.00, 0.00, 0.00, 0.08};
-    style.colors[Color.ScrollbarGrab]         = Vec4{0.27, 0.27, 0.27, 1.00};
-    style.colors[Color.ScrollbarGrabHovered]  = Vec4{0.78, 0.78, 0.78, 0.40};
-    style.colors[Color.CheckMark]             = Vec4{0.78, 0.78, 0.78, 0.94};
-    style.colors[Color.SliderGrab]            = Vec4{0.78, 0.78, 0.78, 0.94};
-    style.colors[Color.Button]                = Vec4{0.42, 0.42, 0.42, 0.60};
-    style.colors[Color.ButtonHovered]         = Vec4{0.78, 0.78, 0.78, 0.40};
-    style.colors[Color.Header]                = Vec4{0.31, 0.31, 0.31, 0.98};
-    style.colors[Color.HeaderHovered]         = Vec4{0.78, 0.78, 0.78, 0.40};
-    style.colors[Color.HeaderActive]          = Vec4{0.80, 0.50, 0.50, 1.00};
-    style.colors[Color.TextSelectedBg]        = Vec4{0.65, 0.35, 0.35, 0.26};
-    style.colors[Color.ModalWindowDarkening]  = Vec4{0.20, 0.20, 0.20, 0.35}; 
+    style.colors[imgui.Color.Text]                  = imgui.Vec4{1.00, 1.00, 1.00, 1.00};
+    style.colors[imgui.Color.TextDisabled]          = imgui.Vec4{0.63, 0.63, 0.63, 1.00};
+    style.colors[imgui.Color.WindowBg]              = imgui.Vec4{0.23, 0.23, 0.23, 0.98};
+    style.colors[imgui.Color.ChildBg]               = imgui.Vec4{0.20, 0.20, 0.20, 1.00};
+    style.colors[imgui.Color.PopupBg]               = imgui.Vec4{0.25, 0.25, 0.25, 0.96};
+    style.colors[imgui.Color.Border]                = imgui.Vec4{0.18, 0.18, 0.18, 0.98};
+    style.colors[imgui.Color.BorderShadow]          = imgui.Vec4{0.00, 0.00, 0.00, 0.04};
+    style.colors[imgui.Color.FrameBg]               = imgui.Vec4{0.00, 0.00, 0.00, 0.29};
+    style.colors[imgui.Color.TitleBg]               = imgui.Vec4{0.25, 0.25, 0.25, 0.98};
+    style.colors[imgui.Color.TitleBgCollapsed]      = imgui.Vec4{0.12, 0.12, 0.12, 0.49};
+    style.colors[imgui.Color.TitleBgActive]         = imgui.Vec4{0.33, 0.33, 0.33, 0.98};
+    style.colors[imgui.Color.MenuBarBg]             = imgui.Vec4{0.11, 0.11, 0.11, 0.42};
+    style.colors[imgui.Color.ScrollbarBg]           = imgui.Vec4{0.00, 0.00, 0.00, 0.08};
+    style.colors[imgui.Color.ScrollbarGrab]         = imgui.Vec4{0.27, 0.27, 0.27, 1.00};
+    style.colors[imgui.Color.ScrollbarGrabHovered]  = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
+    style.colors[imgui.Color.CheckMark]             = imgui.Vec4{0.78, 0.78, 0.78, 0.94};
+    style.colors[imgui.Color.SliderGrab]            = imgui.Vec4{0.78, 0.78, 0.78, 0.94};
+    style.colors[imgui.Color.Button]                = imgui.Vec4{0.42, 0.42, 0.42, 0.60};
+    style.colors[imgui.Color.ButtonHovered]         = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
+    style.colors[imgui.Color.Header]                = imgui.Vec4{0.31, 0.31, 0.31, 0.98};
+    style.colors[imgui.Color.HeaderHovered]         = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
+    style.colors[imgui.Color.HeaderActive]          = imgui.Vec4{0.80, 0.50, 0.50, 1.00};
+    style.colors[imgui.Color.TextSelectedBg]        = imgui.Vec4{0.65, 0.35, 0.35, 0.26};
+    style.colors[imgui.Color.ModalWindowDarkening]  = imgui.Vec4{0.20, 0.20, 0.20, 0.35}; 
 }
 
-init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() = nil, custom_font := false) {
-    io := get_io();
+init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = nil, custom_font := false) {
+    io := imgui.get_io();
     io.ime_window_handle = wnd_handle;
 
-    io.key_map[Key.Tab]        = i32(input.VirtualKey.Tab);
-    io.key_map[Key.LeftArrow]  = i32(input.VirtualKey.Left);
-    io.key_map[Key.RightArrow] = i32(input.VirtualKey.Right);
-    io.key_map[Key.UpArrow]    = i32(input.VirtualKey.Up);
-    io.key_map[Key.DownArrow]  = i32(input.VirtualKey.Down);
-    io.key_map[Key.PageUp]     = i32(input.VirtualKey.Next);
-    io.key_map[Key.PageDown]   = i32(input.VirtualKey.Prior);
-    io.key_map[Key.Home]       = i32(input.VirtualKey.Home);
-    io.key_map[Key.End]        = i32(input.VirtualKey.End);
-    io.key_map[Key.Delete]     = i32(input.VirtualKey.Delete);
-    io.key_map[Key.Backspace]  = i32(input.VirtualKey.Back);
-    io.key_map[Key.Enter]      = i32(input.VirtualKey.Return);
-    io.key_map[Key.Escape]     = i32(input.VirtualKey.Escape);
-    io.key_map[Key.A]          = i32(input.VirtualKey.A);
-    io.key_map[Key.C]          = i32(input.VirtualKey.C);
-    io.key_map[Key.V]          = i32(input.VirtualKey.V);
-    io.key_map[Key.X]          = i32(input.VirtualKey.X);
-    io.key_map[Key.Y]          = i32(input.VirtualKey.Y);
-    io.key_map[Key.Z]          = i32(input.VirtualKey.Z);
+    io.key_map[imgui.Key.Tab]        = i32(sys.VirtualKey.Tab);
+    io.key_map[imgui.Key.LeftArrow]  = i32(sys.VirtualKey.Left);
+    io.key_map[imgui.Key.RightArrow] = i32(sys.VirtualKey.Right);
+    io.key_map[imgui.Key.UpArrow]    = i32(sys.VirtualKey.Up);
+    io.key_map[imgui.Key.DownArrow]  = i32(sys.VirtualKey.Down);
+    io.key_map[imgui.Key.PageUp]     = i32(sys.VirtualKey.Next);
+    io.key_map[imgui.Key.PageDown]   = i32(sys.VirtualKey.Prior);
+    io.key_map[imgui.Key.Home]       = i32(sys.VirtualKey.Home);
+    io.key_map[imgui.Key.End]        = i32(sys.VirtualKey.End);
+    io.key_map[imgui.Key.Delete]     = i32(sys.VirtualKey.Delete);
+    io.key_map[imgui.Key.Backspace]  = i32(sys.VirtualKey.Back);
+    io.key_map[imgui.Key.Enter]      = i32(sys.VirtualKey.Return);
+    io.key_map[imgui.Key.Escape]     = i32(sys.VirtualKey.Escape);
+    io.key_map[imgui.Key.A]          = i32(sys.VirtualKey.A);
+    io.key_map[imgui.Key.C]          = i32(sys.VirtualKey.C);
+    io.key_map[imgui.Key.V]          = i32(sys.VirtualKey.V);
+    io.key_map[imgui.Key.X]          = i32(sys.VirtualKey.X);
+    io.key_map[imgui.Key.Y]          = i32(sys.VirtualKey.Y);
+    io.key_map[imgui.Key.Z]          = i32(sys.VirtualKey.Z);
     
     vertexShaderString ::
         `#version 330
@@ -180,41 +180,41 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() 
     gl.enable_vertex_attrib_array(state.main_program.attributes["UV"]);
     gl.enable_vertex_attrib_array(state.main_program.attributes["Color"]);
 
-    gl.vertex_attrib_pointer(state.main_program.attributes["Position"],   2, gl.VertexAttribDataType.Float, false, size_of(DrawVert), offset_of(DrawVert, pos));
-    gl.vertex_attrib_pointer(state.main_program.attributes["UV"],         2, gl.VertexAttribDataType.Float, false, size_of(DrawVert), offset_of(DrawVert, uv));
-    gl.vertex_attrib_pointer(state.main_program.attributes["Color"],      4, gl.VertexAttribDataType.UByte, true,  size_of(DrawVert), offset_of(DrawVert, col));
+    gl.vertex_attrib_pointer(state.main_program.attributes["Position"],   2, gl.VertexAttribDataType.Float, false, size_of(imgui.DrawVert), offset_of(imgui.DrawVert, pos));
+    gl.vertex_attrib_pointer(state.main_program.attributes["UV"],         2, gl.VertexAttribDataType.Float, false, size_of(imgui.DrawVert), offset_of(imgui.DrawVert, uv));
+    gl.vertex_attrib_pointer(state.main_program.attributes["Color"],      4, gl.VertexAttribDataType.UByte, true,  size_of(imgui.DrawVert), offset_of(imgui.DrawVert, col));
 
     
     //TODO(Hoej): Get from font catalog
     if custom_font {
-        default_font = font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
+        default_font = imgui.font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
         if default_font == nil {
             fmt.println("Couldn't load data/fonts/Roboto-Medium.tff for dear imgui");
         } else {
-            conf : FontConfig;
-            font_config_default_constructor(&conf);
+            conf : imgui.FontConfig;
+            imgui.font_config_default_constructor(&conf);
             conf.merge_mode = true;
             ICON_MIN_FA :: 0xf000;
             ICON_MAX_FA :: 0xf2e0;
-            icon_ranges := []Wchar{ ICON_MIN_FA, ICON_MAX_FA, 0 };
-            font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/fontawesome-webfont.ttf", 10, &conf, icon_ranges[..]);
+            icon_ranges := []imgui.Wchar{ ICON_MIN_FA, ICON_MAX_FA, 0 };
+            imgui.font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/fontawesome-webfont.ttf", 10, &conf, icon_ranges[..]);
         }
 
-        conf : FontConfig;
-        font_config_default_constructor(&conf);
-        mono_font = font_atlas_add_font_default(io.fonts, &conf);
+        conf : imgui.FontConfig;
+        imgui.font_config_default_constructor(&conf);
+        mono_font = imgui.font_atlas_add_font_default(io.fonts, &conf);
     
     } else {
-        conf : FontConfig;
-        font_config_default_constructor(&conf);
-        default_font = font_atlas_add_font_default(io.fonts, &conf);
+        conf : imgui.FontConfig;
+        imgui.font_config_default_constructor(&conf);
+        default_font = imgui.font_atlas_add_font_default(io.fonts, &conf);
         mono_font = default_font;
     }
 
     pixels : ^u8;
     width : i32;
     height : i32;
-    font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height);
+    imgui.font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height);
     tex := gl.gen_texture();
     gl.bind_texture(gl.TextureTargets.Texture2D, tex);
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MinFilter, gl.TextureParametersValues.Linear);
@@ -222,14 +222,14 @@ init :: proc(state : ^State, wnd_handle : window.WndHandle, style_proc : proc() 
     gl.tex_image2d(gl.TextureTargets.Texture2D, 0, gl.InternalColorFormat.RGBA, 
                   width, height, gl.PixelDataFormat.RGBA, 
                   gl.Texture2DDataType.UByte, pixels);
-    font_atlas_set_text_id(io.fonts, rawptr(uintptr(uint(tex))));
+    imgui.font_atlas_set_text_id(io.fonts, rawptr(uintptr(uint(tex))));
     if style_proc != nil {
         style_proc();
     }
 }
 
 begin_new_frame :: proc(new_state : ^FrameState) {
-    io := get_io();
+    io := imgui.get_io();
     io.display_size.x = f32(new_state.window_width);
     io.display_size.y = f32(new_state.window_height);
 
@@ -251,7 +251,7 @@ begin_new_frame :: proc(new_state : ^FrameState) {
             io.keys_down[i] = win32.is_key_down(win32.Key_Code(i));
         }
     } else {
-        io.mouse_pos = Vec2{-math.F32_MAX, -math.F32_MAX};
+        io.mouse_pos = imgui.Vec2{-math.F32_MAX, -math.F32_MAX};
 
         io.mouse_down[0] = false;
         io.mouse_down[1] = false;
@@ -268,17 +268,17 @@ begin_new_frame :: proc(new_state : ^FrameState) {
     
    // ctx.imgui_state.mouse_wheel_delta = 0;
     io.delta_time = new_state.deltatime;
-    new_frame();
+    imgui.new_frame();
 }
 
 render_proc :: proc(state : ^State, render_to_screen : bool, window_width, window_height : int) {
-    render();
+    imgui.render();
     if !render_to_screen {
         return;
     } 
-    data := get_draw_data();
+    data := imgui.get_draw_data();
 
-    io := get_io();
+    io := imgui.get_io();
     
     io.display_size.x = f32(window_width);
     io.display_size.y = f32(window_height);
@@ -322,25 +322,26 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
 
     gl.bind_vertex_array(state.vao_handle);
     gl.use_program(state.main_program);
-    gl.uniform(state.main_program.uniforms["Texture"], i32(0));
-    gl.uniform(state.main_program.uniforms["ProjMtx"], ortho_projection, false);
+    gl.uniform(&state.main_program, "Texture", i32(0));
+    gl.uniform(&state.main_program, "ProjMtx", ortho_projection, false);
 
     new_list := mem.slice_ptr(data.cmd_lists, int(data.cmd_lists_count));
     for list in new_list {
-        idx_buffer_offset : ^DrawIdx = nil;
+        idx_buffer_offset : ^imgui.DrawIdx = nil;
 
         gl.bind_buffer(state.vbo_handle);
-        gl.buffer_data(gl.BufferTargets.Array, i32(draw_list_get_vertex_buffer_size(list) * size_of(DrawVert)), draw_list_get_vertex_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
+        gl.buffer_data(gl.BufferTargets.Array, i32(imgui.draw_list_get_vertex_buffer_size(list) * size_of(imgui.DrawVert)), imgui.draw_list_get_vertex_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
 
         gl.bind_buffer(state.ebo_handle);
-        gl.buffer_data(gl.BufferTargets.ElementArray, i32(draw_list_get_index_buffer_size(list) * size_of(DrawIdx)), draw_list_get_index_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
+        gl.buffer_data(gl.BufferTargets.ElementArray, i32(imgui.draw_list_get_index_buffer_size(list) * size_of(imgui.DrawIdx)), imgui.draw_list_get_index_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
 
-        for j : i32 = 0; j < draw_list_get_cmd_size(list); j += 1 {
-            cmd := draw_list_get_cmd_ptr(list, j);
+        for j : i32 = 0; j < imgui.draw_list_get_cmd_size(list); j += 1 {
+            cmd := imgui.draw_list_get_cmd_ptr(list, j);
             gl.bind_texture(gl.TextureTargets.Texture2D, gl.Texture(uint(uintptr(cmd.texture_id))));
             gl.scissor(i32(cmd.clip_rect.x), height - i32(cmd.clip_rect.w), i32(cmd.clip_rect.z - cmd.clip_rect.x), i32(cmd.clip_rect.w - cmd.clip_rect.y));
             gl.draw_elements(gl.DrawModes.Triangles, int(cmd.elem_count), gl.DrawElementsType.UShort, idx_buffer_offset);
-            idx_buffer_offset += cmd.elem_count;
+            //idx_buffer_offset += cmd.elem_count;
+            idx_buffer_offset = mem.ptr_offset(idx_buffer_offset, uintptr(int(cmd.elem_count)));
         }
     }
 
@@ -354,15 +355,15 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
     gl.scissor(lastScissor[0], lastScissor[1], lastScissor[2], lastScissor[3]);
 }
 
-begin_panel :: proc(label : string, pos, size : Vec2) -> bool {
-    set_next_window_pos(pos, Set_Cond.Always);
-    set_next_window_size(size, Set_Cond.Always);
-    return begin(label, nil, Window_Flags.NoTitleBar            | 
-                             Window_Flags.NoMove                | 
-                             Window_Flags.NoResize              |
-                             Window_Flags.NoBringToFrontOnFocus);
+begin_panel :: proc(label : string, pos, size : imgui.Vec2) -> bool {
+    imgui.set_next_window_pos(pos, imgui.Set_Cond.Always);
+    imgui.set_next_window_size(size, imgui.Set_Cond.Always);
+    return imgui.begin(label, nil, imgui.Window_Flags.NoTitleBar            | 
+                             imgui.Window_Flags.NoMove                | 
+                             imgui.Window_Flags.NoResize              |
+                             imgui.Window_Flags.NoBringToFrontOnFocus);
 }
 
 columns_reset :: proc() {
-    columns(count = 1, border = false);
+    imgui.columns(count = 1, border = false);
 }

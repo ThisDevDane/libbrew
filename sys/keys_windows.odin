@@ -1,16 +1,18 @@
 /*
- *  @Name:     keys
+ *  @Name:     keys_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 01-06-2017 02:27:15
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-07-2017 01:07:33
+ *  @Last Time: 15-06-2018 15:43:17 UTC+1
  *  
  *  @Description:
  *  
  */
+
+package brew_sys;
  
 VirtualKey :: enum {
     LMouse     = 0x01,

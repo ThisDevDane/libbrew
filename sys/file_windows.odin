@@ -1,46 +1,46 @@
 /*
- *  @Name:     file
+ *  @Name:     file_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hoej@northwolfprod.com
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 03-03-2018 19:09:53 UTC+1
+ *  @Last Time: 15-06-2018 16:39:03 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import       "core:fmt.odin";
-import       "core:strings.odin";
-import win32 "core:sys/windows.odin";
+package brew_sys;
 
-import "shared:libbrew/string_util.odin";
+import "core:fmt";
+import "core:strings";
+import "core:sys/win32";
 
-import "misc.odin";
+import util "shared:libbrew/util";
 
 DiskEntry :: struct {
     name     : string,
-    creation : misc.Datetime,
-    modified : misc.Datetime,
+    creation : Datetime,
+    modified : Datetime,
     type_    : string,
     dir      : bool,
     size     : int,
 
-    hidden   := false,
-    system   := false,
+    hidden   : bool,
+    system   : bool,
 }
 
 
 is_path_valid :: proc(str : string) -> bool {
-    wc_str := misc.odin_to_wchar_string(str); defer free(wc_str);
+    wc_str := odin_to_wchar_string(str); defer free(wc_str);
     attr := win32.get_file_attributes_w(wc_str);
     return i32(attr) != win32.INVALID_FILE_ATTRIBUTES;
 }
 
 is_directory :: proc(str : string) -> bool {
-    wc_str := misc.odin_to_wchar_string(str); defer free(wc_str);
+    wc_str := odin_to_wchar_string(str); defer free(wc_str);
     attr := win32.get_file_attributes_w(wc_str);
     result := i32(attr) != win32.INVALID_FILE_ATTRIBUTES;
     if result {
@@ -56,7 +56,7 @@ get_all_entries_in_directory :: proc(path : string) -> []DiskEntry {
         path = fmt.bprintf(buf[..], "%s*", path);
     }
 
-    wc_path := misc.odin_to_wchar_string(path); defer free(wc_path);
+    wc_path := odin_to_wchar_string(path); defer free(wc_path);
 
     find_data := win32.Find_Data_W{};
     file_handle := win32.find_first_file_w(wc_path, &find_data);
@@ -87,10 +87,10 @@ get_all_entries_in_directory :: proc(path : string) -> []DiskEntry {
 
 _make_disk_entry_from_find_data :: proc(data : win32.Find_Data_W) -> DiskEntry {
     result := DiskEntry{};
-    tmp := misc.wchar_to_odin_string(win32.Wstring(&data.file_name[0]));
-    tmp = tmp[..string_util.clen(tmp)];
+    tmp := wchar_to_odin_string(win32.Wstring(&data.file_name[0]));
+    tmp = tmp[..util.clen(tmp)];
     result.name = strings.new_string(tmp);
-    result.modified = misc.filetime_to_datetime(data.last_write_time);
+    result.modified = filetime_to_datetime(data.last_write_time);
     result.size = int(data.file_size_low) | int(data.file_size_high) << 32;
 
     is_set :: proc(v, t : u32) -> bool {
@@ -123,7 +123,7 @@ _count_entries_from_find_handle :: proc(handle : win32.Handle, find_data : ^win3
 
 _skip_dot_check :: proc(find_data : ^win32.Find_Data_W) -> bool {
     buf : [1024]byte;
-    str := misc.wchar_to_odin_string_from_buf(buf[..], win32.Wstring(&find_data.file_name[0]));
+    str := wchar_to_odin_string_from_buf(buf[..], win32.Wstring(&find_data.file_name[0]));
     return str == ".\x00" || str == "..\x00"; 
 }
 
@@ -143,7 +143,7 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
     file_handle := win32.find_first_file_a(cstring(&path_buf[0]), &find_data);
 
     skip_dot :: proc(c_str : []u8) -> bool {
-        len := string_util.get_c_string_length(&c_str[0]);
+        len := len(cstring(&c_str[0]));
         f := string(c_str[..len]);
 
         return f == "." || f == ".."; 
@@ -198,7 +198,7 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
 }
 
 get_file_size :: proc(path : string) -> int {
-    wc_str := misc.odin_to_wchar_string(path); defer free(wc_str);
+    wc_str := odin_to_wchar_string(path); defer free(wc_str);
     out : i64;
     h := win32.create_file_w(wc_str, 
                              win32.FILE_GENERIC_READ, 

@@ -5,12 +5,14 @@
  *  @Email:    bpunsky@gmail.com
  *  @Creation: 18-12-2017 23:32:57 UTC-5
  *
- *  @Last By:   Brendan Punsky
- *  @Last Time: 19-12-2017 12:44:16 UTC-5
+ *  @Last By:   Mikkel Hjortshoej
+ *  @Last Time: 15-06-2018 15:37:02 UTC+1
  *  
  *  @Description:
  *  
  */
+
+package brew_util;
 
 Timer :: struct {
     length : f64,

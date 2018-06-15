@@ -1,19 +1,21 @@
 /*
- *  @Name:     misc
+ *  @Name:     misc_windows
  *  
  *  @Author:   Mikkel Hjortshoej
  *  @Email:    hjortshoej@handmade.network
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 03-03-2018 19:19:32 UTC+1
+ *  @Last Time: 15-06-2018 15:47:13 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import "core:fmt.odin";
-import win32 "core:sys/windows.odin";
+package brew_sys;
+
+import "core:fmt";
+import "core:sys/win32";
 
 AppHandle :: win32.Hinstance;
 LibHandle :: win32.Hmodule;
