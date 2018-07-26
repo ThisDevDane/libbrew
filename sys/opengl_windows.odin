@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:40:56 UTC+1
+ *  @Last Time: 26-07-2018 22:28:19 UTC+1
  *  
  *  @Description:
  *  
@@ -49,7 +49,7 @@ create_gl_context_min :: proc(wnd_handle : WndHandle, major, minor : int) -> Gl_
                      framebuffer_srgb_capable_arb(true));
 
     ctx := create_gl_context(wnd_handle, major, minor, extensions, attribs[..], false, true);
-    free(attribs);
+    delete(attribs);
     return ctx;
 }
 
@@ -92,7 +92,7 @@ create_gl_context_ext :: proc(handle : WndHandle,
 
     format : i32;
     formats : u32;
-    attrib_array := prepare_attrib_array(attribs[..]); defer free(attrib_array);
+    attrib_array := prepare_attrib_array(attribs[..]); defer delete(attrib_array);
     success := choose_pixel_format(dc, &attrib_array[0], nil, 1, &format, &formats);
 
     if (success == true) && (formats == 0) {
@@ -107,7 +107,7 @@ create_gl_context_ext :: proc(handle : WndHandle,
 
     win32.set_pixel_format(dc, format, &pfd);
 
-    create_attribs : [dynamic]Attrib; defer free(create_attribs);
+    create_attribs : [dynamic]Attrib; defer delete(create_attribs);
     append(&create_attribs, context_major_version_arb(i32(major)),
                             context_minor_version_arb(i32(minor)));
 
@@ -121,7 +121,7 @@ create_gl_context_ext :: proc(handle : WndHandle,
         append(&create_attribs, context_flags_arb(ContextFlagsArbValues.DebugBitArb));
     }
 
-    create_attrib_array := prepare_attrib_array(create_attribs[..]); defer free(create_attrib_array);
+    create_attrib_array := prepare_attrib_array(create_attribs[..]); defer delete(create_attrib_array);
 
     ctx := create_context_attribs(dc, nil, &create_attrib_array[0]);
     assert(ctx != nil);

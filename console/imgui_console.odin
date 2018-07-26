@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:20:51 UTC+1
+ *  @Last Time: 26-07-2018 22:27:49 UTC+1
  *  
  *  @Description:
  *      The console is an in engine window that can be pulled up for viewing.
@@ -387,7 +387,7 @@ enter_input :: proc(input : []u8) {
 
 clear_console :: proc() {
     for t in _internal_data.current_log {
-        free(t.text);
+        delete(t.text);
     }
     clear(&_internal_data.current_log);
 }

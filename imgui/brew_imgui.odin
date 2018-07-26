@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:28:07 UTC+1
+ *  @Last Time: 16-06-2018 00:16:41 UTC+1
  *  
  *  @Description:
  *  
@@ -341,7 +341,7 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
             gl.scissor(i32(cmd.clip_rect.x), height - i32(cmd.clip_rect.w), i32(cmd.clip_rect.z - cmd.clip_rect.x), i32(cmd.clip_rect.w - cmd.clip_rect.y));
             gl.draw_elements(gl.DrawModes.Triangles, int(cmd.elem_count), gl.DrawElementsType.UShort, idx_buffer_offset);
             //idx_buffer_offset += cmd.elem_count;
-            idx_buffer_offset = mem.ptr_offset(idx_buffer_offset, uintptr(int(cmd.elem_count)));
+            idx_buffer_offset = mem.ptr_offset(idx_buffer_offset, int(cmd.elem_count));
         }
     }
 

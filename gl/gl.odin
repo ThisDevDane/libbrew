@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:06:18 UTC+1
+ *  @Last Time: 26-07-2018 22:28:33 UTC+1
  *  
  *  @Description:
  *  
@@ -447,7 +447,7 @@ uniform_matrix4_v :: proc(loc : i32, matrix : math.Mat4, transpose := false) {
 
 get_uniform_location :: proc(program : Program, name : string) -> i32{
     if _get_uniform_location != nil {
-        str := strings.new_cstring(name); defer free(str);
+        str := strings.new_cstring(name); defer delete(str);
         res := _get_uniform_location(u32(program.id), str);
         return res;
     } else {
@@ -458,7 +458,7 @@ get_uniform_location :: proc(program : Program, name : string) -> i32{
 
 get_attrib_location :: proc(program : Program, name : string) -> i32 {
     if _get_attrib_location != nil {
-        str := strings.new_cstring(name); defer free(str);
+        str := strings.new_cstring(name); defer delete(str);
         res := _get_attrib_location(u32(program.id), str);
         return res;
     } else {
@@ -759,8 +759,8 @@ shader_source_str :: proc(obj : Shader, str : string) {
 
 shader_source_slice :: proc(obj : Shader, strs : []string) {
     if _shader_source != nil {
-        newStrs := make([]cstring, len(strs)); defer free(newStrs);
-        lengths := make([]i32, len(strs)); defer free(lengths);
+        newStrs := make([]cstring, len(strs)); defer delete(newStrs);
+        lengths := make([]i32, len(strs)); defer delete(lengths);
         for s, i in strs {
             c := &(([]u8)(s))[0];
             newStrs[i] = (cstring)(c);
