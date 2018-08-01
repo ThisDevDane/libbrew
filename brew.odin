@@ -1,3 +1,16 @@
+/*
+ *  @Name:     brew
+ *  
+ *  @Author:   Mikkel Hjortshoej
+ *  @Email:    fyoucon@gmail.com
+ *  @Creation: 01-08-2018 23:30:42 UTC+1
+ *
+ *  @Last By:   Mikkel Hjortshoej
+ *  @Last Time: 02-08-2018 00:54:49 UTC+1
+ *  
+ *  @Description:
+ *  
+ */
 package brew
 
 import sys    "shared:libbrew/sys";
