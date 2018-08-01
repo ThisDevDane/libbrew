@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 22:33:33 UTC+1
+ *  @Last Time: 01-08-2018 23:10:55 UTC+1
  *  
  *  @Description:
  *  
@@ -21,13 +21,13 @@ AppHandle :: win32.Hinstance;
 LibHandle :: win32.Hmodule;
 
 //BUG(Hoej): sub-processes don't aggregate up their errors
-execute_system_command :: proc(fmt_ : string, args : ...any) -> int {
+execute_system_command :: proc(fmt_ : string, args : ..any) -> int {
     exit_code : u32;
 
     su := win32.Startup_Info{};
     su.cb = size_of(win32.Startup_Info);
     pi := win32.Process_Information{};
-    cmd := fmt.aprintf(fmt_, ...args);
+    cmd := fmt.aprintf(fmt_, ..args);
     
     if win32.create_process_w(nil, odin_to_wchar_string(cmd), nil, nil, false, 0, nil, nil, &su, &pi) {
         win32.wait_for_single_object(pi.process, win32.INFINITE);
@@ -58,7 +58,7 @@ sleep :: proc(ms : int) {
 
 load_library :: proc(name : string) -> LibHandle {
     buf : [256]u8;
-    c_str := fmt.bprintf(buf[..], "%s\x00", name);
+    c_str := fmt.bprintf(buf[:], "%s\x00", name);
     h := win32.load_library_a(cstring(&c_str[0]));
     return LibHandle(h);
 }
@@ -69,7 +69,7 @@ free_library :: proc(lib : LibHandle) {
 
 get_proc_address :: proc "cdecl"(lib : LibHandle, name : string) -> proc "cdecl"(){
     buf : [256]u8;
-    c_str := fmt.bprintf(buf[..], "%s\x00", name);
+    c_str := fmt.bprintf(buf[:], "%s\x00", name);
     return proc "cdecl"()(win32.get_proc_address(win32.Hmodule(lib), cstring(&c_str[0])));
 }
 
@@ -189,7 +189,7 @@ wchar_to_odin_string :: proc(wc_str : win32.Wstring, wlen : i32 = -1) -> string 
                                   cstring(&buf[0]), olen, 
                                   nil, nil);
 
-    return string(buf[..olen]);
+    return string(buf[:olen]);
 }
 
 wchar_to_odin_string_from_buf :: proc(buf : []byte, wc_str : win32.Wstring, wlen : i32 = -1) -> string {
@@ -201,5 +201,5 @@ wchar_to_odin_string_from_buf :: proc(buf : []byte, wc_str : win32.Wstring, wlen
                                   cstring(&buf[0]), olen, 
                                   nil, nil);
 
-    return string(buf[..olen]);
+    return string(buf[:olen]);
 }

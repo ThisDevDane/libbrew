@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 16:57:06
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 26-07-2018 22:28:19 UTC+1
+ *  @Last Time: 01-08-2018 23:11:30 UTC+1
  *  
  *  @Description:
  *  
@@ -24,7 +24,7 @@ _string_data :: inline proc(s: string) -> ^u8 { return &s[0]; }
 
 wgl_get_proc_address :: proc "cdecl"(name : string) -> proc "cdecl"() {
     buf : [256]u8;
-    c_str := fmt.bprintf(buf[..], "%s\x00", name);
+    c_str := fmt.bprintf(buf[:], "%s\x00", name);
     return cast(proc "cdecl"())win32.get_gl_proc_address(cstring(&c_str[0]));
 }
 
@@ -48,7 +48,7 @@ create_gl_context_min :: proc(wnd_handle : WndHandle, major, minor : int) -> Gl_
                      depth_bits_arb(24),
                      framebuffer_srgb_capable_arb(true));
 
-    ctx := create_gl_context(wnd_handle, major, minor, extensions, attribs[..], false, true);
+    ctx := create_gl_context(wnd_handle, major, minor, extensions, attribs[:], false, true);
     delete(attribs);
     return ctx;
 }
@@ -92,7 +92,7 @@ create_gl_context_ext :: proc(handle : WndHandle,
 
     format : i32;
     formats : u32;
-    attrib_array := prepare_attrib_array(attribs[..]); defer delete(attrib_array);
+    attrib_array := prepare_attrib_array(attribs[:]); defer delete(attrib_array);
     success := choose_pixel_format(dc, &attrib_array[0], nil, 1, &format, &formats);
 
     if (success == true) && (formats == 0) {
@@ -121,7 +121,7 @@ create_gl_context_ext :: proc(handle : WndHandle,
         append(&create_attribs, context_flags_arb(ContextFlagsArbValues.DebugBitArb));
     }
 
-    create_attrib_array := prepare_attrib_array(create_attribs[..]); defer delete(create_attrib_array);
+    create_attrib_array := prepare_attrib_array(create_attribs[:]); defer delete(create_attrib_array);
 
     ctx := create_context_attribs(dc, nil, &create_attrib_array[0]);
     assert(ctx != nil);

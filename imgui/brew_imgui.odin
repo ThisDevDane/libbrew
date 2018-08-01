@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 16-06-2018 00:16:41 UTC+1
+ *  @Last Time: 01-08-2018 23:22:47 UTC+1
  *  
  *  @Description:
  *  
@@ -197,7 +197,7 @@ init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = n
             ICON_MIN_FA :: 0xf000;
             ICON_MAX_FA :: 0xf2e0;
             icon_ranges := []imgui.Wchar{ ICON_MIN_FA, ICON_MAX_FA, 0 };
-            imgui.font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/fontawesome-webfont.ttf", 10, &conf, icon_ranges[..]);
+            imgui.font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/fontawesome-webfont.ttf", 10, &conf, icon_ranges[:]);
         }
 
         conf : imgui.FontConfig;
@@ -247,7 +247,7 @@ begin_new_frame :: proc(new_state : ^FrameState) {
         io.key_alt =   win32.is_key_down(win32.Key_Code.Lmenu)    || win32.is_key_down(win32.Key_Code.Rmenu);
         io.key_super = win32.is_key_down(win32.Key_Code.Lwin)     || win32.is_key_down(win32.Key_Code.Rwin);
 
-        for i in 0..257 {
+        for i in 0..256 {
             io.keys_down[i] = win32.is_key_down(win32.Key_Code(i));
         }
     } else {
@@ -280,9 +280,9 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
 
     io := imgui.get_io();
     
-    io.display_size.x = f32(window_width);
+   /* io.display_size.x = f32(window_width);
     io.display_size.y = f32(window_height);
-
+*/
     width  := i32(io.display_size.x * io.display_framebuffer_scale.x);
     height := i32(io.display_size.y * io.display_framebuffer_scale.y);
     if height == 0 || width == 0 {
@@ -299,8 +299,8 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
     scissor := gl.get_integer(gl.GetIntegerNames.ScissorTest);
     blend := gl.get_integer(gl.GetIntegerNames.Blend);
 
-    gl.get_integer(gl.GetIntegerNames.Viewport, lastViewport[..]);
-    gl.get_integer(gl.GetIntegerNames.ScissorBox, lastScissor[..]);
+    gl.get_integer(gl.GetIntegerNames.Viewport, lastViewport[:]);
+    gl.get_integer(gl.GetIntegerNames.ScissorBox, lastScissor[:]);
 
     gl.enable(gl.Capabilities.Blend);
     gl.blend_equation(gl.BlendEquations.FuncAdd);

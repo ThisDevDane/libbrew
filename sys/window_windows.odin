@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:25:37
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:19:06 UTC+1
+ *  @Last Time: 01-08-2018 23:11:53 UTC+1
  *  
  *  @Description:
  *  
@@ -60,7 +60,7 @@ create_window2 :: proc(app : AppHandle, title : string, popup_window : bool, x, 
     win32.adjust_window_rect(&rect, WINDOW_STYLE, false);
 
     title_buf : [256+1]u8;
-    fmt.bprintf(title_buf[..], "%s\x00", title);
+    fmt.bprintf(title_buf[:], "%s\x00", title);
 
     handle := win32.create_window_ex_a(0,
                                        wndClass.class_name,
@@ -90,7 +90,7 @@ create_window3 :: proc(app : AppHandle, title : string, width : int, height : in
     win32.adjust_window_rect(&rect, WINDOW_STYLE, false);
 
     title_buf : [256+1]u8;
-    fmt.bprintf(title_buf[..], "%s\x00", title);
+    fmt.bprintf(title_buf[:], "%s\x00", title);
 
     handle := win32.create_window_ex_a(0,
                                        wndClass.class_name,
@@ -121,7 +121,7 @@ _register_class :: proc(app : AppHandle, title : string) -> win32.Wnd_Class_Ex_A
     wndClass.cursor = IDC_ARROW;
     wndClass.instance = win32.Hinstance(app);
     class_buf := make([]u8, 256+6);
-    fmt.bprintf(class_buf[..], "%s_class\x00", title);
+    fmt.bprintf(class_buf[:], "%s_class\x00", title);
     wndClass.class_name = cstring(&class_buf[0]);
 
 

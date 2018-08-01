@@ -6,7 +6,7 @@
  *  @Creation: 29-10-2017 20:14:21
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 23:31:17 UTC+1
+ *  @Last Time: 01-08-2018 23:10:11 UTC+1
  *  
  *  @Description:
  *  
@@ -82,7 +82,7 @@ create_directory :: proc(name : string) -> bool {
 get_all_entries_in_directory :: proc(path : string) -> []DiskEntry {
     buf : [1024]byte;
     if(path[len(path)-1] != '*') {
-        path = fmt.bprintf(buf[..], "%s*", path);
+        path = fmt.bprintf(buf[:], "%s*", path);
     }
 
     wc_path := odin_to_wchar_string(path); defer free(wc_path);
@@ -117,7 +117,7 @@ get_all_entries_in_directory :: proc(path : string) -> []DiskEntry {
 _make_disk_entry_from_find_data :: proc(data : win32.Find_Data_W) -> DiskEntry {
     result := DiskEntry{};
     tmp := wchar_to_odin_string(win32.Wstring(&data.file_name[0]));
-    tmp = tmp[..util.clen(tmp)];
+    tmp = tmp[:util.clen(tmp)];
     result.name = strings.new_string(tmp);
     result.modified = filetime_to_datetime(data.last_write_time);
     result.size = int(data.file_size_low) | int(data.file_size_high) << 32;
@@ -152,7 +152,7 @@ _count_entries_from_find_handle :: proc(handle : win32.Handle, find_data : ^win3
 
 _skip_dot_check :: proc(find_data : ^win32.Find_Data_W) -> bool {
     buf : [1024]byte;
-    str := wchar_to_odin_string_from_buf(buf[..], win32.Wstring(&find_data.file_name[0]));
+    str := wchar_to_odin_string_from_buf(buf[:], win32.Wstring(&find_data.file_name[0]));
     return str == ".\x00" || str == "..\x00"; 
 }
 
@@ -164,16 +164,16 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
     path_buf : [win32.MAX_PATH]u8;
 
     if(dir_path[len(dir_path)-1] != '/' && dir_path[len(dir_path)-1] != '\\') {
-        dir_path = fmt.bprintf(path_buf[..], "%s%r", dir_path, '\\');
+        dir_path = fmt.bprintf(path_buf[:], "%s%r", dir_path, '\\');
     }
-    fmt.bprintf(path_buf[..], "%s%r", dir_path, '*');
+    fmt.bprintf(path_buf[:], "%s%r", dir_path, '*');
 
     find_data := win32.Find_Data_A{};
     file_handle := win32.find_first_file_a(cstring(&path_buf[0]), &find_data);
 
     skip_dot :: proc(c_str : []u8) -> bool {
         len := len(cstring(&c_str[0]));
-        f := string(c_str[..len]);
+        f := string(c_str[:len]);
 
         return f == "." || f == ".."; 
     }
@@ -184,19 +184,19 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
             return strings.new_string(str);
         } else {
             pathBuf := make([]u8, win32.MAX_PATH);
-            return fmt.bprintf(pathBuf[..], "%s%s", path, string(c_str));
+            return fmt.bprintf(pathBuf[:], "%s%s", path, string(c_str));
         }
     }
 
     count := 0;
     //Count 
     if file_handle != win32.INVALID_HANDLE {
-        if !skip_dot(find_data.file_name[..]) {
+        if !skip_dot(find_data.file_name[:]) {
             count += 1;
         } 
 
         for win32.find_next_file_a(file_handle, &find_data) == true {
-            if skip_dot(find_data.file_name[..]) {
+            if skip_dot(find_data.file_name[:]) {
                 continue;
             }
             count += 1;
@@ -208,13 +208,13 @@ get_all_entries_strings_in_directory :: proc(dir_path : string, full_path : bool
     i := 0;
     file_handle = win32.find_first_file_a(cstring(&path_buf[0]), &find_data);
     if file_handle != win32.INVALID_HANDLE {
-        if !skip_dot(find_data.file_name[..]) {
+        if !skip_dot(find_data.file_name[:]) {
             result[i] = copy_file_name(cstring(&find_data.file_name[0]), dir_path, full_path);
             i += 1;
         } 
 
         for win32.find_next_file_a(file_handle, &find_data) == true {
-            if skip_dot(find_data.file_name[..]) {
+            if skip_dot(find_data.file_name[:]) {
                 continue;
             }
             result[i] = copy_file_name(cstring(&find_data.file_name[0]), dir_path, full_path);

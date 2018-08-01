@@ -6,15 +6,17 @@
  *  @Creation: 18-01-2018 20:08:01 UTC+1
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 18-01-2018 21:10:41 UTC+1
+ *  @Last Time: 01-08-2018 23:34:21 UTC+1
  *  
  *  @Description:
  *  
  */
 
-import "core:os.odin";
-import "core:mem.odin";
-import "core:fmt.odin";
+package brew
+
+import "core:os";
+import "core:mem";
+import "core:fmt";
 
 Allocation_Info :: struct {
     location : Source_Code_Location,

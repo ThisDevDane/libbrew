@@ -6,7 +6,7 @@
  *  @Creation: 28-10-2017 17:21:23
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 16:22:29 UTC+1
+ *  @Last Time: 01-08-2018 23:20:18 UTC+1
  *  
  *  @Description:
  *  
@@ -28,10 +28,10 @@ replace :: proc(str: string, old, new: rune) -> string {
             c = new;
         }
         buf, n := utf8.encode_rune(c);
-        copy(new_str[i..], buf[..n]);
+        copy(new_str[i:], buf[:n]);
         i += n;
     }
-    return string(new_str[..i]);
+    return string(new_str[:i]);
 }
 
 get_last_extension :: proc(str : string) -> string {
@@ -43,7 +43,7 @@ get_last_extension :: proc(str : string) -> string {
     }
 
     if last_dot != -1 {
-        return str[last_dot..];
+        return str[last_dot:];
     } else {
         return "";
     }
@@ -58,7 +58,7 @@ remove_last_extension :: proc(str : string) -> string {
     }
     
     if last_dot != -1 {
-        return str[..last_dot];
+        return str[:last_dot];
     } else {
         return str;
     }
@@ -72,7 +72,7 @@ get_all_extensions :: proc(str : string) -> []string {
     for r, i in str {
         if r == '.' {
             if dot_count == 0 {
-                extension_str = str[i..];
+                extension_str = str[i:];
             }
             dot_count += 1;
         }
@@ -82,10 +82,10 @@ get_all_extensions :: proc(str : string) -> []string {
     s := 0;
     for r, i in extension_str {
         if r == '.' {
-            for c, j in extension_str[i+1..] {
-                if c == '.' || j == len(extension_str[i+1..])-1{
-                    fmt.println(extension_str[i...i+j], i, j);
-                    exts[s] = extension_str[i...i+j];
+            for c, j in extension_str[i+1:] {
+                if c == '.' || j == len(extension_str[i+1:])-1{
+                    fmt.println(extension_str[i:(i+j)-1], i, j);
+                    exts[s] = extension_str[i:(i+j)-1];
                     s += 1;
                 }
             }
@@ -98,7 +98,7 @@ get_all_extensions :: proc(str : string) -> []string {
 remove_all_extensions :: proc(str : string) -> string {
     for r, i in str {
         if r == '.' {
-            return str[..i];
+            return str[:i];
         }
     }
 
@@ -114,7 +114,7 @@ remove_path_from_file :: proc(str : string) -> string {
     }
     
     if last_slash != -1 {
-        return str[last_slash+1..];
+        return str[last_slash+1:];
     } else {
         return str;
     }
@@ -130,13 +130,13 @@ to_second_last_rune :: proc(str : string, test : rune) -> (string, bool) {
         }
     }
 
-    return str[..before+1], before != -1;
+    return str[:before+1], before != -1;
 }
 
 remove_first_from_file :: proc(str : string, test : rune) -> string {
     for r, i in str {
         if r == test  {
-            return str[i...];
+            return str[i:];
         }
     }
 
@@ -146,7 +146,7 @@ remove_first_from_file :: proc(str : string, test : rune) -> string {
 get_upto_first_from_file :: proc(str : string, test : rune) -> (string, bool) {
     for r, i in str {
         if r == test  {
-            return str[..i], true;
+            return str[:i], true;
         }
     }
 
@@ -158,13 +158,13 @@ null_terminate_odin_string :: proc(s : string) -> string {
     c := make([]byte, len(s)+1);
     copy(c, cast([]byte)s);
     c[len(s)] = 0;
-    return string(c[..len(s)]);
+    return string(c[:len(s)]);
 }
 
 get_line_and_remainder :: proc(str : string) -> (string, string) {
     for r, i in str {
         if r == '\n' {
-            return str[...i], str[i+1...];
+            return str[:i-1], str[i+1:];
         }
     }
 
@@ -185,7 +185,7 @@ get_line_count :: proc(str : string) -> int {
 split_first :: proc(str : string, r : rune) -> (string, string) {
     for r_, i in str {
         if r_ == r {
-            return str[..i], str[i+1..];
+            return str[:i], str[i+1:];
         }
     }
 
@@ -201,22 +201,22 @@ split_by :: proc(str : string, r : rune) -> []string {
     for r_, idx in str {
         if r_ == r || idx == slen {
             if idx == slen {
-                append(&result, str[i..idx+1]);
+                append(&result, str[i:idx+1]);
             } else {
-                append(&result, str[i..idx]);
+                append(&result, str[i:idx]);
             }
             i = idx + 1;
             n += 1;
         }
     }
 
-    return result[..];
+    return result[:];
 }
 
 str_from_buf :: proc(buf : []byte) -> string {
-    fat_str := string(buf[..]);
+    fat_str := string(buf[:]);
     length := clen(fat_str);
-    return fat_str[..length];
+    return fat_str[:length];
 }
 
 clen :: proc(str : string) -> int {

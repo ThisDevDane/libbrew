@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 26-07-2018 22:28:33 UTC+1
+ *  @Last Time: 01-08-2018 23:15:50 UTC+1
  *  
  *  @Description:
  *  
@@ -600,7 +600,7 @@ get_active_uniform :: proc (program : Program, index : uint) -> Uniform {
         buf : [1024]byte;
         out_len : u32;
         _get_active_uniform(program.id, u32(index), len(buf), &out_len, &size, &type_, cstring(&buf[0]));
-        name := strings.new_string(string(buf[..out_len]));
+        name := strings.new_string(string(buf[:out_len]));
         
         result := Uniform {
             get_uniform_location(program, name),
@@ -626,7 +626,7 @@ get_active_uniform_name :: proc(program : Program, index : uint) -> string {
         buf : [1024]byte;
         out_len : u32;
         _get_active_uniform_name(program.id, u32(index), len(buf), &out_len, cstring(&buf[0]));
-        str := string(buf[..out_len]);
+        str := string(buf[:out_len]);
         return strings.new_string(str);
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
@@ -643,7 +643,7 @@ get_active_attrib :: proc (program : Program, index : uint) -> Attrib {
         buf : [1024]byte;
         out_len : u32;
         _get_active_attrib(program.id, u32(index), len(buf), &out_len, &size, &type_, cstring(&buf[0]));
-        name := strings.new_string(string(buf[..out_len]));
+        name := strings.new_string(string(buf[:out_len]));
         
         result := Attrib {
             get_attrib_location(program, name),
@@ -754,7 +754,7 @@ shader_source :: proc[shader_source_str, shader_source_slice];
 shader_source_str :: proc(obj : Shader, str : string) {
     array : [1]string;
     array[0] = str;
-    shader_source(obj, array[..]);
+    shader_source(obj, array[:]);
 }
 
 shader_source_slice :: proc(obj : Shader, strs : []string) {
@@ -881,7 +881,30 @@ set_proc_address :: #type /*inline*/ proc(lib : rawptr, p: rawptr, name: string)
 load_library     :: #type proc(name : string) -> rawptr;
 free_library     :: #type proc(lib : rawptr);
 
-load_functions :: proc(set_proc : set_proc_address, load_lib : load_library, free_lib : free_library) {
+set_proc :: inline proc(lib_ : rawptr, p: rawptr, name: string) {
+    lib := sys.LibHandle(lib_);
+    res := sys.wgl_get_proc_address(name);
+    if res == nil {
+        res = sys.get_proc_address(lib, name);
+    }
+    if res == nil {
+        fmt.println("Couldn't load:", name);
+    }
+
+    (^rawptr)(p)^ = rawptr(res);
+}
+
+load_lib :: proc(str : string) -> rawptr {
+    return rawptr(sys.load_library(str));
+}
+
+free_lib :: proc(lib : rawptr) {
+    sys.free_library(sys.LibHandle(lib));
+}
+
+load_functions :: proc(set_proc : set_proc_address = set_proc, 
+                       load_lib : load_library = load_lib, 
+                       free_lib : free_library = free_lib) {
     lib := load_lib("opengl32.dll"); defer free_lib(lib);
     //TODO(Hoej): How??? 
     //debug_info.lib_address = int(rawptr(lib));

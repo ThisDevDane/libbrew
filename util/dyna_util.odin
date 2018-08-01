@@ -6,7 +6,7 @@
  *  @Creation: 28-11-2017 00:10:03 UTC-5
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 17:15:10 UTC+1
+ *  @Last Time: 01-08-2018 23:23:58 UTC+1
  *  
  *  @Description:
  *  
@@ -16,10 +16,10 @@ package brew_util;
 
 import "core:mem"
 
-remove :: inline proc(array: ^[dynamic]$T, indices: ...int) do remove_unordered(array, ...indices);
+remove :: inline proc(array: ^[dynamic]$T, indices: ..int) do remove_unordered(array, ..indices);
 
 // remove_unordered requires indices to be in order or it can fuck up big time
-remove_unordered :: proc(array: ^[dynamic]$T, indices: ...int) {
+remove_unordered :: proc(array: ^[dynamic]$T, indices: ..int) {
     assert(array != nil && len(array^) != 0);
 
     a := cast(^mem.Raw_Dynamic_Array) array;
@@ -37,7 +37,7 @@ remove_unordered :: proc(array: ^[dynamic]$T, indices: ...int) {
     }
 }
 
-remove_ordered :: proc(array: ^[dynamic]$T, indices: ...int) {
+remove_ordered :: proc(array: ^[dynamic]$T, indices: ..int) {
     assert(array != nil && len(array^) != 0);
 
     a := cast(^mem.Raw_Dynamic_Array) array;
@@ -55,13 +55,13 @@ remove_ordered :: proc(array: ^[dynamic]$T, indices: ...int) {
     }
 }
 
-remove_value :: proc(array: ^[dynamic]$T, values: ...T) {
+remove_value :: proc(array: ^[dynamic]$T, values: ..T) {
     assert(array != nil && len(array^) != 0);
 
     indices := make([]int, 0, len(values));
     defer free(indices);
 
-    for i in 0..len(array) {
+    for i in 0..len(array)-1 {
         for value in values {
             when T == any {
                 if array[i].data == value.data do append(&indices, i);
@@ -71,16 +71,16 @@ remove_value :: proc(array: ^[dynamic]$T, values: ...T) {
         }
     }
 
-    remove(array, ...indices);
+    remove(array, ..indices);
 }
 
-remove_value_ordered :: proc(array: ^[dynamic]$T, values: ...T) {
+remove_value_ordered :: proc(array: ^[dynamic]$T, values: ..T) {
     assert(array != nil && len(array^) != 0);
 
     indices := make([]int, 0, len(values));
     defer free(indices);
 
-    for i in 0..len(array) {
+    for i in 0..len(array)-1 {
         for value in values {
             when T == any {
                 if array[i].data == value.data do append(&indices, i);
@@ -90,7 +90,7 @@ remove_value_ordered :: proc(array: ^[dynamic]$T, values: ...T) {
         }
     }
 
-    remove_ordered(array, ...indices);
+    remove_ordered(array, ..indices);
 }
 
 pop_front :: inline proc(array: ^[dynamic]$T) -> T {
