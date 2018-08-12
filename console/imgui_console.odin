@@ -6,7 +6,7 @@
  *  @Creation: 10-05-2017 21:11:30
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 26-07-2018 22:27:49 UTC+1
+ *  @Last Time: 02-08-2018 22:56:42 UTC+1
  *  
  *  @Description:
  *      The console is an in engine window that can be pulled up for viewing.
@@ -71,47 +71,47 @@ _log_level_strings := []string{
 
 _error_callback : proc();
 
-logf :: proc(fmt_ : string, args : ...any, loc := #caller_location) {
+logf :: proc(fmt_ : string, args : ..any, loc := #caller_location) {
     data : [_BUF_SIZE]u8;
-    buf  := fmt.string_buffer_from_slice(data[..]);
-    str  := fmt.sbprintf(&buf, fmt_, ...args);   
+    buf  := fmt.string_buffer_from_slice(data[:]);
+    str  := fmt.sbprintf(&buf, fmt_, ..args);   
     _internal_log(LogLevel.Info, str, loc);
 }
 
-log :: proc(args : ...any, loc := #caller_location) {
+log :: proc(args : ..any, loc := #caller_location) {
     data : [_BUF_SIZE]u8;
-    buf  := fmt.string_buffer_from_slice(data[..]);
-    str  := fmt.sbprint(&buf, ...args);   
+    buf  := fmt.string_buffer_from_slice(data[:]);
+    str  := fmt.sbprint(&buf, ..args);   
     _internal_log(LogLevel.Info, str, loc);
 }
 
-logf_warning :: proc(fmt_ : string, args : ...any, loc := #caller_location) {
+logf_warning :: proc(fmt_ : string, args : ..any, loc := #caller_location) {
     data : [_BUF_SIZE]u8;
-    buf  := fmt.string_buffer_from_slice(data[..]);
-    str  := fmt.sbprintf(&buf, fmt_, ...args);   
+    buf  := fmt.string_buffer_from_slice(data[:]);
+    str  := fmt.sbprintf(&buf, fmt_, ..args);   
     _internal_log(LogLevel.Warning, str, loc);
 }
 
-log_warning :: proc(args : ...any, loc := #caller_location) {
+log_warning :: proc(args : ..any, loc := #caller_location) {
     data : [_BUF_SIZE]u8;
-    buf  := fmt.string_buffer_from_slice(data[..]);
-    str  := fmt.sbprint(&buf, ...args);   
+    buf  := fmt.string_buffer_from_slice(data[:]);
+    str  := fmt.sbprint(&buf, ..args);   
     _internal_log(LogLevel.Warning, str, loc);
 }
 
 
-logf_error :: proc(fmt_ : string, args : ...any, loc := #caller_location) {
+logf_error :: proc(fmt_ : string, args : ..any, loc := #caller_location) {
     buf  : [_BUF_SIZE]u8;
-    str := fmt.bprintf(buf[..], fmt_, ...args);   
+    str := fmt.bprintf(buf[:], fmt_, ..args);   
     _internal_log(LogLevel.Error, str, loc);
     if _error_callback != nil {
         _error_callback();
     }
 }
 
-log_error :: proc(args : ...any, loc := #caller_location) {
+log_error :: proc(args : ..any, loc := #caller_location) {
     buf  : [_BUF_SIZE]u8;
-    str := fmt.bprint(buf[..], ...args);   
+    str := fmt.bprint(buf[:], ..args);   
     _internal_log(LogLevel.Error, str, loc);
     if _error_callback != nil {
         _error_callback();
@@ -197,7 +197,7 @@ _update_log_file :: proc() {
     if len(_internal_data.log_file_name) <= 0 {
         st := _get_system_time();
         buf := make([]u8, 255);
-        _internal_data.log_file_name = fmt.bprintf(buf[..], "%d-%d-%d_%d%d%d.jlog", 
+        _internal_data.log_file_name = fmt.bprintf(buf[:], "%d-%d-%d_%d%d%d.jlog", 
                                                 st.day, st.month, st.year, 
                                                 st.hour, st.minute, st.second);
     }
@@ -206,7 +206,7 @@ _update_log_file :: proc() {
     os.seek(h, 0, 2);
     for log in _internal_data.log {
         buf : [_BUF_SIZE]u8;
-        str := fmt.bprintf(buf[..], "[%2d:%2d:%2d-%3d]%s %s\n", _log_level_strings[log.level],
+        str := fmt.bprintf(buf[:], "[%2d:%2d:%2d-%3d]%s %s\n", _log_level_strings[log.level],
                                                                log.time.hour,   log.time.minute, 
                                                                log.time.second, log.time.millisecond, 
                                                                log.text);
@@ -352,13 +352,13 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
         imgui.end_child();
 
         TEXT_FLAGS :: imgui.Input_Text_Flags.EnterReturnsTrue | imgui.Input_Text_Flags.CallbackCompletion | imgui.Input_Text_Flags.CallbackHistory;
-        if imgui.input_text("##Input", _internal_data.input_buf[..], TEXT_FLAGS, _text_edit_callback) {
+        if imgui.input_text("##Input", _internal_data.input_buf[:], TEXT_FLAGS, _text_edit_callback) {
             imgui.set_keyboard_focus_here(-1);
-            enter_input(_internal_data.input_buf[..]);
+            enter_input(_internal_data.input_buf[:]);
         }
         imgui.same_line(0, -1);
         if imgui.button("Enter", imgui.Vec2{-1, 0}) {
-            enter_input(_internal_data.input_buf[..]);
+            enter_input(_internal_data.input_buf[:]);
         }
         imgui.separator();
         imgui.text_colored(imgui.Vec4{1, 1, 1, 0.2}, "Current: %d | Log : %d | History: %d", len(_internal_data.current_log), 
@@ -371,8 +371,8 @@ draw_console :: proc(show : ^bool, show_log : ^bool, show_history : ^bool) {
 enter_input :: proc(input : []u8) {
     if input[0] != 0 &&
        input[0] != ' ' {
-        i := _find_string_null(input[..]);
-        str := string(input[0..i]);
+        i := _find_string_null(input[:]);
+        str := string(input[0:i]);
         _internal_log(LogLevel.ConsoleInput, str);
         append(&_internal_data.history, strings.new_string(str)); 
         if !execute_command(str) {
@@ -399,19 +399,19 @@ execute_command :: proc(cmdString : string) -> bool {
         //TODO(Hoej): Revisist all of this
         if len(cmdString) != len(name) {
             p := 0;
-            newStr := cmdString[len(name)+1..];
+            newStr := cmdString[len(name)+1:];
             for r, i in newStr {
                 if r == ' ' {
-                    append(&args, newStr[p..i]);
+                    append(&args, newStr[p:i]);
                     p = i+1;
                 }
 
                 if i == len(newStr)-1 {
-                    append(&args, newStr[p..i+1]);
+                    append(&args, newStr[p:i+1]);
                 }
             }
         }
-        cmd(args[..]);
+        cmd(args[:]);
         return true;
     }
     return false;

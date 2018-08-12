@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-08-2018 23:15:50 UTC+1
+ *  @Last Time: 07-08-2018 21:08:11 UTC+1
  *  
  *  @Description:
  *  
@@ -20,8 +20,6 @@ import "core:strings";
 import "core:math";
 
 import sys "shared:libbrew/sys";
-TRUE  :: 1;
-FALSE :: 0;
 
 // Types
 VAO          :: distinct u32;
@@ -174,7 +172,7 @@ gen_buffer :: proc() -> BufferObject {
 
 gen_buffers :: proc(n : i32) -> []BufferObject {
     if _gen_buffers != nil {
-        res := make([]BufferObject, n);
+        res := make([]BufferObject, int(n));
         _gen_buffers(n, cast(^u32)&res[0]);
         return res;
     } else {
@@ -226,7 +224,7 @@ gen_vertex_array :: proc() -> VAO {
 
 gen_vertex_arrays :: proc(count : i32) -> []VAO {
     if _gen_vertex_arrays != nil {
-        res := make([]VAO, count);
+        res := make([]VAO, int(count));
         _gen_vertex_arrays(count, (^u32)(&res[0]));
         return res;
     } else {
@@ -528,7 +526,7 @@ gen_texture :: proc() -> Texture {
 }
 
 gen_textures :: proc(count : i32) -> []Texture {
-    res := make([]Texture, count);
+    res := make([]Texture, int(count));
     _gen_textures(count, (^u32)(&res[0]));
     return res;
 }
@@ -572,7 +570,7 @@ get_shader_value :: proc(shader : Shader, name : GetShaderNames) -> i32 {
 get_shader_info_log :: proc(shader : Shader) -> string {
     if _get_shader_info_log != nil {
         logSize := get_shader_value(shader, GetShaderNames.InfoLogLength);
-        logBytes := make([]u8, logSize);
+        logBytes := make([]u8, int(logSize));
         _get_shader_info_log(u32(shader), logSize, &logSize, &logBytes[0]);
         return string(logBytes);
     } else {

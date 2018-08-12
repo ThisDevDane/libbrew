@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:25:48
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 15-06-2018 15:59:57 UTC+1
+ *  @Last Time: 05-08-2018 20:05:31 UTC+1
  *  
  *  @Description:
  *  
@@ -15,7 +15,6 @@
 package brew_sys;
 
 import "core:sys/win32";
-import consts "core:opengl"; 
 
 Attrib :: struct {
     type_  : i32,

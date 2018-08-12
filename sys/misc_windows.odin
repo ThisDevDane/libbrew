@@ -6,7 +6,7 @@
  *  @Creation: 01-06-2017 02:26:49
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-08-2018 23:10:55 UTC+1
+ *  @Last Time: 07-08-2018 21:07:58 UTC+1
  *  
  *  @Description:
  *  
@@ -172,7 +172,7 @@ filetime_to_datetime :: proc(ft : win32.Filetime) -> DateTime {
 odin_to_wchar_string :: proc(str : string) -> win32.Wstring {
     olen := i32(len(str) * size_of(byte));
     wlen := win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, cstring(&str[0]), olen, nil, 0);
-    buf := make([]u16, wlen * size_of(u16) + 1);
+    buf := make([]u16, int(wlen * size_of(u16) + 1));
     ptr := win32.Wstring(&buf[0]);
     win32.multi_byte_to_wide_char(win32.CP_UTF8, 0, cstring(&str[0]), olen, ptr, wlen);
 
@@ -184,7 +184,7 @@ wchar_to_odin_string :: proc(wc_str : win32.Wstring, wlen : i32 = -1) -> string 
                                           nil, 0, 
                                           nil, nil);
 
-    buf := make([]byte, olen);
+    buf := make([]byte, int(olen));
     win32.wide_char_to_multi_byte(win32.CP_UTF8, 0, wc_str, wlen, 
                                   cstring(&buf[0]), olen, 
                                   nil, nil);
