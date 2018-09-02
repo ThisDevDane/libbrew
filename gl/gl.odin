@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 17:40:33
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 07-08-2018 21:08:11 UTC+1
+ *  @Last Time: 02-09-2018 19:09:01 UTC+1
  *  
  *  @Description:
  *  
@@ -72,7 +72,7 @@ Opengl_Vars :: struct {
     wgl_extensions      : [dynamic]string,
 }
 
-DebugMessageCallbackProc :: proc "cdecl"(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : ^u8, userParam : rawptr);
+DebugMessageCallbackProc :: proc "cdecl"(source : DebugSource, type_ : DebugType, id : i32, severity : DebugSeverity, length : i32, message : cstring, userParam : rawptr);
 
 // API 
 
@@ -114,6 +114,27 @@ debug_message_callback :: proc(callback : DebugMessageCallbackProc, userParam : 
     } else {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }
+}
+
+clear_color :: proc[
+    clear_color_vec4,
+    gl_clear_color
+];
+
+clear_color_vec4 :: proc(color : math.Vec4) {
+    if _clear_color != nil {
+        _clear_color(color[0], color[1], color[2], color[3]);
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }  
+}
+
+gl_clear_color :: proc (red : f32, green : f32, blue : f32, alpha : f32) {
+    if _clear_color != nil {
+        _clear_color(red, green, blue, alpha);
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }     
 }
 
 
@@ -256,7 +277,6 @@ vertex_attrib_pointer_v :: proc(index : i32, size : int, type_ : VertexAttribDat
     }       
 }
 
-
 bind_vertex_array :: proc(buffer : VAO) {
     if _bind_vertex_array != nil {
         _bind_vertex_array(u32(buffer));
@@ -264,6 +284,15 @@ bind_vertex_array :: proc(buffer : VAO) {
         fmt.printf("%s isn't loaded! \n", #procedure);
     }    
 }
+delete_vertex_array :: proc(buffer : ^VAO) {
+    if _delete_vertex_arrays != nil {
+        _delete_vertex_arrays(1, cast(^u32)buffer);
+    } else {
+        fmt.printf("%s isn't loaded! \n", #procedure);
+    }      
+}
+
+
 
 uniform :: proc[uniform1i_u,
                 uniform1i_v, 
@@ -805,6 +834,7 @@ delete_shader :: proc(obj : Shader) {
     _enable_vertex_attrib_array : proc "c"(index: u32);
     _vertex_attrib_pointer      : proc "c"(index: u32, size: i32, type_: i32, normalized: bool, stride: u32, pointer: rawptr);
     _bind_vertex_array          : proc "c"(buffer: u32);
+    _delete_vertex_arrays       : proc "c"(n: i32, buffer : ^u32);
     _uniform1i                  : proc "c"(loc : i32, v0: i32);
     _uniform2i                  : proc "c"(loc : i32, v0 : i32, v1 : i32);
     _uniform3i                  : proc "c"(loc : i32, v0 : i32, v1, v2 : i32);
@@ -855,7 +885,7 @@ delete_shader :: proc(obj : Shader) {
      
     viewport                    : proc "c"(x : i32, y : i32, width : i32, height : i32);
     scissor                     : proc "c"(x : i32, y : i32, width : i32, height : i32);
-    clear_color                 : proc "c"(red : f32, green : f32, blue : f32, alpha : f32);
+    _clear_color                 : proc "c"(red : f32, green : f32, blue : f32, alpha : f32);
 
 get_info :: proc(vars : ^Opengl_Vars) {
     vars.version_major_cur =   get_integer(GetIntegerNames.MajorVersion);
@@ -910,6 +940,7 @@ load_functions :: proc(set_proc : set_proc_address = set_proc,
     set_proc(lib, &_draw_elements,              "glDrawElements"           );
     set_proc(lib, &_draw_arrays,                "glDrawArrays"             );
     set_proc(lib, &_bind_vertex_array,          "glBindVertexArray"        );
+    set_proc(lib, &_delete_vertex_arrays,       "glDeleteVertexArrays"     );
     set_proc(lib, &_vertex_attrib_pointer,      "glVertexAttribPointer"    );
     set_proc(lib, &_enable_vertex_attrib_array, "glEnableVertexAttribArray");
     set_proc(lib, &_gen_vertex_arrays,          "glGenVertexArrays"        );
@@ -962,6 +993,6 @@ load_functions :: proc(set_proc : set_proc_address = set_proc,
     set_proc(lib, &_disable,                    "glDisable"                );
     set_proc(lib, &_clear,                      "glClear"                  );
     set_proc(lib, &viewport,                    "glViewport"               );
-    set_proc(lib, &clear_color,                 "glClearColor"             );
+    set_proc(lib, &_clear_color,                "glClearColor"             );
     set_proc(lib, &scissor,                     "glScissor"                );
 }

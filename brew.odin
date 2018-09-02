@@ -6,12 +6,14 @@
  *  @Creation: 01-08-2018 23:30:42 UTC+1
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 02-08-2018 00:54:49 UTC+1
+ *  @Last Time: 26-08-2018 20:28:45 UTC+1
  *  
  *  @Description:
  *  
  */
 package brew
+
+import "core:math";
 
 import sys    "shared:libbrew/sys";
 import        "shared:libbrew/gl";
@@ -29,17 +31,20 @@ Simple_Window :: struct {
     running    : bool,
     shift_down : bool,
 
-    time_data : sys.TimeData
+    time_data : sys.TimeData,
+
+    clear_color : math.Vec4
 }
 
-create_simple_window :: proc(title : string) -> ^Simple_Window {
+create_simple_window :: proc(title : string, width := 1280, height := 720) -> ^Simple_Window {
     result      := new(Simple_Window);
     result.app   = sys.get_app_handle();
-    result.wnd   = sys.create_window(result.app, title, 1280, 720);
+    result.wnd   = sys.create_window(result.app, title, width, height);
     result.glctx = sys.create_gl_context(result.wnd, 4, 5);
 
     gl.load_functions();
-    gl.clear_color(0.10, 0.10, 0.10, 1);
+    result.clear_color = {0.10, 0.10, 0.10, 1};
+    gl.clear_color(result.clear_color);
 
     brew_imgui.init(&result.dear_state, result.wnd, brew_imgui.brew_style, true);
 
@@ -48,6 +53,11 @@ create_simple_window :: proc(title : string) -> ^Simple_Window {
     result.time_data  = sys.create_time_data();
 
     return result;  
+}
+
+set_clear_color :: proc(wnd : ^Simple_Window, color : math.Vec4) {
+    wnd.clear_color = color;
+    gl.clear_color(wnd.clear_color);
 }
 
 is_app_running :: proc(wnd : ^Simple_Window) -> bool {
@@ -98,7 +108,7 @@ simple_new_frame :: proc(using simple_wnd: ^Simple_Window) {
     }
 
     dt := sys.time(&time_data);
-    new_frame_state.deltatime     = f32(dt);
+    new_frame_state.deltatime = f32(dt);
     gl.clear(gl.ClearFlags.COLOR_BUFFER | gl.ClearFlags.DEPTH_BUFFER);
     brew_imgui.begin_new_frame(&new_frame_state);
 }

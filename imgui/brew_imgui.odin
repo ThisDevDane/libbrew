@@ -6,7 +6,7 @@
  *  @Creation: 10-06-2017 18:33:45
  *
  *  @Last By:   Mikkel Hjortshoej
- *  @Last Time: 01-08-2018 23:22:47 UTC+1
+ *  @Last Time: 02-09-2018 19:05:35 UTC+1
  *  
  *  @Description:
  *  
@@ -36,7 +36,6 @@ State :: struct {
     main_program      : gl.Program,
     vbo_handle        : gl.VBO,
     ebo_handle        : gl.EBO,
-    vao_handle        : gl.VAO,
 }
 
 FrameState :: struct {
@@ -72,33 +71,34 @@ brew_style :: proc() {
     style.window_title_align = imgui.Vec2{0.48, 0.5};
     style.button_text_align = imgui.Vec2{0.5, 0.5};
 
-    style.colors[imgui.Color.Text]                  = imgui.Vec4{1.00, 1.00, 1.00, 1.00};
-    style.colors[imgui.Color.TextDisabled]          = imgui.Vec4{0.63, 0.63, 0.63, 1.00};
-    style.colors[imgui.Color.WindowBg]              = imgui.Vec4{0.23, 0.23, 0.23, 0.98};
-    style.colors[imgui.Color.ChildBg]               = imgui.Vec4{0.20, 0.20, 0.20, 1.00};
-    style.colors[imgui.Color.PopupBg]               = imgui.Vec4{0.25, 0.25, 0.25, 0.96};
-    style.colors[imgui.Color.Border]                = imgui.Vec4{0.18, 0.18, 0.18, 0.98};
-    style.colors[imgui.Color.BorderShadow]          = imgui.Vec4{0.00, 0.00, 0.00, 0.04};
-    style.colors[imgui.Color.FrameBg]               = imgui.Vec4{0.00, 0.00, 0.00, 0.29};
-    style.colors[imgui.Color.TitleBg]               = imgui.Vec4{0.25, 0.25, 0.25, 0.98};
-    style.colors[imgui.Color.TitleBgCollapsed]      = imgui.Vec4{0.12, 0.12, 0.12, 0.49};
-    style.colors[imgui.Color.TitleBgActive]         = imgui.Vec4{0.33, 0.33, 0.33, 0.98};
-    style.colors[imgui.Color.MenuBarBg]             = imgui.Vec4{0.11, 0.11, 0.11, 0.42};
-    style.colors[imgui.Color.ScrollbarBg]           = imgui.Vec4{0.00, 0.00, 0.00, 0.08};
-    style.colors[imgui.Color.ScrollbarGrab]         = imgui.Vec4{0.27, 0.27, 0.27, 1.00};
-    style.colors[imgui.Color.ScrollbarGrabHovered]  = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
-    style.colors[imgui.Color.CheckMark]             = imgui.Vec4{0.78, 0.78, 0.78, 0.94};
-    style.colors[imgui.Color.SliderGrab]            = imgui.Vec4{0.78, 0.78, 0.78, 0.94};
-    style.colors[imgui.Color.Button]                = imgui.Vec4{0.42, 0.42, 0.42, 0.60};
-    style.colors[imgui.Color.ButtonHovered]         = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
-    style.colors[imgui.Color.Header]                = imgui.Vec4{0.31, 0.31, 0.31, 0.98};
-    style.colors[imgui.Color.HeaderHovered]         = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
-    style.colors[imgui.Color.HeaderActive]          = imgui.Vec4{0.80, 0.50, 0.50, 1.00};
-    style.colors[imgui.Color.TextSelectedBg]        = imgui.Vec4{0.65, 0.35, 0.35, 0.26};
-    style.colors[imgui.Color.ModalWindowDarkening]  = imgui.Vec4{0.20, 0.20, 0.20, 0.35}; 
+    style.colors[imgui.Style_Color.Text]                  = imgui.Vec4{1.00, 1.00, 1.00, 1.00};
+    style.colors[imgui.Style_Color.TextDisabled]          = imgui.Vec4{0.63, 0.63, 0.63, 1.00};
+    style.colors[imgui.Style_Color.WindowBg]              = imgui.Vec4{0.23, 0.23, 0.23, 0.98};
+    style.colors[imgui.Style_Color.ChildBg]               = imgui.Vec4{0.20, 0.20, 0.20, 1.00};
+    style.colors[imgui.Style_Color.PopupBg]               = imgui.Vec4{0.25, 0.25, 0.25, 0.96};
+    style.colors[imgui.Style_Color.Border]                = imgui.Vec4{0.18, 0.18, 0.18, 0.98};
+    style.colors[imgui.Style_Color.BorderShadow]          = imgui.Vec4{0.00, 0.00, 0.00, 0.04};
+    style.colors[imgui.Style_Color.FrameBg]               = imgui.Vec4{0.00, 0.00, 0.00, 0.29};
+    style.colors[imgui.Style_Color.TitleBg]               = imgui.Vec4{0.25, 0.25, 0.25, 0.98};
+    style.colors[imgui.Style_Color.TitleBgCollapsed]      = imgui.Vec4{0.12, 0.12, 0.12, 0.49};
+    style.colors[imgui.Style_Color.TitleBgActive]         = imgui.Vec4{0.33, 0.33, 0.33, 0.98};
+    style.colors[imgui.Style_Color.MenuBarBg]             = imgui.Vec4{0.11, 0.11, 0.11, 0.42};
+    style.colors[imgui.Style_Color.ScrollbarBg]           = imgui.Vec4{0.00, 0.00, 0.00, 0.08};
+    style.colors[imgui.Style_Color.ScrollbarGrab]         = imgui.Vec4{0.27, 0.27, 0.27, 1.00};
+    style.colors[imgui.Style_Color.ScrollbarGrabHovered]  = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
+    style.colors[imgui.Style_Color.CheckMark]             = imgui.Vec4{0.78, 0.78, 0.78, 0.94};
+    style.colors[imgui.Style_Color.SliderGrab]            = imgui.Vec4{0.78, 0.78, 0.78, 0.94};
+    style.colors[imgui.Style_Color.Button]                = imgui.Vec4{0.42, 0.42, 0.42, 0.60};
+    style.colors[imgui.Style_Color.ButtonHovered]         = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
+    style.colors[imgui.Style_Color.Header]                = imgui.Vec4{0.31, 0.31, 0.31, 0.98};
+    style.colors[imgui.Style_Color.HeaderHovered]         = imgui.Vec4{0.78, 0.78, 0.78, 0.40};
+    style.colors[imgui.Style_Color.HeaderActive]          = imgui.Vec4{0.80, 0.50, 0.50, 1.00};
+    style.colors[imgui.Style_Color.TextSelectedBg]        = imgui.Vec4{0.65, 0.35, 0.35, 0.26};
+    style.colors[imgui.Style_Color.ModalWindowDimBg]      = imgui.Vec4{0.20, 0.20, 0.20, 0.35}; 
 }
 
 init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = nil, custom_font := false) {
+    imgui.create_context();
     io := imgui.get_io();
     io.ime_window_handle = wnd_handle;
 
@@ -123,7 +123,7 @@ init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = n
     io.key_map[imgui.Key.Z]          = i32(sys.VirtualKey.Z);
     
     vertexShaderString ::
-        `#version 330
+        `#version 130
         uniform mat4 ProjMtx;
         in vec2 Position;
         in vec2 UV;
@@ -138,7 +138,7 @@ init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = n
         }`;
 
     fragmentShaderString :: 
-        `#version 330
+        `#version 130
         uniform sampler2D Texture;
         in vec2 Frag_UV;
         in vec4 Frag_Color;
@@ -171,21 +171,11 @@ init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = n
 
     state.vbo_handle = gl.VBO(gl.gen_buffer());
     state.ebo_handle = gl.EBO(gl.gen_buffer());
-    state.vao_handle = gl.gen_vertex_array();
     gl.bind_buffer(state.vbo_handle);
     gl.bind_buffer(state.ebo_handle);
-    gl.bind_vertex_array(state.vao_handle);
-
-    gl.enable_vertex_attrib_array(state.main_program.attributes["Position"]);
-    gl.enable_vertex_attrib_array(state.main_program.attributes["UV"]);
-    gl.enable_vertex_attrib_array(state.main_program.attributes["Color"]);
-
-    gl.vertex_attrib_pointer(state.main_program.attributes["Position"],   2, gl.VertexAttribDataType.Float, false, size_of(imgui.DrawVert), offset_of(imgui.DrawVert, pos));
-    gl.vertex_attrib_pointer(state.main_program.attributes["UV"],         2, gl.VertexAttribDataType.Float, false, size_of(imgui.DrawVert), offset_of(imgui.DrawVert, uv));
-    gl.vertex_attrib_pointer(state.main_program.attributes["Color"],      4, gl.VertexAttribDataType.UByte, true,  size_of(imgui.DrawVert), offset_of(imgui.DrawVert, col));
 
     
-    //TODO(Hoej): Get from font catalog
+/*    //TODO(Hoej): Get from font catalog
     if custom_font {
         default_font = imgui.font_atlas_add_font_from_file_ttf(io.fonts, "data/fonts/Roboto-Medium.ttf", 14);
         if default_font == nil {
@@ -210,13 +200,14 @@ init :: proc(state : ^State, wnd_handle : sys.WndHandle, style_proc : proc() = n
         default_font = imgui.font_atlas_add_font_default(io.fonts, &conf);
         mono_font = default_font;
     }
-
+*/
     pixels : ^u8;
-    width : i32;
-    height : i32;
+    width, height : i32;
     imgui.font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height);
+    
     tex := gl.gen_texture();
     gl.bind_texture(gl.TextureTargets.Texture2D, tex);
+    
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MinFilter, gl.TextureParametersValues.Linear);
     gl.tex_parameteri(gl.TextureTargets.Texture2D, gl.TextureParameters.MagFilter, gl.TextureParametersValues.Linear);
     gl.tex_image2d(gl.TextureTargets.Texture2D, 0, gl.InternalColorFormat.RGBA, 
@@ -277,18 +268,14 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
         return;
     } 
     data := imgui.get_draw_data();
-
     io := imgui.get_io();
-    
-   /* io.display_size.x = f32(window_width);
-    io.display_size.y = f32(window_height);
-*/
-    width  := i32(io.display_size.x * io.display_framebuffer_scale.x);
-    height := i32(io.display_size.y * io.display_framebuffer_scale.y);
+
+    width  := i32(data.display_size.x * io.display_framebuffer_scale.x);
+    height := i32(data.display_size.y * io.display_framebuffer_scale.y);
     if height == 0 || width == 0 {
         return;
     }
-    //draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+    imgui.draw_data_scale_clip_rects(data, io.display_framebuffer_scale);
 
     //@TODO(Hoej): BACKUP STATE!
     lastViewport : [4]i32;
@@ -308,42 +295,89 @@ render_proc :: proc(state : ^State, render_to_screen : bool, window_width, windo
     gl.disable(gl.Capabilities.CullFace);
     gl.disable(gl.Capabilities.DepthTest);
     gl.enable(gl.Capabilities.ScissorTest);
-    gl.active_texture(gl.TextureUnits.Texture0);
     gl.polygon_mode(gl.PolygonFace.FrontAndBack, gl.PolygonModes.Fill);
 
     gl.viewport(0, 0, width, height);
+    L : f32 = data.display_pos.x;
+    R : f32 = data.display_pos.x + data.display_size.x;
+    T : f32 = data.display_pos.y;
+    B : f32 = data.display_pos.y + data.display_size.y;
     ortho_projection := math.Mat4
     {
-        { 2.0 / io.display_size.x,   0.0,                        0.0,    0.0 },
-        { 0.0,                      2.0 / -io.display_size.y,    0.0,    0.0 },
-        { 0.0,                      0.0,                        -1.0,   0.0 },
-        { -1.0,                     1.0,                        0.0,    1.0 },
+        { 2.0/(R-L),   0.0,          0.0, 0.0 },
+        { 0.0,         2.0 / (T-B),  0.0, 0.0 },
+        { 0.0,         0.0,         -1.0, 0.0 },
+        { (R+L)/(L-R), (T+B)/(B-T),  0.0, 1.0 },
     };
 
-    gl.bind_vertex_array(state.vao_handle);
     gl.use_program(state.main_program);
     gl.uniform(&state.main_program, "Texture", i32(0));
     gl.uniform(&state.main_program, "ProjMtx", ortho_projection, false);
+
+    vao_handle := gl.gen_vertex_array();
+    gl.bind_vertex_array(vao_handle);
+    gl.bind_buffer(state.vbo_handle);
+
+    gl.enable_vertex_attrib_array(state.main_program.attributes["Position"]);
+    gl.enable_vertex_attrib_array(state.main_program.attributes["UV"]);
+    gl.enable_vertex_attrib_array(state.main_program.attributes["Color"]);
+
+    gl.vertex_attrib_pointer(state.main_program.attributes["Position"],   2, gl.VertexAttribDataType.Float, false, size_of(imgui.DrawVert), offset_of(imgui.DrawVert, pos));
+    gl.vertex_attrib_pointer(state.main_program.attributes["UV"],         2, gl.VertexAttribDataType.Float, false, size_of(imgui.DrawVert), offset_of(imgui.DrawVert, uv));
+    gl.vertex_attrib_pointer(state.main_program.attributes["Color"],      4, gl.VertexAttribDataType.UByte, true,  size_of(imgui.DrawVert), offset_of(imgui.DrawVert, col));
 
     new_list := mem.slice_ptr(data.cmd_lists, int(data.cmd_lists_count));
     for list in new_list {
         idx_buffer_offset : ^imgui.DrawIdx = nil;
 
         gl.bind_buffer(state.vbo_handle);
-        gl.buffer_data(gl.BufferTargets.Array, i32(imgui.draw_list_get_vertex_buffer_size(list) * size_of(imgui.DrawVert)), imgui.draw_list_get_vertex_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
+        gl.buffer_data(gl.BufferTargets.Array, 
+                       list.vtx_buffer.size * size_of(imgui.DrawVert), 
+                       list.vtx_buffer.data, 
+                       gl.BufferDataUsage.StreamDraw);
 
         gl.bind_buffer(state.ebo_handle);
-        gl.buffer_data(gl.BufferTargets.ElementArray, i32(imgui.draw_list_get_index_buffer_size(list) * size_of(imgui.DrawIdx)), imgui.draw_list_get_index_ptr(list, 0), gl.BufferDataUsage.StreamDraw);
+        gl.buffer_data(gl.BufferTargets.ElementArray, 
+                       list.idx_buffer.size * size_of(imgui.DrawIdx), 
+                       list.idx_buffer.data, 
+                       gl.BufferDataUsage.StreamDraw);
 
-        for j : i32 = 0; j < imgui.draw_list_get_cmd_size(list); j += 1 {
-            cmd := imgui.draw_list_get_cmd_ptr(list, j);
-            gl.bind_texture(gl.TextureTargets.Texture2D, gl.Texture(uint(uintptr(cmd.texture_id))));
-            gl.scissor(i32(cmd.clip_rect.x), height - i32(cmd.clip_rect.w), i32(cmd.clip_rect.z - cmd.clip_rect.x), i32(cmd.clip_rect.w - cmd.clip_rect.y));
-            gl.draw_elements(gl.DrawModes.Triangles, int(cmd.elem_count), gl.DrawElementsType.UShort, idx_buffer_offset);
-            //idx_buffer_offset += cmd.elem_count;
+
+        pos := data.display_pos;
+        cmds := mem.slice_ptr(list.cmd_buffer.data,  int(list.cmd_buffer.size));
+        for cmd, idx in cmds {
+            if cmd.user_callback != nil {
+                cmd.user_callback(list, &cmds[idx]);
+            } else {
+                clip := imgui.Vec4{
+                    cmd.clip_rect.x - pos.x,
+                    cmd.clip_rect.y - pos.y,
+                    cmd.clip_rect.z - pos.x,
+                    cmd.clip_rect.w - pos.y,
+                };
+
+                if clip.x < f32(width) && clip.y < f32(height) && clip.z >= 0 && clip.w >= 0 {
+                    gl.scissor(
+                        i32(clip.x), 
+                        height - i32(clip.w), 
+                        i32(clip.z - clip.x), 
+                        i32(clip.w - clip.y)
+                    );
+                    
+                    gl.bind_texture(gl.TextureTargets.Texture2D, gl.Texture(uint(uintptr(cmd.texture_id))));
+                    gl.draw_elements(gl.DrawModes.Triangles, 
+                                     int(cmd.elem_count), 
+                                     gl.DrawElementsType.UShort, 
+                                     idx_buffer_offset);
+                }
+            }
+
             idx_buffer_offset = mem.ptr_offset(idx_buffer_offset, int(cmd.elem_count));
+
         }
     }
+
+    gl.delete_vertex_array(&vao_handle);
 
     //TODO: Restore state
 
